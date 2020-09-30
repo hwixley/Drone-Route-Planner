@@ -195,51 +195,55 @@ public class App
     		}
     		//Close the buffered reader
     		br2.close();
-    		
-    		
-    		//Parse the no fly zone data
-    		File noflyzoneFilePath = new File(wsPath + "buildings/no-fly-zones.geojson");
-    		BufferedReader br3 = new BufferedReader(new FileReader(noflyzoneFilePath));
-    		
-    		//ArrayList to store building polygons
-    		ArrayList<Building> buildings = new ArrayList<Building>();
-    		
-    		
-    		//Iterate through the '/buildings/no-fly-zones.geojson' file
-    		String buildingsLine;
-    		Building building = new Building();
-    		Point polyPoint = new Point();
-    		Boolean buildingComplete = false;
-    		while ((buildingsLine = br3.readLine()) != null) {
-
-    			if (buildingsLine.indexOf("name") != -1) {
-    				building.name = buildingsLine.substring(buildingsLine.indexOf(":") + 3, buildingsLine.length() - 2);
-    				buildingComplete = false;
-    				
-    			} else if (buildingsLine.indexOf("fill") != -1) {
-    				building.fill = buildingsLine.substring(buildingsLine.indexOf(":") + 3, buildingsLine.length() - 1);
-    				
-    			} else if ((buildingsLine.indexOf("-3.") != -1)) {// && (buildingsLine.indexOf(".") != -1)) {
-    				polyPoint.lng = Double.parseDouble(buildingsLine.substring(buildingsLine.indexOf("-"), buildingsLine.length() -1));
-    				
-    			} else if (buildingsLine.indexOf("55.") != -1) {
-    				polyPoint.lat = Double.parseDouble(buildingsLine.substring(buildingsLine.indexOf("55."), buildingsLine.length()));
-    				building.points.add(new Point(polyPoint));
-    				
-    			} else if ((buildingsLine.indexOf("]") != -1) && (buildingsLine.indexOf("],") == -1) && !buildingComplete) {
-    				buildings.add(new Building(building));
-    				building.points.clear();
-    				buildingComplete = true;
-    				System.out.println(building.name);
-    				System.out.println(buildingsLine);
-    			}
-    		}
-    		//Close the BufferedReader
-    		br3.close();
-    		
-    		for (int k = 0; k < buildings.size(); k++) {
-    			//System.out.println(buildings.get(k).name);
-    		}
         }
+        
+        
+		//Parse the no fly zone data
+		File noflyzoneFilePath = new File(wsPath + "buildings/no-fly-zones.geojson");
+		BufferedReader br3 = new BufferedReader(new FileReader(noflyzoneFilePath));
+		
+		//ArrayList to store building polygons
+		ArrayList<Building> buildings = new ArrayList<Building>();
+		
+		
+		//Iterate through the '/buildings/no-fly-zones.geojson' file
+		String buildingsLine;
+		Building building = new Building();
+		Point polyPoint = new Point();
+		Boolean buildingComplete = false;
+		while ((buildingsLine = br3.readLine()) != null) {
+			
+			//Check if line contains name property
+			if (buildingsLine.indexOf("name") != -1) {
+				building.name = buildingsLine.substring(buildingsLine.indexOf(":") + 3, buildingsLine.length() - 2);
+				buildingComplete = false;
+			
+			//Check if line contains fill property
+			} else if (buildingsLine.indexOf("fill") != -1) {
+				building.fill = buildingsLine.substring(buildingsLine.indexOf(":") + 3, buildingsLine.length() - 1);
+			
+			//Check if line contains longitude
+			} else if ((buildingsLine.indexOf("-3.") != -1)) {
+				polyPoint.lng = Double.parseDouble(buildingsLine.substring(buildingsLine.indexOf("-"), buildingsLine.length() -1));
+				
+			//Check if line contains latitude
+			} else if (buildingsLine.indexOf("55.") != -1) {
+				polyPoint.lat = Double.parseDouble(buildingsLine.substring(buildingsLine.indexOf("55."), buildingsLine.length()));
+				building.points.add(new Point(polyPoint));
+			
+			//Check if line contains a closing square bracket (indicates end of a given polygon)
+			} else if ((buildingsLine.indexOf("]") != -1) && (buildingsLine.indexOf("],") == -1) && !buildingComplete) {
+				building.points = (ArrayList<Point>) building.points.clone();
+				buildings.add(new Building(building));
+				building.points.clear();
+				buildingComplete = true;
+			}
+		}
+		//Close the BufferedReader
+		br3.close();
+		
+		for (int k = 0; k < buildings.size(); k++) {
+			System.out.println(buildings.get(k).points.size());
+		}
     }
 }
