@@ -126,7 +126,13 @@ public class App
         		} else if (sensorIndex == 1) {
         			sens.battery = Double.parseDouble(data);
         		} else if (sensorIndex == 2) {
-        			sens.reading = Double.parseDouble(data);
+        			
+        			//If the battery is below 10% then set the sensor reading to NaN
+        			if (sens.battery < 10) {
+        				sens.reading = Double.NaN;
+        			} else {
+        				sens.reading = Double.parseDouble(data);
+        			}
         		}
         		
         		sensorIndex += 1;
@@ -193,7 +199,11 @@ public class App
     		File noflyzoneFilePath = new File(wsPath + "buildings/no-fly-zones.geojson");
     		BufferedReader br3 = new BufferedReader(new FileReader(noflyzoneFilePath));
     		
+    		//Iterate through the '/buildings/no-fly-zones.geojson' file
     		String buildingsLine;
+    		while ((buildingsLine = br3.readLine()) != null) {
+    			
+    		}
         }
     }
 }
