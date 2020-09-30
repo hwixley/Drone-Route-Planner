@@ -18,7 +18,7 @@ public class App
     private static final double minLng = -3.192473;
     
     //*TEMPORARY; local webserver directory path
-    private static final String wsPath = "/home/hwixley/Documents/Year3/ILP/WebServer/maps/";
+    private static final String wsPath = "/home/hwixley/Documents/Year3/ILP/WebServer/";
     
     //Custom Sensor object
     private static class Sensor {
@@ -46,6 +46,14 @@ public class App
     private static class Point {
     	Double lat = -1.0;
     	Double lng = -1.0;
+    	
+    	public Point(Point another) {
+    		this.lat = another.lat;
+    		this.lng = another.lng;
+    	}
+    	
+    	public Point() {
+    	}
     }
 	
     public static void main( String[] args ) throws IOException
@@ -59,7 +67,7 @@ public class App
         int randomSeed = Integer.parseInt(args[5]);
         String portNumber  = args[6];
         
-        String mapsFilePath = wsPath + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json";
+        String mapsFilePath = wsPath + "maps/" + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json";
         
         
     	//Read the '/YYYY/MM/DD/air-quality-data.json' file using BufferedReader
@@ -113,7 +121,7 @@ public class App
         //Close the buffered reader
         br.close();
         
-        
+        //Get swPoint and nePoint for the given w3w location
         for (int i = 0; i < sensors.size(); i++) {
         	Sensor s = sensors.get(i);
         	
@@ -124,17 +132,42 @@ public class App
 			String w3 = w3w.substring(w3w.indexOf(".") + 1);
 			
 			w3w = w1 + "/" + w2 + "/" + w3 + "/details.json";
+			System.out.println(w3w);
         	
         	//Read the '/YYYY/MM/DD/details.json' file using BufferedReader
-            File w3wFile = new File(wsPath + w3w);
-    		BufferedReader br2 = new BufferedReader(new FileReader(mapsFile));
+            File w3wFile = new File(wsPath + "words/" + w3w);
+    		BufferedReader br2 = new BufferedReader(new FileReader(w3wFile));
     		
     		//Loop through file
     		String w3wLine;
     		Point point = new Point();
-    		while ((w3wLine = br.readLine()) != null) {
+    		Integer stage = -20;
+    		while ((w3wLine = br2.readLine()) != null) {
     			
+    			if (w3wLine.indexOf("southwest") != -1) {
+    				stage = 1;
+    			} else if (w3wLine.indexOf("northeast") != -1) {
+    				stage = 4;
+    			}
+    			
+    			//Parse the latitude and longitude values into doubles, and pass these into our 'point' object
+    			if ((stage == 2) || (stage == 5)) {
+    				point.lng = Double.parseDouble(w3wLine.substring(w3wLine.indexOf(":") + 1, w3wLine.length() - 1));
+    			} else if ((stage == 3) || (stage == 6)) {
+    				point.lat = Double.parseDouble(w3wLine.substring(w3wLine.indexOf(":") + 1, w3wLine.length()));
+    			}
+    			
+    			//Pass the given Point object 'point' to the Sensor object 's'
+    			if (stage == 3) {
+    				s.swPoint = new Point(point);
+    			} else if (stage == 6) {
+    				s.nePoint = new Point(point);
+    			}
+    			
+    			stage += 1;
     		}
+    		//Close the buffered reader
+    		br2.close();
         }
     }
 }
