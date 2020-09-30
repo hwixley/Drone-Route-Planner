@@ -218,6 +218,7 @@ public class App
 			if (buildingsLine.indexOf("name") != -1) {
 				building.name = buildingsLine.substring(buildingsLine.indexOf(":") + 3, buildingsLine.length() - 2);
 				buildingComplete = false;
+				building.points = new ArrayList<Point>();
 			
 			//Check if line contains fill property
 			} else if (buildingsLine.indexOf("fill") != -1) {
@@ -234,11 +235,7 @@ public class App
 			
 			//Check if line contains a closing square bracket (indicates end of a given polygon)
 			} else if ((buildingsLine.indexOf("]") != -1) && (buildingsLine.indexOf("],") == -1) && !buildingComplete) {
-				building.points = (ArrayList<Point>) building.points.clone();
-				System.out.println(building.name);
-				System.out.println(building.points.size());
 				buildings.add(new Building(building));
-				building.points.clear();
 				buildingComplete = true;
 			}
 		}
