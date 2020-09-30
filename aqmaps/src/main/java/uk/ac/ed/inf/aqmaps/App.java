@@ -97,6 +97,7 @@ public class App
         //Create ArrayList to store the data for the 33 sensors from the '/YYYY/MM/DD/air-quality-data.json' file
         ArrayList<Sensor> sensors = new ArrayList<Sensor>();
         
+        
         //Iterate through the lines of the '/YYYY/MM/DD/air-quality-data.json' file and store them as Sensors in the 'sensors' ArrayList
         String line;
         Boolean newSensor = true;
@@ -146,6 +147,7 @@ public class App
         }
         //Close the buffered reader
         br.close();
+        
         
         //Get swPoint and nePoint for the given w3w location
         for (int i = 0; i < sensors.size(); i++) {
@@ -198,6 +200,7 @@ public class App
     		//Parse the no fly zone data
     		File noflyzoneFilePath = new File(wsPath + "buildings/no-fly-zones.geojson");
     		BufferedReader br3 = new BufferedReader(new FileReader(noflyzoneFilePath));
+    		
     		
     		//Iterate through the '/buildings/no-fly-zones.geojson' file
     		String buildingsLine;
