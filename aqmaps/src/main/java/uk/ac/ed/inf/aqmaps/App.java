@@ -17,6 +17,9 @@ public class App
     private static final double maxLng = -3.184319;
     private static final double minLng = -3.192473;
     
+    //*TEMPORARY; local webserver directory path
+    private static final String wsPath = "/home/hwixley/Documents/Year3/ILP/WebServer/maps/";
+    
     //Custom Sensor object
     private static class Sensor {
     	String location;
@@ -56,7 +59,7 @@ public class App
         int randomSeed = Integer.parseInt(args[5]);
         String portNumber  = args[6];
         
-        String mapsFilePath = "/home/hwixley/Documents/Year3/ILP/WebServer/maps/" + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json";
+        String mapsFilePath = wsPath + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json";
         
         
     	//Read the '/YYYY/MM/DD/air-quality-data.json' file using BufferedReader
@@ -120,12 +123,18 @@ public class App
 			String w2 = w3w.substring(0, w3w.indexOf("."));
 			String w3 = w3w.substring(w3w.indexOf(".") + 1);
 			
-			w3w = "/" + w1 + "/" + w2 + "/" + w3 + "/details.json";
-			System.out.println(w3w);
+			w3w = w1 + "/" + w2 + "/" + w3 + "/details.json";
         	
         	//Read the '/YYYY/MM/DD/details.json' file using BufferedReader
-            //File mapsFile = new File(mapsFilePath);
-    		//BufferedReader br = new BufferedReader(new FileReader(mapsFile));
+            File w3wFile = new File(wsPath + w3w);
+    		BufferedReader br2 = new BufferedReader(new FileReader(mapsFile));
+    		
+    		//Loop through file
+    		String w3wLine;
+    		Point point = new Point();
+    		while ((w3wLine = br.readLine()) != null) {
+    			
+    		}
         }
     }
 }
