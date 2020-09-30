@@ -28,7 +28,7 @@ public class App
     	Point swPoint;
     	Point nePoint;
     	
-    	//Constructor created to clone objects effectively
+    	//Constructor created to clone custom objects effectively
     	public Sensor(Sensor another) {
     		this.location = another.location;
     		this.battery = another.battery;
@@ -47,11 +47,13 @@ public class App
     	Double lat = -1.0;
     	Double lng = -1.0;
     	
+    	//Constructor created to clone custom objects effectively
     	public Point(Point another) {
     		this.lat = another.lat;
     		this.lng = another.lng;
     	}
     	
+    	//Constructor with no arguments for default properties
     	public Point() {
     	}
     }
@@ -132,9 +134,8 @@ public class App
 			String w3 = w3w.substring(w3w.indexOf(".") + 1);
 			
 			w3w = w1 + "/" + w2 + "/" + w3 + "/details.json";
-			System.out.println(w3w);
         	
-        	//Read the '/YYYY/MM/DD/details.json' file using BufferedReader
+        	//Read the '/words/w1/w2/w3/details.json' file using BufferedReader
             File w3wFile = new File(wsPath + "words/" + w3w);
     		BufferedReader br2 = new BufferedReader(new FileReader(w3wFile));
     		
@@ -168,6 +169,8 @@ public class App
     		}
     		//Close the buffered reader
     		br2.close();
+    		
+    		
         }
     }
 }
