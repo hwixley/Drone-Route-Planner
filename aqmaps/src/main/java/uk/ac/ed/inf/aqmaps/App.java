@@ -76,7 +76,8 @@ public class App
     	}
     }
 	
-    public static void main( String[] args ) throws IOException
+    @SuppressWarnings("unchecked")
+	public static void main( String[] args ) throws IOException
     {
     	//Storing command line arguments into appropriate variables
         String dateDD = args[0];
@@ -234,6 +235,8 @@ public class App
 			//Check if line contains a closing square bracket (indicates end of a given polygon)
 			} else if ((buildingsLine.indexOf("]") != -1) && (buildingsLine.indexOf("],") == -1) && !buildingComplete) {
 				building.points = (ArrayList<Point>) building.points.clone();
+				System.out.println(building.name);
+				System.out.println(building.points.size());
 				buildings.add(new Building(building));
 				building.points.clear();
 				buildingComplete = true;
@@ -243,6 +246,7 @@ public class App
 		br3.close();
 		
 		for (int k = 0; k < buildings.size(); k++) {
+			System.out.println(buildings.get(k).name);
 			System.out.println(buildings.get(k).points.size());
 		}
     }
