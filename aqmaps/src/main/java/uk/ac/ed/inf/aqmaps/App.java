@@ -201,12 +201,37 @@ public class App
     		File noflyzoneFilePath = new File(wsPath + "buildings/no-fly-zones.geojson");
     		BufferedReader br3 = new BufferedReader(new FileReader(noflyzoneFilePath));
     		
+    		//ArrayList to store building polygons
+    		ArrayList<Building> buildings = new ArrayList<Building>();
+    		
     		
     		//Iterate through the '/buildings/no-fly-zones.geojson' file
     		String buildingsLine;
+    		Building building = new Building();
+    		Point polyPoint = new Point();
     		while ((buildingsLine = br3.readLine()) != null) {
     			
+    			if (buildingsLine.indexOf("name") != -1) {
+    				building.name = buildingsLine.substring(buildingsLine.indexOf(":") + 3, buildingsLine.length() - 2);
+    				
+    			} else if (buildingsLine.indexOf("fill") != -1) {
+    				building.fill = buildingsLine.substring(buildingsLine.indexOf(":") + 3, buildingsLine.length() - 1);
+    				
+    			} else if ((buildingsLine.indexOf("-3.") != -1)) {// && (buildingsLine.indexOf(".") != -1)) {
+    				polyPoint.lng = Double.parseDouble(buildingsLine.substring(buildingsLine.indexOf("-"), buildingsLine.length() -1));
+    				
+    			} else if (buildingsLine.indexOf("55.") != -1) {
+    				polyPoint.lat = Double.parseDouble(buildingsLine.substring(buildingsLine.indexOf("55."), buildingsLine.length()));
+    				System.out.println(polyPoint.lng);
+    				building.points.add(new Point(polyPoint));
+    				buildings.add(new Building(building));
+    				building.points.clear();
+    			}
     		}
+    		//Close the BufferedReader
+    		br3.close();
+    		
+    		System.out.println(buildings);
         }
     }
 }
