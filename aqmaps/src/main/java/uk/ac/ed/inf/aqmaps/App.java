@@ -17,11 +17,30 @@ public class App
     private static final double maxLng = -3.184319;
     private static final double minLng = -3.192473;
     
-    //Sensor object
+    //Custom Sensor object
     private static class Sensor {
     	String location;
     	Double battery;
     	Double reading;
+    	Point swPoint;
+    	Point nePoint;
+    	
+    	//Constructor created to clone objects effectively
+    	public Sensor(Sensor another) {
+    		this.location = another.location;
+    		this.battery = another.battery;
+    		this.reading = another.reading;
+    		this.swPoint = another.swPoint;
+    		this.nePoint = another.nePoint;
+    	}
+    	
+    	//Constructor with no arguments for default properties
+		public Sensor() {
+		}
+    }
+    
+    //Custom Point object
+    private static class Point {
     	Double lat = -1.0;
     	Double lng = -1.0;
     }
@@ -83,7 +102,7 @@ public class App
         		
         	//Else check if there is no more data for the given sensor
         	} else if (line.indexOf("}") != -1) {
-        		sensors.add(sens);
+        		sensors.add(new Sensor(sens));
         		newSensor = true;
         		sensorIndex = 0;
         	}
@@ -92,5 +111,21 @@ public class App
         br.close();
         
         
+        for (int i = 0; i < sensors.size(); i++) {
+        	Sensor s = sensors.get(i);
+        	
+        	String w3w = s.location;
+			String w1 = w3w.substring(0, w3w.indexOf("."));
+			w3w = w3w.substring(w3w.indexOf(".") + 1);
+			String w2 = w3w.substring(0, w3w.indexOf("."));
+			String w3 = w3w.substring(w3w.indexOf(".") + 1);
+			
+			w3w = "/" + w1 + "/" + w2 + "/" + w3 + "/details.json";
+			System.out.println(w3w);
+        	
+        	//Read the '/YYYY/MM/DD/details.json' file using BufferedReader
+            //File mapsFile = new File(mapsFilePath);
+    		//BufferedReader br = new BufferedReader(new FileReader(mapsFile));
+        }
     }
 }
