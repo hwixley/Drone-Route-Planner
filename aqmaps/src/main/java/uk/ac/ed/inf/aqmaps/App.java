@@ -244,7 +244,7 @@ public class App
 		
 		for (int k = 0; k < buildings.size(); k++) {
 			System.out.println(buildings.get(k).name);
-			System.out.println(buildings.get(k).points.size());
+			System.out.println(buildings.get(k).points.get(0).lng);
 		}
     }
 }
