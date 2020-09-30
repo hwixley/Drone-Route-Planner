@@ -57,6 +57,24 @@ public class App
     	public Point() {
     	}
     }
+    
+    //Custom building(no-fly-zone) object
+    private static class Building {
+    	ArrayList<Point> points;
+    	String name;
+    	String fill;
+    	
+    	//Constructor created to clone custom objects effectively
+    	public Building(Building another) {
+    		this.points = another.points;
+    		this.name = another.name;
+    		this.fill = another.fill;
+    	}
+    	
+    	//Constructor with no arguments for default properties
+    	public Building() {
+    	}
+    }
 	
     public static void main( String[] args ) throws IOException
     {
@@ -171,6 +189,11 @@ public class App
     		br2.close();
     		
     		
+    		//Parse the no fly zone data
+    		File noflyzoneFilePath = new File(wsPath + "buildings/no-fly-zones.geojson");
+    		BufferedReader br3 = new BufferedReader(new FileReader(noflyzoneFilePath));
+    		
+    		String buildingsLine;
         }
     }
 }
