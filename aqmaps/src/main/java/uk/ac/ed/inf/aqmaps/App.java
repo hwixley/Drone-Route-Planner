@@ -60,7 +60,7 @@ public class App
     
     //Custom building(no-fly-zone) object
     private static class Building {
-    	ArrayList<Point> points;
+    	ArrayList<Point> points = new ArrayList<Point>();
     	String name;
     	String fill;
     	
@@ -210,7 +210,7 @@ public class App
     		Building building = new Building();
     		Point polyPoint = new Point();
     		while ((buildingsLine = br3.readLine()) != null) {
-    			
+
     			if (buildingsLine.indexOf("name") != -1) {
     				building.name = buildingsLine.substring(buildingsLine.indexOf(":") + 3, buildingsLine.length() - 2);
     				
@@ -222,7 +222,6 @@ public class App
     				
     			} else if (buildingsLine.indexOf("55.") != -1) {
     				polyPoint.lat = Double.parseDouble(buildingsLine.substring(buildingsLine.indexOf("55."), buildingsLine.length()));
-    				System.out.println(polyPoint.lng);
     				building.points.add(new Point(polyPoint));
     				buildings.add(new Building(building));
     				building.points.clear();
@@ -231,7 +230,9 @@ public class App
     		//Close the BufferedReader
     		br3.close();
     		
-    		System.out.println(buildings);
+    		for (int k = 0; i < buildings.size(); i++) {
+    			System.out.println(buildings.get(k).name);
+    		}
         }
     }
 }
