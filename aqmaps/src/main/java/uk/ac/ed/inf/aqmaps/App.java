@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import com.mapbox.geojson.*;
@@ -17,15 +18,15 @@ public class App
     private static final double minLng = -3.192473;
     
     //Sensor object
-    private class Sensor {
+    private static class Sensor {
     	String location;
-    	int battery;
+    	Double battery;
     	Double reading;
     	Double lat = -1.0;
     	Double lng = -1.0;
     }
 	
-    public static void main( String[] args )
+    public static void main( String[] args ) throws IOException
     {
     	//Storing command line arguments into appropriate variables
         String dateDD = args[0];
@@ -36,21 +37,59 @@ public class App
         int randomSeed = Integer.parseInt(args[5]);
         String portNumber  = args[6];
         
-        String mapsFilePath = "~/Documents/Year3/ILP/WebServer/maps/" + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json";
+        String mapsFilePath = "/home/hwixley/Documents/Year3/ILP/WebServer/maps/" + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json";
         
         
     	//Read the '/YYYY/MM/DD/air-quality-data.json' file using BufferedReader
         File mapsFile = new File(mapsFilePath);
-        try {
-			BufferedReader br = new BufferedReader(new FileReader(mapsFile));
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		BufferedReader br = new BufferedReader(new FileReader(mapsFile));
         
-        //Create ArrayLists to store the 'air-quality-data.json' data
+        //Create ArrayList to store the data for the 33 sensors from the '/YYYY/MM/DD/air-quality-data.json' file
         ArrayList<Sensor> sensors = new ArrayList<Sensor>();
         
+        //Iterate through the lines of the '/YYYY/MM/DD/air-quality-data.json' file and store them as Sensors in the 'sensors' ArrayList
+        String line;
+        Boolean newSensor = true;
+        Integer sensorIndex = 0;
+        Sensor sens = new Sensor();
+        while ((line = br.readLine()) != null) {
+        	
+        	//Check if the given line contains sensor data
+        	if ((line.indexOf("[") == -1) && (line.indexOf("]") == -1) && (line.indexOf("{") == -1) && (line.indexOf("}") == -1)) {
+        		
+        		//Index offset variables for retrieving the correct substring of data for each given line
+        		int startIndexOffset = 3;
+        		int endIndexOffset = 1;
+        		
+        		if (sensorIndex == 1) {
+        			startIndexOffset = 2;
+        		} else if (sensorIndex == 0) {
+        			endIndexOffset = 2;
+        		}
+        		
+        		//Data retrieved as a substring from 'line'
+        		String data = line.substring(line.indexOf(":") + startIndexOffset, line.length() - endIndexOffset);
+        		
+        		//Initialise the properties for the given sensor
+        		if (sensorIndex == 0) {
+        			sens.location = data;
+        		} else if (sensorIndex == 1) {
+        			sens.battery = Double.parseDouble(data);
+        		} else if (sensorIndex == 2) {
+        			sens.reading = Double.parseDouble(data);
+        		}
+        		
+        		sensorIndex += 1;
+        		
+        	//Else check if there is no more data for the given sensor
+        	} else if (line.indexOf("}") != -1) {
+        		sensors.add(sens);
+        		newSensor = true;
+        		sensorIndex = 0;
+        	}
+        }
+        //Close the buffered reader
+        br.close();
         
         
     }

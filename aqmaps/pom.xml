@@ -7,6 +7,7 @@
   <groupId>uk.ac.ed.inf</groupId>
   <artifactId>aqmaps</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
 
   <name>aqmaps</name>
   <!-- FIXME change it to the project's website -->
