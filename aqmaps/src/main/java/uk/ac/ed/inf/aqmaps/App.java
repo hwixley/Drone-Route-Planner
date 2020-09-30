@@ -209,10 +209,12 @@ public class App
     		String buildingsLine;
     		Building building = new Building();
     		Point polyPoint = new Point();
+    		Boolean buildingComplete = false;
     		while ((buildingsLine = br3.readLine()) != null) {
 
     			if (buildingsLine.indexOf("name") != -1) {
     				building.name = buildingsLine.substring(buildingsLine.indexOf(":") + 3, buildingsLine.length() - 2);
+    				buildingComplete = false;
     				
     			} else if (buildingsLine.indexOf("fill") != -1) {
     				building.fill = buildingsLine.substring(buildingsLine.indexOf(":") + 3, buildingsLine.length() - 1);
@@ -223,15 +225,20 @@ public class App
     			} else if (buildingsLine.indexOf("55.") != -1) {
     				polyPoint.lat = Double.parseDouble(buildingsLine.substring(buildingsLine.indexOf("55."), buildingsLine.length()));
     				building.points.add(new Point(polyPoint));
+    				
+    			} else if ((buildingsLine.indexOf("]") != -1) && (buildingsLine.indexOf("],") == -1) && !buildingComplete) {
     				buildings.add(new Building(building));
     				building.points.clear();
+    				buildingComplete = true;
+    				System.out.println(building.name);
+    				System.out.println(buildingsLine);
     			}
     		}
     		//Close the BufferedReader
     		br3.close();
     		
-    		for (int k = 0; i < buildings.size(); i++) {
-    			System.out.println(buildings.get(k).name);
+    		for (int k = 0; k < buildings.size(); k++) {
+    			//System.out.println(buildings.get(k).name);
     		}
         }
     }
