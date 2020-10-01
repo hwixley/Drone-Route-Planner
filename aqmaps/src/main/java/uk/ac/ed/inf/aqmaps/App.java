@@ -26,7 +26,9 @@ public class App
     	Double battery;
     	Double reading;
     	Point swPoint;
+    	Point sePoint;
     	Point nePoint;
+    	Point nwPoint;
     	
     	//Constructor created to clone custom objects effectively
     	public Sensor(Sensor another) {
@@ -34,7 +36,9 @@ public class App
     		this.battery = another.battery;
     		this.reading = another.reading;
     		this.swPoint = another.swPoint;
+    		this.sePoint = another.sePoint;
     		this.nePoint = another.nePoint;
+    		this.nwPoint = another.nwPoint;
     	}
     	
     	//Constructor with no arguments for default properties
@@ -217,6 +221,14 @@ public class App
     				s.swPoint = new Point(point);
     			} else if (stage == 6) {
     				s.nePoint = new Point(point);
+    				Point se = new Point();
+    				se.lat = s.swPoint.lat;
+    				se.lng = s.nePoint.lng;
+    				Point nw = new Point();
+    				nw.lat = s.nePoint.lat;
+    				nw.lng = s.swPoint.lng;
+    				s.nwPoint = nw;
+    				s.sePoint = se;
     			}
     			
     			stage += 1;
@@ -271,37 +283,58 @@ public class App
 		
 		
 		//Start mapping route
-		String flightpathTxt;
-		String readingsTxt;
+		String flightpathTxt = "";
+		String readingsTxt = "";
 		
 		ArrayList<Sensor> unreadSensors = new ArrayList<Sensor>(sensors);
 		Point lastPoint = null;
+		Sensor lastSensor = new Sensor();
+		int pathIndex = 1;
 		
 		while (unreadSensors.size() > 0) {
 			
-			Sensor s;
+			Sensor nextSensor = new Sensor();
 			
-			if (lastSensor == null) {
-				s = unreadSensors.get(0);
+			if (lastPoint == null) {
+				lastSensor = unreadSensors.get(0);
 				unreadSensors.remove(0);
-			} else {
-				Double minDist = 0.0;
-				int minIndex = -1;
-				int vertexNum = -1;
+				lastPoint = lastSensor.nePoint;
+			}
+			
+			Double minDist = 0.0;
+			int minIndex = -1;
+			int vertexNum = -1;
+			
+			//Find the closest sensor from the last point
+			for (int g = 0; g < unreadSensors.size(); g++) {
+				Double dist = calcDistance(unreadSensors.get(g).nePoint, lastPoint);
+				int vNum = 1;
 				
-				for (int g = 0; g < unreadSensors.size(); g++) {
-					Double dist = calcDistance(unreadSensors.get(g).nePoint, lastPoint);
-					int vNum = 1;
-					
-					if (calcDistance(unreadSensors.get(g).swPoint, lastPoint) < dist) {
-						vNum = 3;
-					}
-					
-					if (dist < minDist) {
-						minDist = dist;
-						minIndex = g;
-					}
+				if (calcDistance(unreadSensors.get(g).nwPoint, lastPoint) < dist) {
+					vNum = 2;
+				} else if (calcDistance(unreadSensors.get(g).swPoint, lastPoint) < dist) {
+					vNum = 3;
+				} else if (calcDistance(unreadSensors.get(g).sePoint, lastPoint) < dist) {
+					vNum = 4;
 				}
+				
+				if (dist < minDist) {
+					minDist = dist;
+					minIndex = g;
+					vertexNum = vNum;
+				}
+			}
+			
+			nextSensor = unreadSensors.get(minIndex);
+			unreadSensors.remove(minIndex);
+			
+			//Map route to this new sensor 's'
+			double pathAngle = calcAngle(lastPoint, nextSensor.nePoint);
+			
+			if (pathAngle % 10 == 0) {
+				flightpathTxt += pathIndex + "," + lastPoint.lng + "," + lastPoint.lat + "," + pathAngle + "," + nextSensor.nePoint.lng + "," + nextSensor.nePoint.lat + "," + nextSensor.location;
+			} else {
+				
 			}
 		}
     }
