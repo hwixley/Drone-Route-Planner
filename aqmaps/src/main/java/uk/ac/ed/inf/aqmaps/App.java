@@ -20,7 +20,7 @@ public class App
     //*TEMPORARY; local webserver directory path
     private static final String wsPath = "/home/hwixley/Documents/Year3/ILP/WebServer/";
     
-    //Custom Sensor object
+    //OBJECT: Custom Sensor object
     private static class Sensor {
     	String location;
     	Double battery;
@@ -42,7 +42,7 @@ public class App
 		}
     }
     
-    //Custom Point object
+    //OBJECT: Custom Point object
     private static class Point {
     	Double lat = -1.0;
     	Double lng = -1.0;
@@ -58,7 +58,7 @@ public class App
     	}
     }
     
-    //Custom building(no-fly-zone) object
+    //OBJECT: Custom building(no-fly-zone) object
     private static class Building {
     	ArrayList<Point> points = new ArrayList<Point>();
     	String name;
@@ -76,11 +76,19 @@ public class App
     	}
     }
 	
+    //METHOD: calculate distance between 2 points
     static Double calcDistance(Point p1, Point p2) { 
     	Double lats = Math.pow(p1.lat - p2.lat,2);
     	Double lngs = Math.pow(p1.lng - p2.lng, 2);
     	
     	return Math.sqrt(lats + lngs);
+    }
+    
+    //METHOD: calculate angle between 2 points
+    static Double calcAngle(Point origin, Point dest) {
+    	Double grad = (dest.lng - origin.lng)/(dest.lat - origin.lat);
+    	
+    	return Math.atan(grad);
     }
     
     
