@@ -274,14 +274,6 @@ public class App
 			System.out.println(buildings.get(k).points.get(0).lng);
 		}
 		
-		Point p1 = new Point();
-		p1.lat = 1.0;
-		p1.lng = 2.0;
-		Point p2 = new Point();
-		p2.lat = 4.0;
-		p2.lng = 6.0;
-		System.out.println(calcAngle(p1,p2));
-		
 		
     }
 }
