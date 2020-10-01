@@ -334,7 +334,7 @@ public class App
 			if (pathAngle % 10 == 0) {
 				flightpathTxt += pathIndex + "," + lastPoint.lng + "," + lastPoint.lat + "," + pathAngle + "," + nextSensor.nePoint.lng + "," + nextSensor.nePoint.lat + "," + nextSensor.location;
 			} else {
-				
+				pathAngle = pathAngle - (pathAngle % 10);
 			}
 		}
     }
