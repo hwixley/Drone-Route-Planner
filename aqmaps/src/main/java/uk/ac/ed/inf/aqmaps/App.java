@@ -87,14 +87,14 @@ public class App
     //METHOD: calculate angle between 2 points
     static Double calcAngle(Point origin, Point dest) {
     	Double grad = (dest.lng - origin.lng)/(dest.lat - origin.lat);
-    	Double angle = Math.atan(grad);
+    	Double angle = Math.toDegrees(Math.atan(grad));
     	
     	if ((dest.lng > origin.lng) && (dest.lat < origin.lat)) {
     		angle += 180;
     		
     	} else if ((dest.lng < origin.lng) && (dest.lat > origin.lat)) {
     		angle += 360;
-    		
+
     	} else if ((dest.lng < origin.lng) && (dest.lat < origin.lat)) {
     		angle += 180;
     	}
@@ -273,6 +273,14 @@ public class App
 			System.out.println(buildings.get(k).name);
 			System.out.println(buildings.get(k).points.get(0).lng);
 		}
+		
+		Point p1 = new Point();
+		p1.lat = 1.0;
+		p1.lng = 2.0;
+		Point p2 = new Point();
+		p2.lat = 4.0;
+		p2.lng = 6.0;
+		System.out.println(calcAngle(p1,p2));
 		
 		
     }
