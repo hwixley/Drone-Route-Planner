@@ -76,6 +76,14 @@ public class App
     	}
     }
 	
+    static Double calcDistance(Point p1, Point p2) { 
+    	Double lats = Math.pow(p1.lat - p2.lat,2);
+    	Double lngs = Math.pow(p1.lng - p2.lng, 2);
+    	
+    	return Math.sqrt(lats + lngs);
+    }
+    
+    
     @SuppressWarnings("unchecked")
 	public static void main( String[] args ) throws IOException
     {
@@ -246,5 +254,7 @@ public class App
 			System.out.println(buildings.get(k).name);
 			System.out.println(buildings.get(k).points.get(0).lng);
 		}
+		
+		
     }
 }
