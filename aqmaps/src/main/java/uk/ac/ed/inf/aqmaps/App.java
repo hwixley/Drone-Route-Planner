@@ -269,11 +269,40 @@ public class App
 		//Close the BufferedReader
 		br3.close();
 		
-		for (int k = 0; k < buildings.size(); k++) {
-			System.out.println(buildings.get(k).name);
-			System.out.println(buildings.get(k).points.get(0).lng);
+		
+		//Start mapping route
+		String flightpathTxt;
+		String readingsTxt;
+		
+		ArrayList<Sensor> unreadSensors = new ArrayList<Sensor>(sensors);
+		Point lastPoint = null;
+		
+		while (unreadSensors.size() > 0) {
+			
+			Sensor s;
+			
+			if (lastSensor == null) {
+				s = unreadSensors.get(0);
+				unreadSensors.remove(0);
+			} else {
+				Double minDist = 0.0;
+				int minIndex = -1;
+				int vertexNum = -1;
+				
+				for (int g = 0; g < unreadSensors.size(); g++) {
+					Double dist = calcDistance(unreadSensors.get(g).nePoint, lastPoint);
+					int vNum = 1;
+					
+					if (calcDistance(unreadSensors.get(g).swPoint, lastPoint) < dist) {
+						vNum = 3;
+					}
+					
+					if (dist < minDist) {
+						minDist = dist;
+						minIndex = g;
+					}
+				}
+			}
 		}
-		
-		
     }
 }
