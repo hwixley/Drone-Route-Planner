@@ -425,25 +425,44 @@ public class App
 			
 			nextSensor = unreadSensors.get(minIndex);
 			unreadSensors.remove(minIndex);
+			Point closestPoint = new Point();
+			
+			if (vertexNum == 1) {
+				closestPoint = new Point(nextSensor.nePoint);
+			} else if (vertexNum == 2) {
+				closestPoint = new Point(nextSensor.nwPoint);
+			} else if (vertexNum == 3) {
+				closestPoint = new Point(nextSensor.swPoint);
+			} else if (vertexNum == 4) {
+				closestPoint = new Point(nextSensor.sePoint);
+			}
 			
 			//Map route to this new sensor 's'
-			double pathAngle = calcAngle(lastPoint, nextSensor.nePoint);
+			double pathAngle = calcAngle(lastPoint, closestPoint);
 			
 			if (pathAngle % 10 == 0) {
-				flightpathTxt += pathIndex + "," + lastPoint.lng + "," + lastPoint.lat + "," + pathAngle + "," + nextSensor.nePoint.lng + "," + nextSensor.nePoint.lat + "," + nextSensor.location;
-				readingsGeojson += cellGeojson + nextSensor.nePoint.lng.toString() + ", " + nextSensor.nePoint.lat.toString() + "]\n";
+				flightpathTxt += pathIndex + "," + lastPoint.lng + "," + lastPoint.lat + "," + pathAngle + "," + closestPoint.lng + "," + closestPoint.lat + "," + nextSensor.location + "\n";
+				readingsGeojson += cellGeojson + closestPoint.lng.toString() + ", " + closestPoint.lat.toString() + "]\n";
 				readingsGeojson += "\t\t\t\"properties\"\t: {\"marker-size\": \"medium\", \"location\": \"" + nextSensor.location  + "\", \"rgb-string\": \"" + readingColour(nextSensor.reading) + "\", ";
 				readingsGeojson += "\"marker-color\": \"" + readingColour(nextSensor.reading) + "\", \"marker-symbol\": \"" + readingSymbol(nextSensor.reading) + "\"}}";
 				
 				if (unreadSensors.size() > 1) {
 					readingsGeojson += ",";
 				}
-			} else { // angle is rounded off so we can zig zag to the destination
-				if (pathAngle % 10 < 5) {
-					pathAngle = pathAngle - (pathAngle % 10);
-				} else {
-					pathAngle = pathAngle + (10 - (pathAngle % 10));
+				pathIndex += 1;
+				
+			} else { // First try all possible angles for a straight line by varying latitude and longitude whilst still remaining in the w3w tile
+				if (vertexNum == 1) {
+					//for (int latOff = 0; latOff < 0.000001 0.0000001)
+				} else if (vertexNum == 2) {
+					
+				} else if (vertexNum == 3) {
+					
+				} else if (vertexNum == 4) {
+					
 				}
+				
+				//for (int latOff = 0.0)
 			}
 		}
 		
