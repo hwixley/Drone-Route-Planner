@@ -148,7 +148,7 @@ public class App
         		System.out.println("Successfully retrieved the maps json file");
         		mapsFile = response.body();
         	} else {
-        		System.out.println("This maps file does not exist. Path = " + mapsFilePath);
+        		System.out.println("ERROR: this maps file does not exist. Path = " + mapsFilePath);
         		System.exit(0);
         	}
         } catch (IOException | InterruptedException e) {
@@ -206,7 +206,7 @@ public class App
         		sensorIndex = 0;
         	}
         }
-        /*
+        
         
         //Get swPoint and nePoint for the given w3w location
         for (int i = 0; i < sensors.size(); i++) {
@@ -219,28 +219,42 @@ public class App
 			String w3 = w3w.substring(w3w.indexOf(".") + 1);
 			
 			w3w = w1 + "/" + w2 + "/" + w3 + "/details.json";
-        	
-        	//Read the '/words/w1/w2/w3/details.json' file using BufferedReader
-            File w3wFile = new File(wsPath + "words/" + w3w);
-    		BufferedReader br2 = new BufferedReader(new FileReader(w3wFile));
+    		
+            //Define W3W filePath
+            String w3wFilePath = wsURL + "words/" + w3w;
+            
+        	//Read the '/W1/W2/W3/details.json' file from the WebServer
+            var w3wRequest = HttpRequest.newBuilder().uri(URI.create(w3wFilePath)).build();
+            String w3wFile = "";
+            try {
+            	var response = client.send(w3wRequest, BodyHandlers.ofString());
+            	if (response.statusCode() == 200) {
+            		w3wFile = response.body();
+            	} else {
+            		System.out.println("ERROR: this W3W file does not exist. Path = " + w3wFilePath);
+            		System.exit(0);
+            	}
+            } catch (IOException | InterruptedException e) {
+            	e.printStackTrace();
+            }
     		
     		//Loop through file
-    		String w3wLine;
     		Point point = new Point();
     		Integer stage = -20;
-    		while ((w3wLine = br2.readLine()) != null) {
+    		String[]linesW3W = w3wFile.split(System.getProperty("line.separator"));
+    		for(String line : linesW3W) {
     			
-    			if (w3wLine.indexOf("southwest") != -1) {
+    			if (line.indexOf("southwest") != -1) {
     				stage = 1;
-    			} else if (w3wLine.indexOf("northeast") != -1) {
+    			} else if (line.indexOf("northeast") != -1) {
     				stage = 4;
     			}
     			
     			//Parse the latitude and longitude values into doubles, and pass these into our 'point' object
     			if ((stage == 2) || (stage == 5)) {
-    				point.lng = Double.parseDouble(w3wLine.substring(w3wLine.indexOf(":") + 1, w3wLine.length() - 1));
+    				point.lng = Double.parseDouble(line.substring(line.indexOf(":") + 1, line.length() - 1));
     			} else if ((stage == 3) || (stage == 6)) {
-    				point.lat = Double.parseDouble(w3wLine.substring(w3wLine.indexOf(":") + 1, w3wLine.length()));
+    				point.lat = Double.parseDouble(line.substring(line.indexOf(":") + 1, line.length()));
     			}
     			
     			//Pass the given Point object 'point' to the Sensor object 's'
@@ -260,11 +274,12 @@ public class App
     			
     			stage += 1;
     		}
-    		//Close the buffered reader
-    		br2.close();
+    		System.out.println(s.location);
+    		System.out.println(s.swPoint.lat);
+    		System.out.println(s.swPoint.lng);
         }
         
-        
+        /*
 		//Parse the no fly zone data
 		File noflyzoneFilePath = new File(wsPath + "buildings/no-fly-zones.geojson");
 		BufferedReader br3 = new BufferedReader(new FileReader(noflyzoneFilePath));
