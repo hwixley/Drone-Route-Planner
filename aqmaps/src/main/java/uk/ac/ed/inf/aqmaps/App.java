@@ -135,10 +135,11 @@ public class App
 			e.printStackTrace();
 		}
 
+    	
         //Define maps filePath
         String mapsFilePath = wsURL + "maps/" + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json";
         
-    	//Read the '/YYYY/MM/DD/air-quality-data.json' file using BufferedReader
+    	//Read the '/YYYY/MM/DD/air-quality-data.json' file from the WebServer
         var mapsRequest = HttpRequest.newBuilder().uri(URI.create(mapsFilePath)).build();
         String mapsFile = "";
         try {
@@ -154,16 +155,16 @@ public class App
         	e.printStackTrace();
         }
         
+        
         //Create ArrayList to store the data for the 33 sensors from the '/YYYY/MM/DD/air-quality-data.json' file
         ArrayList<Sensor> sensors = new ArrayList<Sensor>();
         
-        
         //Iterate through the lines of the '/YYYY/MM/DD/air-quality-data.json' file and store them as Sensors in the 'sensors' ArrayList
-        String line;
         Boolean newSensor = true;
         Integer sensorIndex = 0;
         Sensor sens = new Sensor();
-        while ((line = br.readLine()) != null) {
+        String[]lines = mapsFile.split(System.getProperty("line.separator"));
+        for(String line : lines){
         	
         	//Check if the given line contains sensor data
         	if ((line.indexOf("[") == -1) && (line.indexOf("]") == -1) && (line.indexOf("{") == -1) && (line.indexOf("}") == -1)) {
@@ -205,9 +206,7 @@ public class App
         		sensorIndex = 0;
         	}
         }
-        //Close the buffered reader
-        br.close();
-        
+        /*
         
         //Get swPoint and nePoint for the given w3w location
         for (int i = 0; i < sensors.size(); i++) {
@@ -365,5 +364,6 @@ public class App
 				pathAngle = pathAngle - (pathAngle % 10);
 			}
 		}
+		*/
     }
 }
