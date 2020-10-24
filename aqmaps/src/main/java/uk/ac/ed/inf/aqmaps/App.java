@@ -20,9 +20,6 @@ public class App
     private static final double maxLng = -3.184319;
     private static final double minLng = -3.192473;
     
-    //*TEMPORARY; local webserver directory path
-    private static final String wsPath = "/home/hwixley/Documents/Year3/ILP/WebServer/";
-    
     //OBJECT: Custom Sensor object
     private static class Sensor {
     	String location;
@@ -124,22 +121,38 @@ public class App
         
     	//Initialise WebServer
     	var client = HttpClient.newHttpClient();
-    	var request = HttpRequest.newBuilder().uri(URI.create("http://localhost:" + portNumber + "/")).build();
+    	var wsURL = "http://localhost:" + portNumber + "/";
+    	var request = HttpRequest.newBuilder().uri(URI.create(wsURL)).build();
     	try {
 			var response = client.send(request, BodyHandlers.ofString());
-			System.out.print(response.statusCode() == 200);
+			if (response.statusCode() == 200) {
+				System.out.println("Successfully connected to the WebServer at port " + portNumber);
+			} else {
+				System.out.println("ERROR: unable to connect to the WebServer at port " + portNumber);
+				System.exit(0);
+			}
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
-    	
-    	System.exit(0);
-        
-        String mapsFilePath = wsPath + "maps/" + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json";
-        
+
+        //Define maps filePath
+        String mapsFilePath = wsURL + "maps/" + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json";
         
     	//Read the '/YYYY/MM/DD/air-quality-data.json' file using BufferedReader
-        File mapsFile = new File(mapsFilePath);
-		BufferedReader br = new BufferedReader(new FileReader(mapsFile));
+        var mapsRequest = HttpRequest.newBuilder().uri(URI.create(mapsFilePath)).build();
+        String mapsFile = "";
+        try {
+        	var response = client.send(mapsRequest, BodyHandlers.ofString());
+        	if (response.statusCode() == 200) {
+        		System.out.println("Successfully retrieved the maps json file");
+        		mapsFile = response.body();
+        	} else {
+        		System.out.println("This maps file does not exist. Path = " + mapsFilePath);
+        		System.exit(0);
+        	}
+        } catch (IOException | InterruptedException e) {
+        	e.printStackTrace();
+        }
         
         //Create ArrayList to store the data for the 33 sensors from the '/YYYY/MM/DD/air-quality-data.json' file
         ArrayList<Sensor> sensors = new ArrayList<Sensor>();
