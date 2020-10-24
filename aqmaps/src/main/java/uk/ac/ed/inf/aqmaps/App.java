@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.net.URI;
@@ -19,6 +20,49 @@ public class App
     private static final double minLat = 55.942617;
     private static final double maxLng = -3.184319;
     private static final double minLng = -3.192473;
+    
+    //METHOD: returns the appropriate colour for a given air quality reading
+    private static String readingColour(Double reading) {
+		String colour = "";
+		
+		//Classify the given 'reading' by returning it's appropriate rgb-string
+		if (reading == Double.NaN) {
+			colour = "#000000";
+		} else if (reading < 32) {
+			colour = "#00ff00";
+		} else if (reading < 64) {
+			colour = "#40ff00";
+		} else if (reading < 96) {
+			colour = "#80ff00";
+		} else if (reading < 128) {
+			colour = "#c0ff00";
+		} else if (reading < 160) {
+			colour = "#ffc000";
+		} else if (reading < 192) {
+			colour = "#ff8000";
+		} else if (reading < 224) {
+			colour = "#ff4000";
+		} else if (reading < 256) {
+			colour = "#ff0000";
+		}
+		
+		return colour;
+    }
+    
+   //METHOD: returns the appropriate symbol for a given air quality reading
+    private static String readingSymbol(Double reading) {
+    	String symbol = "";
+    	
+    	if (reading == Double.NaN) {
+    		symbol = "cross";
+    	} else if ((reading < 128) && (reading >= 0)) {
+    		symbol = "lighthouse";
+    	} else if ((reading >= 128) && (reading < 256)) {
+    		symbol = "danger";
+    	}
+    	
+    	return symbol;
+    }
     
     //OBJECT: Custom Sensor object
     private static class Sensor {
@@ -334,10 +378,11 @@ public class App
 			}
 		}
 		
-		/*
+		
 		//Start mapping route
 		String flightpathTxt = "";
-		String readingsTxt = "";
+		String readingsGeojson = "{\"type\"\t: \"FeatureCollection\",\n\t\"features\"\t: [";
+		String cellGeojson = "\n\t{\"type\"\t\t: \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\" : \"Point\",\n\t\t\t\t\"coordinates\" : [";
 		
 		ArrayList<Sensor> unreadSensors = new ArrayList<Sensor>(sensors);
 		Point lastPoint = null;
@@ -386,10 +431,39 @@ public class App
 			
 			if (pathAngle % 10 == 0) {
 				flightpathTxt += pathIndex + "," + lastPoint.lng + "," + lastPoint.lat + "," + pathAngle + "," + nextSensor.nePoint.lng + "," + nextSensor.nePoint.lat + "," + nextSensor.location;
-			} else {
-				pathAngle = pathAngle - (pathAngle % 10);
+				readingsGeojson += cellGeojson + nextSensor.nePoint.lng.toString() + ", " + nextSensor.nePoint.lat.toString() + "]\n";
+				readingsGeojson += "\t\t\t\"properties\"\t: {\"marker-size\": \"medium\", \"location\": \"" + nextSensor.location  + "\", \"rgb-string\": \"" + readingColour(nextSensor.reading) + "\", ";
+				readingsGeojson += "\"marker-color\": \"" + readingColour(nextSensor.reading) + "\", \"marker-symbol\": \"" + readingSymbol(nextSensor.reading) + "\"}}";
+				
+				if (unreadSensors.size() > 1) {
+					readingsGeojson += ",";
+				}
+			} else { // angle is rounded off so we can zig zag to the destination
+				if (pathAngle % 10 < 5) {
+					pathAngle = pathAngle - (pathAngle % 10);
+				} else {
+					pathAngle = pathAngle + (10 - (pathAngle % 10));
+				}
 			}
 		}
-		*/
+		
+        //Add the closing brackets for our FeatureCollection in our Geo-JSON code variable ('readingsGeojson')
+        readingsGeojson += "\n\t]\n}";
+        
+        
+        //OUTPUT OUR GEO-JSON AQMAPS FILE
+        
+        //Try write the code in the 'geojsonText' String variable to a Geo-JSON file ('heatmap.geojson')
+        try {
+        	FileWriter writer = new FileWriter(System.getProperty("user.dir") + "/readings-" + dateDD + "-" + dateMM + "-" + dateYY +".geojson");
+        	writer.write(readingsGeojson);
+        	writer.close();
+        	//Success writing to file 'readings-DD-MM-YYYY.geojson'
+        	System.out.println("The air quality sensors from " + dateDD + "-" + dateMM + "-" + dateYY + " have been read by the drone and formatted into a Geo-JSON map.\nGeo-JSON file path:\t" + System.getProperty("user.dir") + "/heatmap.geojson");
+        	
+        } catch (IOException e) {
+        	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
+        	e.printStackTrace();
+        }
     }
 }
