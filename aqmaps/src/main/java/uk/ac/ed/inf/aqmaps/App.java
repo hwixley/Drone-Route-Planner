@@ -6,6 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.net.URI;
+import java.net.http.*;
+import java.net.http.HttpResponse.BodyHandlers;
 
 import com.mapbox.geojson.*;
 
@@ -110,6 +113,20 @@ public class App
     @SuppressWarnings("unchecked")
 	public static void main( String[] args ) throws IOException
     {
+    	//Initialise HttpClient
+    	var client = HttpClient.newHttpClient();
+    	var request = HttpRequest.newBuilder().uri(URI.create("http://localhost:9898/")).build();
+    	try {
+			var response = client.send(request, BodyHandlers.ofString());
+			System.out.print(response.statusCode() == 200);
+		} catch (IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    	System.exit(0);
+    	
+    	
     	//Storing command line arguments into appropriate variables
         String dateDD = args[0];
         String dateMM = args[1];
