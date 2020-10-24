@@ -163,8 +163,8 @@ public class App
         Boolean newSensor = true;
         Integer sensorIndex = 0;
         Sensor sens = new Sensor();
-        String[]lines = mapsFile.split(System.getProperty("line.separator"));
-        for(String line : lines){
+        String[]mapLines = mapsFile.split(System.getProperty("line.separator"));
+        for(String line : mapLines){
         	
         	//Check if the given line contains sensor data
         	if ((line.indexOf("[") == -1) && (line.indexOf("]") == -1) && (line.indexOf("{") == -1) && (line.indexOf("}") == -1)) {
@@ -274,56 +274,67 @@ public class App
     			
     			stage += 1;
     		}
-    		System.out.println(s.location);
-    		System.out.println(s.swPoint.lat);
-    		System.out.println(s.swPoint.lng);
         }
         
-        /*
-		//Parse the no fly zone data
-		File noflyzoneFilePath = new File(wsPath + "buildings/no-fly-zones.geojson");
-		BufferedReader br3 = new BufferedReader(new FileReader(noflyzoneFilePath));
+        
+        //Define no fly zones filePath
+        String noflyzoneFilePath = wsURL + "buildings/no-fly-zones.geojson";
+        
+    	//Read the '/W1/W2/W3/details.json' file from the WebServer
+        var noflyzoneRequest = HttpRequest.newBuilder().uri(URI.create(noflyzoneFilePath)).build();
+        String noflyzoneFile = "";
+        try {
+        	var response = client.send(noflyzoneRequest, BodyHandlers.ofString());
+        	if (response.statusCode() == 200) {
+        		noflyzoneFile = response.body();
+        		System.out.println("Successfully retrieved the no fly zones geojson file");
+        	} else {
+        		System.out.println("ERROR: this no fly zone file does not exist. Path = " + noflyzoneFilePath);
+        		System.exit(0);
+        	}
+        } catch (IOException | InterruptedException e) {
+        	e.printStackTrace();
+        }
+        
 		
 		//ArrayList to store building polygons
 		ArrayList<Building> buildings = new ArrayList<Building>();
 		
 		
 		//Iterate through the '/buildings/no-fly-zones.geojson' file
-		String buildingsLine;
 		Building building = new Building();
 		Point polyPoint = new Point();
 		Boolean buildingComplete = false;
-		while ((buildingsLine = br3.readLine()) != null) {
+        String[]noflyzoneLines = noflyzoneFile.split(System.getProperty("line.separator"));
+        for(String line : noflyzoneLines) {
 			
 			//Check if line contains name property
-			if (buildingsLine.indexOf("name") != -1) {
-				building.name = buildingsLine.substring(buildingsLine.indexOf(":") + 3, buildingsLine.length() - 2);
+			if (line.indexOf("name") != -1) {
+				building.name = line.substring(line.indexOf(":") + 3, line.length() - 2);
 				buildingComplete = false;
 				building.points = new ArrayList<Point>();
 			
 			//Check if line contains fill property
-			} else if (buildingsLine.indexOf("fill") != -1) {
-				building.fill = buildingsLine.substring(buildingsLine.indexOf(":") + 3, buildingsLine.length() - 1);
+			} else if (line.indexOf("fill") != -1) {
+				building.fill = line.substring(line.indexOf(":") + 3, line.length() - 1);
 			
 			//Check if line contains longitude
-			} else if ((buildingsLine.indexOf("-3.") != -1)) {
-				polyPoint.lng = Double.parseDouble(buildingsLine.substring(buildingsLine.indexOf("-"), buildingsLine.length() -1));
+			} else if ((line.indexOf("-3.") != -1)) {
+				polyPoint.lng = Double.parseDouble(line.substring(line.indexOf("-"), line.length() -1));
 				
 			//Check if line contains latitude
-			} else if (buildingsLine.indexOf("55.") != -1) {
-				polyPoint.lat = Double.parseDouble(buildingsLine.substring(buildingsLine.indexOf("55."), buildingsLine.length()));
+			} else if (line.indexOf("55.") != -1) {
+				polyPoint.lat = Double.parseDouble(line.substring(line.indexOf("55."), line.length()));
 				building.points.add(new Point(polyPoint));
 			
 			//Check if line contains a closing square bracket (indicates end of a given polygon)
-			} else if ((buildingsLine.indexOf("]") != -1) && (buildingsLine.indexOf("],") == -1) && !buildingComplete) {
+			} else if ((line.indexOf("]") != -1) && (line.indexOf("],") == -1) && !buildingComplete) {
 				buildings.add(new Building(building));
 				buildingComplete = true;
 			}
 		}
-		//Close the BufferedReader
-		br3.close();
 		
-		
+		/*
 		//Start mapping route
 		String flightpathTxt = "";
 		String readingsTxt = "";
