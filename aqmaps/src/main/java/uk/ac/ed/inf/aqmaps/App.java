@@ -112,21 +112,7 @@ public class App
     
     @SuppressWarnings("unchecked")
 	public static void main( String[] args ) throws IOException
-    {
-    	//Initialise HttpClient
-    	var client = HttpClient.newHttpClient();
-    	var request = HttpRequest.newBuilder().uri(URI.create("http://localhost:9898/")).build();
-    	try {
-			var response = client.send(request, BodyHandlers.ofString());
-			System.out.print(response.statusCode() == 200);
-		} catch (IOException | InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	
-    	System.exit(0);
-    	
-    	
+    {    	
     	//Storing command line arguments into appropriate variables
         String dateDD = args[0];
         String dateMM = args[1];
@@ -135,6 +121,18 @@ public class App
         Double startLng = Double.parseDouble(args[4]);
         int randomSeed = Integer.parseInt(args[5]);
         String portNumber  = args[6];
+        
+    	//Initialise WebServer
+    	var client = HttpClient.newHttpClient();
+    	var request = HttpRequest.newBuilder().uri(URI.create("http://localhost:" + portNumber + "/")).build();
+    	try {
+			var response = client.send(request, BodyHandlers.ofString());
+			System.out.print(response.statusCode() == 200);
+		} catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+		}
+    	
+    	System.exit(0);
         
         String mapsFilePath = wsPath + "maps/" + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json";
         
