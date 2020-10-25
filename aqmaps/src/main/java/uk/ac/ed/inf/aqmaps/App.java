@@ -522,17 +522,35 @@ public class App
 			
 			//Retrieve the upper and lower bounds of the possible points of the destination tile
 			Double range = 0.0;
+			Double errorMargin = 0.0001999999999999999999;
 			Point lowerPoint;
 			Point upperPoint;
 			if (minPoint == 0) {
 				lowerPoint = new Point(nextPoints.get(3));
+				lowerPoint.lng += errorMargin;
+				lowerPoint.lat -= errorMargin;
 				upperPoint = new Point(nextPoints.get(1));
+				upperPoint.lng -= errorMargin;
+				upperPoint.lat += errorMargin;
 			} else if (minPoint == 3) {
 				lowerPoint = new Point(nextPoints.get(2));
+				lowerPoint.lng -= errorMargin;
+				lowerPoint.lat -= errorMargin;
 				upperPoint = new Point(nextPoints.get(0));
+				upperPoint.lng += errorMargin;
+				upperPoint.lat += errorMargin;
 			} else {
 				lowerPoint = new Point(nextPoints.get(minPoint-1));
+				lowerPoint.lat += errorMargin; 
 				upperPoint = new Point(nextPoints.get(minPoint+1));
+				upperPoint.lat -= errorMargin;
+				if (minPoint == 1) {
+					lowerPoint.lng += errorMargin;
+					upperPoint.lng -= errorMargin;
+				} else {
+					lowerPoint.lng -= errorMargin;
+					upperPoint.lng += errorMargin;
+				}
 			}
 			
 			//Calculate the range of possible degrees using the bounds
@@ -562,6 +580,7 @@ public class App
 			//there exists an angle divisible by 10 in our bounds
 			} else if ((10 - (lowerAngle % 10)) < range) {
 				Double theta = lowerAngle + (10 - (lowerAngle % 10));
+				System.out.println(theta);
 				
 				//we want to calculate the point of intersection between these lines
 				LineGraph boundLine = new LineGraph(lowerPoint, upperPoint);
