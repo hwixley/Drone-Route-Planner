@@ -21,6 +21,22 @@ public class App
     private static final double maxLng = -3.184319;
     private static final double minLng = -3.192473;
     
+    //OBJECT: lineGraph custom object
+    private static class LineGraph {
+    	Double gradient;
+    	Double yint;
+    	
+    	//Constructor with input
+    	public LineGraph(Point p1, Point p2) {
+    		this.gradient = (p1.lat - p2.lat)/(p1.lng - p2.lng);
+    		this.yint = -gradient*p1.lng + p1.lat;
+    	}
+    	
+    	//Default constructor
+    	public LineGraph() {
+    	}
+    }
+    
     //METHOD: calculate distance of route
 	private static Double calcRouteCost(ArrayList<Point> points) {
     	Double cost = 0.0;
@@ -502,45 +518,65 @@ public class App
 					minPoint = v;
 				}
 			}
-			pointRoute.set(s, new Point(nextPoints.get(minPoint)));
+			pointRoute.set(s+1, new Point(nextPoints.get(minPoint)));
 			
-			//Calculate the range of possible degrees for the given route angle
+			//Retrieve the upper and lower bounds of the possible points of the destination tile
 			Double range = 0.0;
-			Double lowerAngle = 0.0;
-			Double upperAngle = 0.0;
+			Point lowerPoint;
+			Point upperPoint;
 			if (minPoint == 0) {
-				lowerAngle = calcAngle(currPoint, nextPoints.get(3));
-				upperAngle = calcAngle(currPoint, nextPoints.get(1));
+				lowerPoint = new Point(nextPoints.get(3));
+				upperPoint = new Point(nextPoints.get(1));
 			} else if (minPoint == 3) {
-				lowerAngle = calcAngle(currPoint, nextPoints.get(2));
-				upperAngle = calcAngle(currPoint, nextPoints.get(0));
+				lowerPoint = new Point(nextPoints.get(2));
+				upperPoint = new Point(nextPoints.get(0));
 			} else {
-				lowerAngle = calcAngle(currPoint, nextPoints.get(minPoint-1));
-				upperAngle = calcAngle(currPoint, nextPoints.get(minPoint+1));
+				lowerPoint = new Point(nextPoints.get(minPoint-1));
+				upperPoint = new Point(nextPoints.get(minPoint+1));
 			}
+			
+			//Calculate the range of possible degrees using the bounds
+			Double lowerAngle = calcAngle(currPoint, lowerPoint);
+			Double upperAngle = calcAngle(currPoint, upperPoint);
 			if (upperAngle < lowerAngle) {
 				range = upperAngle + (360-lowerAngle);
 			} else {
 				range = upperAngle - lowerAngle;
 			}
-			System.out.println(minPoint);
-			System.out.println(lowerAngle);
-			System.out.println(upperAngle);
-			System.out.println(range);
-			System.out.println(10-(lowerAngle % 10));
+			//System.out.println(minPoint);
+			//System.out.println(lowerAngle);
+			//System.out.println(upperAngle);
+			//System.out.println(range);
+			//System.out.println(10-(lowerAngle % 10));
 			
+			//Set the appropriate point in the pointRoute ArrayList s.t. the angle is divisible by 10
+			
+			//lowerAngle is divisible by 10
 			if (lowerAngle % 10 == 0) {
-				
-			} else if (upperAngle % 10 == 0) { 
+				pointRoute.set(s+1, lowerPoint);
 			
-			} else if ((10 - (lowerAngle % 10)) < range) {
+			//upperAngle is divisible by 10
+			} else if (upperAngle % 10 == 0) { 
+				pointRoute.set(s+1, upperPoint);
 				
+			//there exists an angle divisible by 10 in our bounds
+			} else if ((10 - (lowerAngle % 10)) < range) {
+				LineGraph boundLine = new LineGraph(lowerPoint, upperPoint);
+				System.out.println(lowerPoint.lat);
+				System.out.println(lowerPoint.lng);
+				System.out.println(upperPoint.lat);
+				System.out.println(upperPoint.lng);
+				
+				System.out.println(boundLine.gradient);
+				System.out.println(boundLine.yint);
+			
+			//there does not exist an angle divisible by 10 in our bounds, so we must fragment the path
 			} else {
 				
 			}
 		}
-		/*System.out.println(calcRouteCost(pointRoute));
-        
+		System.out.println(calcRouteCost(pointRoute));
+        /*
 		
 		//ROUTE FIND WITH APPROPRIATE TURNING ANGLES (DIVISIBLE BY 10)
 		
