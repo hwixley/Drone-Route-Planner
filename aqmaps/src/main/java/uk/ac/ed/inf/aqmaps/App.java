@@ -435,6 +435,10 @@ public class App
 		    	 unexploredSensors.remove(minSensor);
         	 }
          }
+         //2-OPT HEURISTIC: try swap points around to see if it produces a lower cost
+         
+         
+         
          for (int r = 0; r < sensorRoute.size(); r++) {
         	 System.out.println(sensorRoute.get(r).location);
          }
