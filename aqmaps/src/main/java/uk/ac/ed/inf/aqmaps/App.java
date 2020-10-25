@@ -195,7 +195,7 @@ public class App
     	var client = HttpClient.newHttpClient();
     	var wsURL = "http://localhost:" + portNumber + "/";
     	var request = HttpRequest.newBuilder().uri(URI.create(wsURL)).build();
-    	try {
+    	try { 
 			var response = client.send(request, BodyHandlers.ofString());
 			if (response.statusCode() == 200) {
 				System.out.println("Successfully connected to the WebServer at port " + portNumber);
@@ -420,11 +420,10 @@ public class App
          ArrayList<Point> pointRoute = new ArrayList<Point>();
          ArrayList<Sensor> sensorRoute = new ArrayList<Sensor>();
          ArrayList<Sensor> unexploredSensors = new ArrayList<Sensor>(sensors);
-         pointRoute.add(sensors.get(0).nePoint);
-         sensorRoute.add(sensors.get(0));
-         unexploredSensors.remove(0);
+         pointRoute.add(startPoint);
+         sensorRoute.add(new Sensor());
          
-         for (int s = 0; s < sensors.size(); s++) {
+         for (int s = 0; s < sensors.size()+1; s++) {
         	 Point currPoint = pointRoute.get(s);
         	 Double minDist = 100.0;
         	 Point minPoint = new Point();
@@ -483,8 +482,8 @@ public class App
         		 }
          	 }
          }
-      
-         	
+         
+         
          //ROUTE FIND WITH APPROPRIATE ANGLES (DIVISIBLE BY 10)
          for (int s = 0; s < sensors.size(); s++) {
         	 Sensor currSensor = new Sensor(sensorRoute.get(s));
