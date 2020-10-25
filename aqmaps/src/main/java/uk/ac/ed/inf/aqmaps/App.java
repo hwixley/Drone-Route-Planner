@@ -178,6 +178,8 @@ public class App
     @SuppressWarnings("unchecked")
 	public static void main( String[] args ) throws IOException
     {    	
+    	//SETUP
+    	
     	//Storing command line arguments into appropriate variables
         String dateDD = args[0];
         String dateMM = args[1];
@@ -204,6 +206,9 @@ public class App
 		}
 
     	
+    	//GET THE AIR QUALITY DATA FOR THE GIVEN DATE
+    	
+    	//1) Retrieve file from the WebServer
         //Define maps filePath
         String mapsFilePath = wsURL + "maps/" + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json";
         
@@ -223,7 +228,7 @@ public class App
         	e.printStackTrace();
         }
         
-        
+        //2) Parse this file into a list of Sensor objects
         //Create ArrayList to store the data for the 33 sensors from the '/YYYY/MM/DD/air-quality-data.json' file
         ArrayList<Sensor> sensors = new ArrayList<Sensor>();
         
@@ -275,7 +280,7 @@ public class App
         	}
         }
         
-        
+        //3) Get the given coordinates of the W3W location
         //Get swPoint and nePoint for the given w3w location
         for (int i = 0; i < sensors.size(); i++) {
         	Sensor s = sensors.get(i);
@@ -288,6 +293,7 @@ public class App
 			
 			w3w = w1 + "/" + w2 + "/" + w3 + "/details.json";
     		
+			//RETRIEVE W3W DATA FROM WEBSERVER
             //Define W3W filePath
             String w3wFilePath = wsURL + "words/" + w3w;
             
@@ -306,6 +312,7 @@ public class App
             	e.printStackTrace();
             }
     		
+            //PARSE W3W FILE AND APPEND DATA TO THE APPROPRIATE SENSOR OBJECTS
     		//Loop through file
     		Point point = new Point();
     		Integer stage = -20;
@@ -345,6 +352,9 @@ public class App
         }
         
         
+        //GET THE NO-FLY-ZONE DATA
+        
+        //1) Retrieve files from the WebServer
         //Define no fly zones filePath
         String noflyzoneFilePath = wsURL + "buildings/no-fly-zones.geojson";
         
@@ -364,10 +374,9 @@ public class App
         	e.printStackTrace();
         }
         
-		
+        //2) Parse these files into appropriate java Building objects
 		//ArrayList to store building polygons
 		ArrayList<Building> buildings = new ArrayList<Building>();
-		
 		
 		//Iterate through the '/buildings/no-fly-zones.geojson' file
 		Building building = new Building();
@@ -402,8 +411,10 @@ public class App
 			}
 		}
 		
-        //Find optimal route
-        //GREEDY: choose closest points
+        
+        //FIND OPTIMAL ROUTE
+        
+        //1) Use greedy algorithm to choose closest points
          ArrayList<Point> pointRoute = new ArrayList<Point>();
          ArrayList<Sensor> sensorRoute = new ArrayList<Sensor>();
          ArrayList<Sensor> unexploredSensors = new ArrayList<Sensor>(sensors);
@@ -435,7 +446,7 @@ public class App
 		    	 unexploredSensors.remove(minSensor);
         	 }
          }
-         //2-OPT HEURISTIC: try swap points around to see if it produces a lower cost
+         //2) Use 2-OPT heuristic algorithm which swaps points around in the route to see if it produces a lower cost
          
          
          
