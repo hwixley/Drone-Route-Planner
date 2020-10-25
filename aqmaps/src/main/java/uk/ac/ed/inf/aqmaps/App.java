@@ -543,9 +543,9 @@ public class App
 			} else {
 				range = upperAngle - lowerAngle;
 			}
-			//System.out.println(minPoint);
-			//System.out.println(lowerAngle);
-			//System.out.println(upperAngle);
+			System.out.println(minPoint);
+			System.out.println(lowerAngle);
+			System.out.println(upperAngle);
 			//System.out.println(range);
 			//System.out.println(10-(lowerAngle % 10));
 			
@@ -561,7 +561,12 @@ public class App
 				
 			//there exists an angle divisible by 10 in our bounds
 			} else if ((10 - (lowerAngle % 10)) < range) {
+				Double theta = lowerAngle + (10 - (lowerAngle % 10));
+				
 				LineGraph boundLine = new LineGraph(lowerPoint, upperPoint);
+				LineGraph pathLine = new LineGraph();
+				pathLine.gradient = Math.tan(theta);
+				pathLine.yint = -pathLine.gradient*currPoint.lng + currPoint.lat;
 				System.out.println(lowerPoint.lat);
 				System.out.println(lowerPoint.lng);
 				System.out.println(upperPoint.lat);
@@ -569,6 +574,8 @@ public class App
 				
 				System.out.println(boundLine.gradient);
 				System.out.println(boundLine.yint);
+				System.out.println(pathLine.gradient);
+				System.out.println(pathLine.yint);
 			
 			//there does not exist an angle divisible by 10 in our bounds, so we must fragment the path
 			} else {
