@@ -89,10 +89,10 @@ public class App
     	//Method to return array of points
     	private static ArrayList<Point> getPoints(Sensor s) {
     		ArrayList<Point> out = new ArrayList<Point>();
-    		out.add(s.swPoint);
-    		out.add(s.sePoint);
     		out.add(s.nePoint);
     		out.add(s.nwPoint);
+    		out.add(s.swPoint);
+    		out.add(s.sePoint);
     		
     		return out;
     	}
@@ -503,9 +503,43 @@ public class App
 				}
 			}
 			pointRoute.set(s, new Point(nextPoints.get(minPoint)));
+			
+			Double range = 0.0;
+			Double lowerAngle = 0.0;
+			Double upperAngle = 0.0;
+			if (minPoint == 0) {
+				lowerAngle = calcAngle(currPoint, nextPoints.get(3));
+				upperAngle = calcAngle(currPoint, nextPoints.get(1));
+			} else if (minPoint == 3) {
+				lowerAngle = calcAngle(currPoint, nextPoints.get(2));
+				upperAngle = calcAngle(currPoint, nextPoints.get(0));
+			} else {
+				lowerAngle = calcAngle(currPoint, nextPoints.get(minPoint-1));
+				upperAngle = calcAngle(currPoint, nextPoints.get(minPoint+1));
+			}
+			if (upperAngle < lowerAngle) {
+				range = upperAngle + (360-lowerAngle);
+			} else {
+				range = upperAngle - lowerAngle;
+			}
+			System.out.println(minPoint);
+			System.out.println(lowerAngle);
+			System.out.println(upperAngle);
+			System.out.println(range);
 		}
-		System.out.println(calcRouteCost(pointRoute));
+		/*System.out.println(calcRouteCost(pointRoute));
         
+		
+		//ROUTE FIND WITH APPROPRIATE TURNING ANGLES (DIVISIBLE BY 10)
+		
+		//1) Find range of angles for a straight line to a sensor's w3w tile
+		for (int a = 0; a < sensors.size(); a++) {
+			Point currPoint = new Point(pointRoute.get(a));
+			Sensor nextSensor = new Sensor(sensorRoute.get(a+1));
+			ArrayList<Point> nextPoints = Sensor.getPoints(nextSensor);
+			int pointIndex;
+		}
+		
 		/*
 		//Start mapping route
 		String flightpathTxt = "";
