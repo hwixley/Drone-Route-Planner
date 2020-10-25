@@ -446,12 +446,49 @@ public class App
 		    	 unexploredSensors.remove(minSensor);
         	 }
          }
-         //2) Use 2-OPT heuristic algorithm which swaps points around in the route to see if it produces a lower cost
-         
-         
-         
+         System.out.println(calcRouteCost(pointRoute));
          for (int r = 0; r < sensorRoute.size(); r++) {
-        	 System.out.println(sensorRoute.get(r).location);
+        	System.out.println(sensorRoute.get(r).location);
+         }
+         
+         //2) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
+         Boolean better = true;
+         while (better) {
+        	 better = false;
+        	 
+        	 for (int j = 0; j < pointRoute.size()-1; j++) {
+        		 for (int i = 1; i < j; i++) {
+        			 Double oldCost = calcRouteCost(pointRoute);
+        			 
+        			 Point iPoint = pointRoute.get(i);
+        			 Point iPointP = pointRoute.get(i-1);
+        			 Point jPoint = pointRoute.get(j);
+        			 Point jPointP = pointRoute.get(j+1);
+        			 
+        			 Double newCost = oldCost - calcDistance(iPointP, iPoint) - calcDistance(jPoint, jPointP) + calcDistance(iPointP, jPoint) + calcDistance(iPoint, jPointP);
+        			 
+        			 if (newCost < oldCost) {
+        				 ArrayList<Point> revPoints = new ArrayList<Point>();
+        				 ArrayList<Sensor> revSensors = new ArrayList<Sensor>();
+        				 
+        				 for (int v = 0; v < j-i+1; v++) {
+        					 revPoints.add(pointRoute.get(i+v));
+        					 revSensors.add(sensorRoute.get(i+v));
+        				 }
+        				 for (int z = 0; z < j-i+1; z++) {
+        					 pointRoute.set(i+z, revPoints.get(j-i-z));
+        					 sensorRoute.set(i+z, revSensors.get(j-i-z));
+        				 }
+        				 
+        				 better = true;
+        			 }
+        		 }
+         	 }
+         }
+         
+         System.out.println(calcRouteCost(pointRoute));
+         for (int r = 0; r < sensorRoute.size(); r++) {
+        	System.out.println(sensorRoute.get(r).location);
          }
         
 		/*
