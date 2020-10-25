@@ -84,6 +84,17 @@ public class App
     	Point nePoint;
     	Point nwPoint;
     	
+    	//Method to return array of points
+    	private static ArrayList<Point> getPoints(Sensor s) {
+    		ArrayList<Point> out = new ArrayList<Point>();
+    		out.add(s.swPoint);
+    		out.add(s.sePoint);
+    		out.add(s.nePoint);
+    		out.add(s.nwPoint);
+    		
+    		return out;
+    	}
+    	
     	//Constructor created to clone custom objects effectively
     	public Sensor(Sensor another) {
     		this.location = another.location;
@@ -390,7 +401,33 @@ public class App
 		
         //Find optimal route
         //GREEDY: choose closest points
-        
+         ArrayList<Point> route = new ArrayList<Point>();
+         ArrayList<Sensor> unexploredSensors = new ArrayList<Sensor>(sensors);
+         route.add(sensors.get(0).nePoint);
+         unexploredSensors.remove(0);
+         
+         for (int s = 0; s < sensors.size(); s++) {
+        	 Point currPoint = route.get(s);
+        	 Double minDist = 10000.0;
+        	 Point minPoint = new Point();
+        	 int minSensor = -1;
+        	 
+        	 for (int u = 0; u < unexploredSensors.size(); u++) {
+        		 ArrayList<Point> nextSensorPoints = Sensor.getPoints(unexploredSensors.get(u));
+        		 
+        		 for (int v = 0; v < 4; v++) {
+        			 if (calcDistance(nextSensorPoints.get(v), currPoint) < minDist) {
+        				 minDist = calcDistance(nextSensorPoints.get(v), currPoint);
+        				 minPoint = nextSensorPoints.get(v);
+        				 minSensor = u;
+        			 }
+        		 }
+        		 
+        	 }
+        	 route.add(minPoint);
+        	 unexploredSensors.remove(minSensor);
+         }
+         System.out.println();
         
 		
 		//Start mapping route
