@@ -587,6 +587,16 @@ public class App
 				LineGraph pathLine = new LineGraph();
 				pathLine.gradient = Math.tan(theta);
 				pathLine.yint = -pathLine.gradient*currPoint.lng + currPoint.lat;
+				
+				Double net_grad = boundLine.gradient - pathLine.gradient;
+				Double net_yint = boundLine.yint - pathLine.yint;
+				Double xVal = 0.0;
+				if ((net_grad == 0) && (net_yint != 0)) {
+					System.out.println("these do not intersect");
+				} else {
+					xVal = net_yint/-net_grad;
+				}
+				System.out.println(xVal);
 				System.out.println(lowerPoint.lat);
 				System.out.println(lowerPoint.lng);
 				System.out.println(upperPoint.lat);
