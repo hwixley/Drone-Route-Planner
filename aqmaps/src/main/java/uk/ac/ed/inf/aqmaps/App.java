@@ -417,105 +417,99 @@ public class App
         //FIND OPTIMAL ROUTE
         
         //1) Use greedy algorithm to choose closest points
-         ArrayList<Point> pointRoute = new ArrayList<Point>();
-         ArrayList<Sensor> sensorRoute = new ArrayList<Sensor>();
-         ArrayList<Sensor> unexploredSensors = new ArrayList<Sensor>(sensors);
-         pointRoute.add(startPoint);
-         sensorRoute.add(new Sensor());
+        ArrayList<Point> pointRoute = new ArrayList<Point>();
+		ArrayList<Sensor> sensorRoute = new ArrayList<Sensor>();
+		ArrayList<Sensor> unexploredSensors = new ArrayList<Sensor>(sensors);
+		pointRoute.add(startPoint);
+		sensorRoute.add(new Sensor());
+		 
+		for (int s = 0; s < sensors.size()+1; s++) {
+			Point currPoint = pointRoute.get(s);
+			Double minDist = 100.0;
+			Point minPoint = new Point();
+			int minSensor = -1;
+			 
+			for (int u = 0; u < unexploredSensors.size(); u++) {
+				ArrayList<Point> nextSensorPoints = Sensor.getPoints(unexploredSensors.get(u));
+				 
+				for (int v = 0; v < 4; v++) {
+					if (calcDistance(nextSensorPoints.get(v), currPoint) < minDist) {
+						minDist = calcDistance(nextSensorPoints.get(v), currPoint);
+						minPoint = new Point(nextSensorPoints.get(v));
+						minSensor = u;
+					}
+				}
+				 
+			}
+			if (unexploredSensors.size() > 0) {
+		    	pointRoute.add(minPoint);
+		    	sensorRoute.add(unexploredSensors.get(minSensor));
+		    	unexploredSensors.remove(minSensor);
+			}
+		}
+		 
+		//2) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
+		Boolean better = true;
+		while (better) {
+			better = false;
+			 
+			for (int j = 0; j < pointRoute.size()-1; j++) {
+				for (int i = 1; i < j; i++) {
+					Double oldCost = calcRouteCost(pointRoute);
+					 
+					Point iPoint = pointRoute.get(i);
+					Point iPointP = pointRoute.get(i-1);
+					Point jPoint = pointRoute.get(j);
+					Point jPointP = pointRoute.get(j+1);
+					 
+					Double newCost = oldCost - calcDistance(iPointP, iPoint) - calcDistance(jPoint, jPointP) + calcDistance(iPointP, jPoint) + calcDistance(iPoint, jPointP);
+					 
+					if (newCost < oldCost) {
+						ArrayList<Point> revPoints = new ArrayList<Point>();
+						ArrayList<Sensor> revSensors = new ArrayList<Sensor>();
+						 
+						for (int v = 0; v < j-i+1; v++) {
+							revPoints.add(pointRoute.get(i+v));
+							revSensors.add(sensorRoute.get(i+v));
+						}
+						for (int z = 0; z < j-i+1; z++) {
+							pointRoute.set(i+z, revPoints.get(j-i-z));
+							sensorRoute.set(i+z, revSensors.get(j-i-z));
+						}
+						 
+						better = true;
+					}
+				}
+		 	}
+		}
+		 
+		 
+		//ROUTE FIND WITH APPROPRIATE ANGLES (DIVISIBLE BY 10)
+		for (int s = 0; s < sensors.size(); s++) {
+			Sensor currSensor = new Sensor(sensorRoute.get(s));
+			Point currPoint = new Point(pointRoute.get(s));
+			Sensor nextSensor;
+			if (s == sensors.size()-1) {
+				nextSensor = new Sensor(sensorRoute.get(0));
+			} else {
+				nextSensor = new Sensor(sensorRoute.get(s+1));
+			}
+			ArrayList<Point> nextPoints = Sensor.getPoints(nextSensor);
+			 
+			Double minDist = 100.0;
+			int minPoint = -1;
+			 
+			//Get closest vertex
+			for (int v = 0; v < 4; v++) {
+				if (calcDistance(currPoint, nextPoints.get(v)) < minDist) {
+					minDist = calcDistance(currPoint, nextPoints.get(v));
+					minPoint = v;
+				}
+			}
+			pointRoute.set(s, new Point(nextPoints.get(minPoint)));
+		}
+		 
          
-         for (int s = 0; s < sensors.size()+1; s++) {
-        	 Point currPoint = pointRoute.get(s);
-        	 Double minDist = 100.0;
-        	 Point minPoint = new Point();
-        	 int minSensor = -1;
-        	 
-        	 for (int u = 0; u < unexploredSensors.size(); u++) {
-        		 ArrayList<Point> nextSensorPoints = Sensor.getPoints(unexploredSensors.get(u));
-        		 
-        		 for (int v = 0; v < 4; v++) {
-        			 if (calcDistance(nextSensorPoints.get(v), currPoint) < minDist) {
-        				 minDist = calcDistance(nextSensorPoints.get(v), currPoint);
-        				 minPoint = new Point(nextSensorPoints.get(v));
-        				 minSensor = u;
-        			 }
-        		 }
-        		 
-        	 }
-        	 if (unexploredSensors.size() > 0) {
-		    	 pointRoute.add(minPoint);
-		    	 sensorRoute.add(unexploredSensors.get(minSensor));
-		    	 unexploredSensors.remove(minSensor);
-        	 }
-         }
-         
-         //2) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
-         Boolean better = true;
-         while (better) {
-        	 better = false;
-        	 
-        	 for (int j = 0; j < pointRoute.size()-1; j++) {
-        		 for (int i = 1; i < j; i++) {
-        			 Double oldCost = calcRouteCost(pointRoute);
-        			 
-        			 Point iPoint = pointRoute.get(i);
-        			 Point iPointP = pointRoute.get(i-1);
-        			 Point jPoint = pointRoute.get(j);
-        			 Point jPointP = pointRoute.get(j+1);
-        			 
-        			 Double newCost = oldCost - calcDistance(iPointP, iPoint) - calcDistance(jPoint, jPointP) + calcDistance(iPointP, jPoint) + calcDistance(iPoint, jPointP);
-        			 
-        			 if (newCost < oldCost) {
-        				 ArrayList<Point> revPoints = new ArrayList<Point>();
-        				 ArrayList<Sensor> revSensors = new ArrayList<Sensor>();
-        				 
-        				 for (int v = 0; v < j-i+1; v++) {
-        					 revPoints.add(pointRoute.get(i+v));
-        					 revSensors.add(sensorRoute.get(i+v));
-        				 }
-        				 for (int z = 0; z < j-i+1; z++) {
-        					 pointRoute.set(i+z, revPoints.get(j-i-z));
-        					 sensorRoute.set(i+z, revSensors.get(j-i-z));
-        				 }
-        				 
-        				 better = true;
-        			 }
-        		 }
-         	 }
-         }
-         
-         
-         //ROUTE FIND WITH APPROPRIATE ANGLES (DIVISIBLE BY 10)
-         for (int s = 0; s < sensors.size(); s++) {
-        	 Sensor currSensor = new Sensor(sensorRoute.get(s));
-        	 Sensor nextSensor;
-        	 if (s == sensors.size()-1) {
-        		 nextSensor = new Sensor(sensorRoute.get(0));
-        	 } else {
-        		 nextSensor = new Sensor(sensorRoute.get(s+1));
-        	 }
-        	 
-    		 ArrayList<Point> cPoints = Sensor.getPoints(currSensor);
-    		 ArrayList<Point> nPoints = Sensor.getPoints(nextSensor);
-    		 
-        	 //Get closest vertex
-        	 if (s == 0) {
-        		 Double minDist = 10.0;
-        		 int minPoint = -1;
-        		 
-            	 for (int v1 = 0; v1 < 4; v1++) {
-            		 Point cP = cPoints.get(v1); 
-            		 for (int v2 = 0; v2 < 4; v2++) {
-            			 
-            		 }
-            	 }
-        	 }
-        	 for (int v1 = 0; v1 < 4; v1++) {
-        		 for (int v2 = 0; v2 < 4; v2++) {
-        			 
-        		 }
-        	 }
-         }
-        
 		/*
 		//Start mapping route
 		String flightpathTxt = "";
