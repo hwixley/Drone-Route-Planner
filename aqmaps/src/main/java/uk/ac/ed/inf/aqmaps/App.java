@@ -563,6 +563,7 @@ public class App
 			} else if ((10 - (lowerAngle % 10)) < range) {
 				Double theta = lowerAngle + (10 - (lowerAngle % 10));
 				
+				//we want to calculate the point of intersection between these lines
 				LineGraph boundLine = new LineGraph(lowerPoint, upperPoint);
 				LineGraph pathLine = new LineGraph();
 				pathLine.gradient = Math.tan(theta);
