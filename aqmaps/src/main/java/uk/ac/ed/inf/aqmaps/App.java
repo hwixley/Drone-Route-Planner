@@ -447,7 +447,7 @@ public class App
 		    	unexploredSensors.remove(minSensor);
 			}
 		}
-		 
+		System.out.println(calcRouteCost(pointRoute));
 		//2) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
 		Boolean better = true;
 		while (better) {
@@ -482,25 +482,21 @@ public class App
 				}
 		 	}
 		}
+		System.out.println(calcRouteCost(pointRoute));
 		 
-		 
-		//ROUTE FIND WITH APPROPRIATE ANGLES (DIVISIBLE BY 10)
-		for (int s = 0; s < sensors.size(); s++) {
-			Sensor currSensor = new Sensor(sensorRoute.get(s));
+		//3) Minimize route cost by choosing closest vertices on the sensors' w3w tiles
+		//Loop through the sensor route
+		for (int s = 0; s < sensors.size()-1; s++) {
 			Point currPoint = new Point(pointRoute.get(s));
-			Sensor nextSensor;
-			if (s == sensors.size()-1) {
-				nextSensor = new Sensor(sensorRoute.get(0));
-			} else {
-				nextSensor = new Sensor(sensorRoute.get(s+1));
-			}
+			Sensor nextSensor = new Sensor(sensorRoute.get(s+1));
 			ArrayList<Point> nextPoints = Sensor.getPoints(nextSensor);
 			 
 			Double minDist = 100.0;
 			int minPoint = -1;
 			 
-			//Get closest vertex
+			//Get closest vertex of a given sensor's w3w tile
 			for (int v = 0; v < 4; v++) {
+				
 				if (calcDistance(currPoint, nextPoints.get(v)) < minDist) {
 					minDist = calcDistance(currPoint, nextPoints.get(v));
 					minPoint = v;
@@ -508,8 +504,8 @@ public class App
 			}
 			pointRoute.set(s, new Point(nextPoints.get(minPoint)));
 		}
-		 
-         
+		System.out.println(calcRouteCost(pointRoute));
+        
 		/*
 		//Start mapping route
 		String flightpathTxt = "";
