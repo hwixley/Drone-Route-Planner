@@ -446,10 +446,6 @@ public class App
 		    	 unexploredSensors.remove(minSensor);
         	 }
          }
-         System.out.println(calcRouteCost(pointRoute));
-         for (int r = 0; r < sensorRoute.size(); r++) {
-        	System.out.println(sensorRoute.get(r).location);
-         }
          
          //2) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
          Boolean better = true;
@@ -485,11 +481,9 @@ public class App
         		 }
          	 }
          }
+
          
-         System.out.println(calcRouteCost(pointRoute));
-         for (int r = 0; r < sensorRoute.size(); r++) {
-        	System.out.println(sensorRoute.get(r).location);
-         }
+         
         
 		/*
 		//Start mapping route
