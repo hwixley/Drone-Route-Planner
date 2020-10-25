@@ -22,7 +22,6 @@ public class App
     private static final double minLng = -3.192473;
     
     //METHOD: calculate distance of route
-    @SuppressWarnings("unused")
 	private static Double calcRouteCost(ArrayList<Point> points) {
     	Double cost = 0.0;
     	
@@ -186,8 +185,11 @@ public class App
         String dateYY = args[2];
         Double startLat = Double.parseDouble(args[3]);
         Double startLng = Double.parseDouble(args[4]);
+        Point startPoint = new Point();
+        startPoint.lat = startLat;
+        startPoint.lng = startLng;
         int randomSeed = Integer.parseInt(args[5]);
-        String portNumber  = args[6];
+        String portNumber = args[6];
         
     	//Initialise WebServer
     	var client = HttpClient.newHttpClient();
@@ -481,9 +483,39 @@ public class App
         		 }
          	 }
          }
-
-         
-         
+      
+         	
+         //ROUTE FIND WITH APPROPRIATE ANGLES (DIVISIBLE BY 10)
+         for (int s = 0; s < sensors.size(); s++) {
+        	 Sensor currSensor = new Sensor(sensorRoute.get(s));
+        	 Sensor nextSensor;
+        	 if (s == sensors.size()-1) {
+        		 nextSensor = new Sensor(sensorRoute.get(0));
+        	 } else {
+        		 nextSensor = new Sensor(sensorRoute.get(s+1));
+        	 }
+        	 
+    		 ArrayList<Point> cPoints = Sensor.getPoints(currSensor);
+    		 ArrayList<Point> nPoints = Sensor.getPoints(nextSensor);
+    		 
+        	 //Get closest vertex
+        	 if (s == 0) {
+        		 Double minDist = 10.0;
+        		 int minPoint = -1;
+        		 
+            	 for (int v1 = 0; v1 < 4; v1++) {
+            		 Point cP = cPoints.get(v1); 
+            		 for (int v2 = 0; v2 < 4; v2++) {
+            			 
+            		 }
+            	 }
+        	 }
+        	 for (int v1 = 0; v1 < 4; v1++) {
+        		 for (int v2 = 0; v2 < 4; v2++) {
+        			 
+        		 }
+        	 }
+         }
         
 		/*
 		//Start mapping route
