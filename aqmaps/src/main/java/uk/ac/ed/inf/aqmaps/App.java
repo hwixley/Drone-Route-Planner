@@ -21,6 +21,16 @@ public class App
     private static final double maxLng = -3.184319;
     private static final double minLng = -3.192473;
     
+    //METHOD: calculate distance of route
+    private static Double calcRouteCost(ArrayList<Point> points) {
+    	Double cost = 0.0;
+    	
+    	for (int p = 0; p < points.size()-1; p++) {
+    		cost += calcDistance(points.get(p),points.get(p+1));
+    	}
+    	return cost;
+    }
+    
     //METHOD: returns the appropriate colour for a given air quality reading
     private static String readingColour(Double reading) {
 		String colour = "";
@@ -378,6 +388,10 @@ public class App
 			}
 		}
 		
+        //Find optimal route
+        //GREEDY: choose closest points
+        
+        
 		
 		//Start mapping route
 		String flightpathTxt = "";
@@ -468,6 +482,7 @@ public class App
 		
         //Add the closing brackets for our FeatureCollection in our Geo-JSON code variable ('readingsGeojson')
         readingsGeojson += "\n\t]\n}";
+        
         
         
         //OUTPUT OUR GEO-JSON AQMAPS FILE
