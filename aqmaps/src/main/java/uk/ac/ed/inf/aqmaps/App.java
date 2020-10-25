@@ -22,7 +22,8 @@ public class App
     private static final double minLng = -3.192473;
     
     //METHOD: calculate distance of route
-    private static Double calcRouteCost(ArrayList<Point> points) {
+    @SuppressWarnings("unused")
+	private static Double calcRouteCost(ArrayList<Point> points) {
     	Double cost = 0.0;
     	
     	for (int p = 0; p < points.size()-1; p++) {
@@ -32,7 +33,8 @@ public class App
     }
     
     //METHOD: returns the appropriate colour for a given air quality reading
-    private static String readingColour(Double reading) {
+    @SuppressWarnings("unused")
+	private static String readingColour(Double reading) {
 		String colour = "";
 		
 		//Classify the given 'reading' by returning it's appropriate rgb-string
@@ -60,7 +62,8 @@ public class App
     }
     
    //METHOD: returns the appropriate symbol for a given air quality reading
-    private static String readingSymbol(Double reading) {
+    @SuppressWarnings("unused")
+	private static String readingSymbol(Double reading) {
     	String symbol = "";
     	
     	if (reading == Double.NaN) {
@@ -401,14 +404,16 @@ public class App
 		
         //Find optimal route
         //GREEDY: choose closest points
-         ArrayList<Point> route = new ArrayList<Point>();
+         ArrayList<Point> pointRoute = new ArrayList<Point>();
+         ArrayList<Sensor> sensorRoute = new ArrayList<Sensor>();
          ArrayList<Sensor> unexploredSensors = new ArrayList<Sensor>(sensors);
-         route.add(sensors.get(0).nePoint);
+         pointRoute.add(sensors.get(0).nePoint);
+         sensorRoute.add(sensors.get(0));
          unexploredSensors.remove(0);
          
          for (int s = 0; s < sensors.size(); s++) {
-        	 Point currPoint = route.get(s);
-        	 Double minDist = 10000.0;
+        	 Point currPoint = pointRoute.get(s);
+        	 Double minDist = 100.0;
         	 Point minPoint = new Point();
         	 int minSensor = -1;
         	 
@@ -418,18 +423,23 @@ public class App
         		 for (int v = 0; v < 4; v++) {
         			 if (calcDistance(nextSensorPoints.get(v), currPoint) < minDist) {
         				 minDist = calcDistance(nextSensorPoints.get(v), currPoint);
-        				 minPoint = nextSensorPoints.get(v);
+        				 minPoint = new Point(nextSensorPoints.get(v));
         				 minSensor = u;
         			 }
         		 }
         		 
         	 }
-        	 route.add(minPoint);
-        	 unexploredSensors.remove(minSensor);
+        	 if (unexploredSensors.size() > 0) {
+		    	 pointRoute.add(minPoint);
+		    	 sensorRoute.add(unexploredSensors.get(minSensor));
+		    	 unexploredSensors.remove(minSensor);
+        	 }
          }
-         System.out.println();
+         for (int r = 0; r < sensorRoute.size(); r++) {
+        	 System.out.println(sensorRoute.get(r).location);
+         }
         
-		
+		/*
 		//Start mapping route
 		String flightpathTxt = "";
 		String readingsGeojson = "{\"type\"\t: \"FeatureCollection\",\n\t\"features\"\t: [";
@@ -536,5 +546,6 @@ public class App
         	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
         	e.printStackTrace();
         }
+        */
     }
 }
