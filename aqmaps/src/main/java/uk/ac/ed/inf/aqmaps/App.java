@@ -504,6 +504,7 @@ public class App
 			}
 			pointRoute.set(s, new Point(nextPoints.get(minPoint)));
 			
+			//Calculate the range of possible degrees for the given route angle
 			Double range = 0.0;
 			Double lowerAngle = 0.0;
 			Double upperAngle = 0.0;
@@ -526,6 +527,17 @@ public class App
 			System.out.println(lowerAngle);
 			System.out.println(upperAngle);
 			System.out.println(range);
+			System.out.println(10-(lowerAngle % 10));
+			
+			if (lowerAngle % 10 == 0) {
+				
+			} else if (upperAngle % 10 == 0) { 
+			
+			} else if ((10 - (lowerAngle % 10)) < range) {
+				
+			} else {
+				
+			}
 		}
 		/*System.out.println(calcRouteCost(pointRoute));
         
