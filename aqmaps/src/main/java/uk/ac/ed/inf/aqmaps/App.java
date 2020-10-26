@@ -25,6 +25,10 @@ public class App
     private static final double errorMargin = 0.0002;
     private static final double pathLength = 0.0003;
     
+    //Global variables
+    public static ArrayList<Building> buildings = new ArrayList<Building>();
+    public static ArrayList<Sensor> sensors = new ArrayList<Sensor>();
+    
     //OBJECT: lineGraph custom object
     private static class LineGraph {
     	Double gradient;
@@ -74,8 +78,33 @@ public class App
     	for (int p = 0; p < points.size()-1; p++) {
     		cost += calcDistance(points.get(p),points.get(p+1));
     	}
+    	
     	return cost;
     }
+	
+	//METHOD: returns if path passes through any buildings
+	private static Boolean checkBuildings(Point p1, Point p2) {
+		LineGraph path = new LineGraph(p1,p2);
+		
+		for (int i = 0; i < buildings.size(); i++) {
+			Building b = new Building(buildings.get(i));
+			ArrayList<LineGraph> bounds = new ArrayList<LineGraph>();
+			
+			for (int j=0; j < b.points.size(); j++) {
+				Point next = new Point();
+				
+				if (j == b.points.size()-1) {
+					next = b.points.get(0);
+				} else {
+					next = b.points.get(j+1);
+				}
+				bounds.add(new LineGraph(b.points.get(j), next));
+			}
+			
+			
+		}
+		return true;
+	}
     
     //METHOD: returns the appropriate colour for a given air quality reading
 	private static String readingColour(Double reading) {
@@ -258,8 +287,6 @@ public class App
         }
         
         //2) Parse this file into a list of Sensor objects
-        //Create ArrayList to store the data for the 33 sensors from the '/YYYY/MM/DD/air-quality-data.json' file
-        ArrayList<Sensor> sensors = new ArrayList<Sensor>();
         
         //Iterate through the lines of the '/YYYY/MM/DD/air-quality-data.json' file and store them as Sensors in the 'sensors' ArrayList
         Integer sensorIndex = 0;
@@ -387,8 +414,6 @@ public class App
         }
         
         //2) Parse these files into appropriate java Building objects
-		//ArrayList to store building polygons
-		ArrayList<Building> buildings = new ArrayList<Building>();
 		
 		//Iterate through the '/buildings/no-fly-zones.geojson' file
 		Building building = new Building();
