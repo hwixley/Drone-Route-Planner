@@ -642,6 +642,7 @@ public class App
 				
 				route.add(newP);
 				
+				//Adds comma for further Geo-JSON object additions
 				String location = "null";
 				String comma = "";
 				if ((unreadSensors.size() > 1) && (moves < 149)) {
@@ -673,6 +674,7 @@ public class App
 				
 				route.add(newP);
 				
+				//Adds comma for further Geo-JSON object additions
 				String comma = "";
 				if (moves < 149) {
 					comma = ",";
