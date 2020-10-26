@@ -14,6 +14,8 @@ import uk.ac.ed.inf.aqmaps.Objects.Sensor;
 
 public class App 
 {
+	//VARIABLES
+	
 	//Confinement area coordinates
     private static final double maxLat = 55.946233; 
     private static final double minLat = 55.942617;
@@ -25,10 +27,13 @@ public class App
     private static final double pathLength = 0.0003;
     
     //Global variables
-    public static ArrayList<Building> buildings = new ArrayList<Building>();
-    public static ArrayList<Sensor> sensors = new ArrayList<Sensor>();
+    private static ArrayList<Building> buildings = new ArrayList<Building>();
+    private static ArrayList<Sensor> sensors = new ArrayList<Sensor>();
     
-    //METHOD: find point
+    
+    //METHODS
+    
+    //Find point
     private static Point findPoint(Point currPoint, Point nextPoint) {
 		Double angle = calcAngle(currPoint, nextPoint);
 		Double remainder = angle % 10;
@@ -93,7 +98,7 @@ public class App
 		}
     }
     
-    //METHOD: transform point
+    //Transform point
     private static Point transformPoint(Point origin, Double angle) {
     	Point out = new Point(origin);
     	
@@ -103,7 +108,7 @@ public class App
     	return out;
     }
     
-    //METHOD: check if valid point
+    //Check if valid point
     private static Boolean checkPoint(Point destination, Point actual) {
     	
     	if (calcDistance(destination, actual) < errorMargin) {
@@ -113,7 +118,7 @@ public class App
     	}
     }
     
-    //METHOD: calculate distance of route
+    //Calculate distance of route
 	private static Double calcRouteCost(ArrayList<Point> points) {
     	Double cost = 0.0;
     	
@@ -124,10 +129,10 @@ public class App
     	return cost;
     }
 	
-	//METHOD: returns true if point is valid
+	//Returns true if point is valid (within appropriate areas)
 	//private static Boolean isValid()
 	
-	//METHOD: returns if path passes through any buildings
+	//Returns true if path between p1 and p2 does not pass through any buildings
 	private static Boolean checkBuildings(Point p1, Point p2) {
 		LineGraph path = new LineGraph(p1,p2);
 		
@@ -151,7 +156,7 @@ public class App
 		return true;
 	}
 	
-	//METHOD: returns if path is in confinement area
+	//Returns true if point is in confinement area
 	private static Boolean checkConfinement(Point p) {
 		if ((p.lat < maxLat) && (p.lat > minLat) && (p.lng < maxLng) && (p.lng > minLng)) {
 			return true;
@@ -159,8 +164,8 @@ public class App
 			return false;
 		}
 	}
-	
-    //METHOD: returns the appropriate colour for a given air quality reading
+    
+    //Returns the appropriate colour for a given air quality reading
 	private static String readingColour(Double reading) {
 		String colour = "#000000";
 		
@@ -188,7 +193,7 @@ public class App
 		return colour;
     }
     
-   //METHOD: returns the appropriate symbol for a given air quality reading
+   //Returns the appropriate symbol for a given air quality reading
 	private static String readingSymbol(Double reading) {
     	String symbol = "cross";
     	
@@ -203,16 +208,16 @@ public class App
     	return symbol;
     }
 	
-    //METHOD: calculate distance between 2 points
-    static Double calcDistance(Point p1, Point p2) { 
+    //Calculates distance between 2 points
+    private static Double calcDistance(Point p1, Point p2) { 
     	Double lats = Math.pow(p1.lat - p2.lat,2);
     	Double lngs = Math.pow(p1.lng - p2.lng, 2);
     	
     	return Math.sqrt(lats + lngs);
     }
     
-    //METHOD: calculate angle between 2 points
-    static Double calcAngle(Point origin, Point dest) {
+    //Calculates angle between 2 points
+    private static Double calcAngle(Point origin, Point dest) {
     	Double grad = (dest.lat - origin.lat)/(dest.lng - origin.lng);
     	Double angle = Math.toDegrees(Math.atan(grad));
     	
