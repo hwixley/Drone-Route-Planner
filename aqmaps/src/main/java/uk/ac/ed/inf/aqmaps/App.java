@@ -105,7 +105,7 @@ public class App
 		}
 		return true;
 	}
-    
+	
     //METHOD: returns the appropriate colour for a given air quality reading
 	private static String readingColour(Double reading) {
 		String colour = "#000000";
@@ -414,7 +414,7 @@ public class App
         }
         
         //2) Parse these files into appropriate java Building objects
-		
+		String dataGeojson = "{\"type\": \"FeatureCollection\",\n\t\"features\"\t: [";
 		//Iterate through the '/buildings/no-fly-zones.geojson' file
 		Building building = new Building();
 		Point polyPoint = new Point();
@@ -445,6 +445,15 @@ public class App
 			} else if ((line.indexOf("]") != -1) && (line.indexOf("],") == -1) && !buildingComplete) {
 				buildings.add(new Building(building));
 				buildingComplete = true;
+				dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
+				
+				for (int p = 0; p < building.points.size(); p++) {
+					Point pointP = building.points.get(p);
+					
+					dataGeojson += "[" + pointP.lng + ", " + pointP.lat + "],";
+				}
+				dataGeojson += "[" + building.points.get(0).lng + ", " + building.points.get(0).lat + "]]]},\n\t\t";
+				dataGeojson += "\"properties\": {\"fill-opacity\": 0.5, \"fill\": \"#ff0000\"}},";
 			}
 		}
 		
@@ -532,7 +541,6 @@ public class App
 		String flightpathTxt = "";
 		
         //PARSE SENSORS INTO GEOJSON MARKERS
-		String dataGeojson = "{\"type\": \"FeatureCollection\",\n\t\"features\"\t: [";
 		//Add geojson Polygon to represent confinement area
 		dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
 		dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
