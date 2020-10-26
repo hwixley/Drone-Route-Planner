@@ -335,12 +335,13 @@ public class App
 
     			stage += 1;
     		}
-    		System.out.println(s.location);
-    		System.out.println(s.point.lat);
-    		System.out.println(s.point.lng);
         }
         
-        /*
+        
+        //PARSE SENSORS INTO GEOJSON MARKERS
+        
+        
+        
         //GET THE NO-FLY-ZONE DATA
         
         //1) Retrieve files from the WebServer
@@ -417,14 +418,12 @@ public class App
 			int minSensor = -1;
 			 
 			for (int u = 0; u < unexploredSensors.size(); u++) {
-				Point nextPoint = unexploredSensors.get(u);
+				Sensor nextSensor = unexploredSensors.get(u);
 				 
-				for (int v = 0; v < 4; v++) {
-					//if (calcDistance(nextSensorPoints.get(v), currPoint) < minDist) {
-					//	minDist = calcDistance(nextSensorPoints.get(v), currPoint);
-					//	minPoint = new Point(nextSensorPoints.get(v));
-					//	minSensor = u;
-					//}
+				if (calcDistance(nextSensor.point, currPoint) < minDist) {
+					minDist = calcDistance(nextSensor.point, currPoint);
+					minPoint = new Point(nextSensor.point);
+					minSensor = u;
 				}
 				 
 			}
@@ -471,115 +470,21 @@ public class App
 		}
 		System.out.println(calcRouteCost(pointRoute));
 		 
+		
 		//3) Minimize route cost by choosing closest vertices on the sensors' w3w tiles
 		//Loop through the sensor route
 		for (int s = 0; s < sensors.size()-1; s++) {
 			Point currPoint = new Point(pointRoute.get(s));
 			Sensor nextSensor = new Sensor(sensorRoute.get(s+1));
-			ArrayList<Point> nextPoints = Sensor.getPoints(nextSensor);
 			 
-			Double minDist = 100.0;
-			int minPoint = -1;
-			 
-			//Get closest vertex of a given sensor's w3w tile
-			for (int v = 0; v < 4; v++) {
+			Double dist = calcDistance(currPoint, nextSensor.point);
+			
+			if ((dist < 0.0005) && (dist > 0.0001)) { // valid length
+				Double angle = calcAngle(currPoint, nextSensor.point);
+				System.out.println(angle);
+				System.out.println(nextSensor.location);
 				
-				if (calcDistance(currPoint, nextPoints.get(v)) < minDist) {
-					minDist = calcDistance(currPoint, nextPoints.get(v));
-					minPoint = v;
-				}
-			}
-			pointRoute.set(s+1, new Point(nextPoints.get(minPoint)));
-			
-			//Retrieve the upper and lower bounds of the possible points of the destination tile
-			Double range = 0.0;
-			Double errorMargin = 0.0001999999999999999999;
-			Point lowerPoint;
-			Point upperPoint;
-			if (minPoint == 0) {
-				lowerPoint = new Point(nextPoints.get(3));
-				lowerPoint.lng += errorMargin;
-				lowerPoint.lat -= errorMargin;
-				upperPoint = new Point(nextPoints.get(1));
-				upperPoint.lng -= errorMargin;
-				upperPoint.lat += errorMargin;
-			} else if (minPoint == 3) {
-				lowerPoint = new Point(nextPoints.get(2));
-				lowerPoint.lng -= errorMargin;
-				lowerPoint.lat -= errorMargin;
-				upperPoint = new Point(nextPoints.get(0));
-				upperPoint.lng += errorMargin;
-				upperPoint.lat += errorMargin;
-			} else {
-				lowerPoint = new Point(nextPoints.get(minPoint-1));
-				lowerPoint.lat += errorMargin; 
-				upperPoint = new Point(nextPoints.get(minPoint+1));
-				upperPoint.lat -= errorMargin;
-				if (minPoint == 1) {
-					lowerPoint.lng += errorMargin;
-					upperPoint.lng -= errorMargin;
-				} else {
-					lowerPoint.lng -= errorMargin;
-					upperPoint.lng += errorMargin;
-				}
-			}
-			
-			//Calculate the range of possible degrees using the bounds
-			Double lowerAngle = calcAngle(currPoint, lowerPoint);
-			Double upperAngle = calcAngle(currPoint, upperPoint);
-			if (upperAngle < lowerAngle) {
-				range = upperAngle + (360-lowerAngle);
-			} else {
-				range = upperAngle - lowerAngle;
-			}
-			System.out.println(minPoint);
-			System.out.println(lowerAngle);
-			System.out.println(upperAngle);
-			//System.out.println(range);
-			//System.out.println(10-(lowerAngle % 10));
-			
-			//Set the appropriate point in the pointRoute ArrayList s.t. the angle is divisible by 10
-			
-			//lowerAngle is divisible by 10
-			if (lowerAngle % 10 == 0) {
-				pointRoute.set(s+1, lowerPoint);
-			
-			//upperAngle is divisible by 10
-			} else if (upperAngle % 10 == 0) { 
-				pointRoute.set(s+1, upperPoint);
-				
-			//there exists an angle divisible by 10 in our bounds
-			} else if ((10 - (lowerAngle % 10)) < range) {
-				Double theta = lowerAngle + (10 - (lowerAngle % 10));
-				System.out.println(theta);
-				
-				//we want to calculate the point of intersection between these lines
-				LineGraph boundLine = new LineGraph(lowerPoint, upperPoint);
-				LineGraph pathLine = new LineGraph();
-				pathLine.gradient = Math.tan(theta);
-				pathLine.yint = -pathLine.gradient*currPoint.lng + currPoint.lat;
-				
-				Double net_grad = boundLine.gradient - pathLine.gradient;
-				Double net_yint = boundLine.yint - pathLine.yint;
-				Double xVal = 0.0;
-				if ((net_grad == 0) && (net_yint != 0)) {
-					System.out.println("these do not intersect");
-				} else {
-					xVal = net_yint/-net_grad;
-				}
-				System.out.println(xVal);
-				System.out.println(lowerPoint.lat);
-				System.out.println(lowerPoint.lng);
-				System.out.println(upperPoint.lat);
-				System.out.println(upperPoint.lng);
-				
-				System.out.println(boundLine.gradient);
-				System.out.println(boundLine.yint);
-				System.out.println(pathLine.gradient);
-				System.out.println(pathLine.yint);
-			
-			//there does not exist an angle divisible by 10 in our bounds, so we must fragment the path
-			} else {
+			} else if (dist >= 0.0005) { //zigzag
 				
 			}
 		}
