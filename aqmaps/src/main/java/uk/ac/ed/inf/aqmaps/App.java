@@ -368,14 +368,17 @@ public class App
 		
         //PARSE SENSORS INTO GEOJSON MARKERS
 		String dataGeojson = "{\"type\": \"FeatureCollection\",\n\t\"features\"\t: [";
+		//Add geojson Polygon to represent confinement area
 		dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
 		dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
 		dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
+		//Geojson marker point
 		String markerGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Point\", \"coordinates\": [";
 		
 		for (int m = 0; m < sensors.size(); m++) {
 			Sensor sensor = new Sensor(sensors.get(m));
 			
+			//Add geojson Point for each sensor
 			dataGeojson += markerGeojson + sensor.point.lng.toString() + ", " + sensor.point.lat.toString() + "]},\n";
 			dataGeojson += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + sensor.location  + "\", \"rgb-string\": \"" + readingColour(sensor.reading) + "\", ";
 			dataGeojson += "\"marker-color\": \"" + readingColour(sensor.reading) + "\", \"marker-symbol\": \"" + readingSymbol(sensor.reading) + "\"}\n\t\t\t},";
