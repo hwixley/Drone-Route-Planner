@@ -147,6 +147,9 @@ public class App
     	return cost;
     }
 	
+	//METHOD: returns true if point is valid
+	//private static Boolean isValid()
+	
 	//METHOD: returns if path passes through any buildings
 	private static Boolean checkBuildings(Point p1, Point p2) {
 		LineGraph path = new LineGraph(p1,p2);
