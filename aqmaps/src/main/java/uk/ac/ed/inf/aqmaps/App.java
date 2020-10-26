@@ -106,6 +106,15 @@ public class App
 		return true;
 	}
 	
+	//METHOD: returns if path is in confinement area
+	private static Boolean checkConfinement(Point p) {
+		if ((p.lat < maxLat) && (p.lat > minLat) && (p.lng < maxLng) && (p.lng > minLng)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
     //METHOD: returns the appropriate colour for a given air quality reading
 	private static String readingColour(Double reading) {
 		String colour = "#000000";
@@ -178,6 +187,11 @@ public class App
     	public Point(Point another) {
     		this.lat = another.lat;
     		this.lng = another.lng;
+    	}
+    	
+    	public Point(Double lat, Double lng) {
+    		this.lat = lat;
+    		this.lng = lng;
     	}
     	
     	//Constructor with no arguments for default properties
@@ -581,12 +595,42 @@ public class App
 					Point newPC = new Point(transformPoint(currPoint, newAngle));
 					Double distC = calcDistance(nextSensor.point, newPC);
 					
-					if (distF < distC) {
+					if ((distF < distC) && checkConfinement(newPF)) {
 						angle -= remainder;
 						newP = new Point(newPF);
-					} else {
+					} else if (checkConfinement(newPC)) {
 						angle += 10 - remainder;
 						newP = new Point(newPC);
+					} else {
+						Double pfAngle = newAngle;
+						Double pcAngle = angle - remainder;
+						
+						while (!checkConfinement(newPF)) {
+							if (pfAngle == 360) {
+								pfAngle = 10.0;
+							} else {
+								pfAngle += 10;
+							}
+							newPF = new Point(transformPoint(currPoint, pfAngle));
+						}
+						while (!checkConfinement(newPC)) {
+							if (pcAngle == 0) {
+								pcAngle = 350.0;
+							} else {
+								pcAngle -= 10;
+							}
+							newPC = new Point(transformPoint(currPoint,pcAngle));
+						}
+						distF = calcDistance(nextSensor.point, newPF);
+						distC = calcDistance(nextSensor.point, newPC);
+						
+						if (distF < distC) {
+							angle = pfAngle;
+							newP = new Point(newPF);
+						} else {
+							angle = pcAngle;
+							newP = new Point(newPC);
+						}
 					}
 				}
 				route.add(newP);
@@ -640,12 +684,42 @@ public class App
 					Point newPC = new Point(transformPoint(currPoint, newAngle));
 					Double distC = calcDistance(nextSensor.point, newPC);
 					
-					if (distF < distC) {
+					if ((distF < distC) && checkConfinement(newPF)) {
 						angle -= remainder;
 						newP = new Point(newPF);
-					} else {
+					} else if (checkConfinement(newPC)) {
 						angle += 10 - remainder;
 						newP = new Point(newPC);
+					} else {
+						Double pfAngle = newAngle;
+						Double pcAngle = angle - remainder;
+						
+						while (!checkConfinement(newPF)) {
+							if (pfAngle == 360) {
+								pfAngle = 10.0;
+							} else {
+								pfAngle += 10;
+							}
+							newPF = new Point(transformPoint(currPoint, pfAngle));
+						}
+						while (!checkConfinement(newPC)) {
+							if (pcAngle == 0) {
+								pcAngle = 350.0;
+							} else {
+								pcAngle -= 10;
+							}
+							newPC = new Point(transformPoint(currPoint,pcAngle));
+						}
+						distF = calcDistance(nextSensor.point, newPF);
+						distC = calcDistance(nextSensor.point, newPC);
+						
+						if (distF < distC) {
+							angle = pfAngle;
+							newP = new Point(newPF);
+						} else {
+							angle = pcAngle;
+							newP = new Point(newPC);
+						}
 					}
 				}
 				route.add(newP);
@@ -695,5 +769,6 @@ public class App
         	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
         	e.printStackTrace();
         }
+        System.out.println(unreadSensors.size());
     }
 }
