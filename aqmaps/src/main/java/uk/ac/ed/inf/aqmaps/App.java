@@ -700,7 +700,7 @@ public class App
         	writer.write(dataGeojson);
         	writer.close();
         	//Success writing to file 'readings-DD-MM-YYYY.geojson'
-        	System.out.println("The air quality sensors from " + dateDD + "-" + dateMM + "-" + dateYY + " have been read by the drone and formatted into a Geo-JSON map.\nGeo-JSON file path:\t" + System.getProperty("user.dir") + geojsonFilename);
+        	System.out.println("\nThe air quality sensors from " + dateDD + "-" + dateMM + "-" + dateYY + " have been read by the drone and formatted into a Geo-JSON map.\nGeo-JSON file path:   " + System.getProperty("user.dir") + geojsonFilename);
         	
         } catch (IOException e) {
         	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
@@ -714,7 +714,7 @@ public class App
         	writer.write(flightpathTxt);
         	writer.close();
         	//Success writing to file 'flightpath-DD-MM-YYYY.geojson'
-        	System.out.println("All the drone moves from " + dateDD + "-" + dateMM + "-" + dateYY + " have been logged into a text file.\nText file path:\t" + System.getProperty("user.dir") + txtFilename);
+        	System.out.println("\nAll the drone moves from " + dateDD + "-" + dateMM + "-" + dateYY + " have been logged into a text file.\nText file path:   " + System.getProperty("user.dir") + txtFilename);
         	
         } catch (IOException e) {
         	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
