@@ -21,6 +21,10 @@ public class App
     private static final double maxLng = -3.184319;
     private static final double minLng = -3.192473;
     
+    //Constants
+    private static final double errorMargin = 0.0002;
+    private static final double pathLength = 0.0003;
+    
     //OBJECT: lineGraph custom object
     private static class LineGraph {
     	Double gradient;
@@ -32,8 +36,34 @@ public class App
     		this.yint = -gradient*p1.lng + p1.lat;
     	}
     	
+    	//Constructor with angle input
+    	public LineGraph(Double angle, Point origin) {
+    		this.gradient = Math.tan(angle);
+    		this.yint = -gradient*origin.lat + origin.lng;
+    	}
+    	
     	//Default constructor
     	public LineGraph() {
+    	}
+    }
+    
+    //METHOD: transform point
+    private static Point transformPoint(Point origin, Double angle) {
+    	Point out = new Point(origin);
+    	
+    	out.lat += pathLength*Math.sin(angle);
+    	out.lng += pathLength*Math.cos(angle);
+    	
+    	return out;
+    }
+    
+    //METHOD: check if valid point
+    private static Boolean checkPoint(Point destination, Point actual) {
+    	
+    	if (calcDistance(destination, actual) < errorMargin) {
+    		return true;
+    	} else {
+    		return false;
     	}
     }
     
@@ -489,8 +519,37 @@ public class App
 			
 			if ((dist < 0.0005) && (dist > 0.0001)) { // valid length
 				Double angle = calcAngle(currPoint, nextSensor.point);
-				System.out.println(angle);
-				System.out.println(nextSensor.location);
+				Double remainder = angle % 10;
+				LineGraph path = new LineGraph(currPoint, nextSensor.point);
+				Point newP = new Point();
+				
+				//Valid angle
+				if (remainder == 0) {
+					newP = new Point(transformPoint(currPoint, angle));
+					
+				} else { //Try floor and ceiling angles
+					Double roundedAngle = angle -= remainder;
+					
+					//Point with floored angle
+					newP = new Point(transformPoint(currPoint, roundedAngle));
+					
+					if (!checkPoint(nextSensor.point, newP)) { //Invalid floored angle point
+						roundedAngle += 10;
+						//Point with ceilinged angle
+						newP = new Point(transformPoint(currPoint, roundedAngle));
+					}
+				}
+				
+				if (checkPoint(nextSensor.point, newP)) { //Checks if point is valid
+					pointRoute.set(s+1, newP);
+					System.out.println("valid");
+					
+				} else { //Else we must do a segmented route
+					Double subAngle = Math.acos((dist/2)/pathLength);
+					System.out.println(subAngle);
+					
+				}
+				
 				
 			} else if (dist >= 0.0005) { //zigzag
 				
