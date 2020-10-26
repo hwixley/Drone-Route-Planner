@@ -78,7 +78,6 @@ public class App
     }
     
     //METHOD: returns the appropriate colour for a given air quality reading
-    @SuppressWarnings("unused")
 	private static String readingColour(Double reading) {
 		String colour = "#000000";
 		
@@ -107,7 +106,6 @@ public class App
     }
     
    //METHOD: returns the appropriate symbol for a given air quality reading
-    @SuppressWarnings("unused")
 	private static String readingSymbol(Double reading) {
     	String symbol = "cross";
     	
@@ -203,8 +201,7 @@ public class App
     }
     
     
-    @SuppressWarnings("unchecked")
-	public static void main( String[] args ) throws IOException
+    public static void main( String[] args ) throws IOException
     {    	
     	//SETUP
     	
@@ -217,7 +214,8 @@ public class App
         Point startPoint = new Point();
         startPoint.lat = startLat;
         startPoint.lng = startLng;
-        int randomSeed = Integer.parseInt(args[5]);
+        @SuppressWarnings("unused")
+		int randomSeed = Integer.parseInt(args[5]);
         String portNumber = args[6];
         
     	//Initialise WebServer
@@ -365,25 +363,6 @@ public class App
     		}
         }
         
-		
-        //PARSE SENSORS INTO GEOJSON MARKERS
-		String dataGeojson = "{\"type\": \"FeatureCollection\",\n\t\"features\"\t: [";
-		//Add geojson Polygon to represent confinement area
-		dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
-		dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
-		dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
-		//Geojson marker point
-		String markerGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Point\", \"coordinates\": [";
-		
-		for (int m = 0; m < sensors.size(); m++) {
-			Sensor sensor = new Sensor(sensors.get(m));
-			
-			//Add geojson Point for each sensor
-			dataGeojson += markerGeojson + sensor.point.lng.toString() + ", " + sensor.point.lat.toString() + "]},\n";
-			dataGeojson += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + sensor.location  + "\", \"rgb-string\": \"" + readingColour(sensor.reading) + "\", ";
-			dataGeojson += "\"marker-color\": \"" + readingColour(sensor.reading) + "\", \"marker-symbol\": \"" + readingSymbol(sensor.reading) + "\"}\n\t\t\t},";
-		}
-        
         
         //GET THE NO-FLY-ZONE DATA
         
@@ -527,6 +506,16 @@ public class App
 		ArrayList<Sensor> unreadSensors = new ArrayList<Sensor>(sensorRoute);
 		String flightpathTxt = "";
 		
+        //PARSE SENSORS INTO GEOJSON MARKERS
+		String dataGeojson = "{\"type\": \"FeatureCollection\",\n\t\"features\"\t: [";
+		//Add geojson Polygon to represent confinement area
+		dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
+		dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
+		dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
+		//Geojson marker point
+		String markerGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Point\", \"coordinates\": [";
+		
+		
 		//FIND MOVES FOR CHOSEN ROUTE
 		while ((unreadSensors.size() > 0) && (moves < 150)) {
 			Sensor nextSensor = new Sensor(unreadSensors.get(0));
@@ -544,26 +533,34 @@ public class App
 					newP = new Point(transformPoint(currPoint, angle));
 
 				} else { //Try floor and ceiling angles
-					angle -= remainder;
+					Double newAngle = angle - remainder;
 					
 					//Point with floored angle
-					newP = new Point(transformPoint(currPoint, angle));
+					Point newPF = new Point(transformPoint(currPoint, newAngle));
+					Double distF = calcDistance(nextSensor.point, newPF);
 					
-					if (!checkPoint(nextSensor.point, newP)) { //Invalid floored angle point
-						if (angle == 360) {
-							angle = 10.0;
-						} else {
-							angle += 10;
-						}
-						//Point with ceilinged angle
-						newP = new Point(transformPoint(currPoint, angle));
+					//Point with ceilinged angle
+					if (newAngle == 360) {
+						newAngle = 10.0;
+					} else {
+						newAngle += 10;
+					}
+					Point newPC = new Point(transformPoint(currPoint, newAngle));
+					Double distC = calcDistance(nextSensor.point, newPC);
+					
+					if (distF < distC) {
+						angle -= remainder;
+						newP = new Point(newPF);
+					} else {
+						angle += 10 - remainder;
+						newP = new Point(newPC);
 					}
 				}
 				route.add(newP);
 				String location = "null";
 				String comma = "";
 				
-				if ((unreadSensors.size() > 1) || (moves < 149)) {
+				if ((unreadSensors.size() > 1) && (moves < 149)) {
 					comma = ",";
 				}
 				
@@ -572,6 +569,11 @@ public class App
 					location = nextSensor.location;
 					System.out.println(location);
 					unreadSensors.remove(0);
+					
+					//Add geojson Point for each sensor
+					dataGeojson += markerGeojson + nextSensor.point.lng.toString() + ", " + nextSensor.point.lat.toString() + "]},\n";
+					dataGeojson += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + nextSensor.location  + "\", \"rgb-string\": \"" + readingColour(nextSensor.reading) + "\", ";
+					dataGeojson += "\"marker-color\": \"" + readingColour(nextSensor.reading) + "\", \"marker-symbol\": \"" + readingSymbol(nextSensor.reading) + "\"}\n\t\t\t},";
 				}
 				//Writing to files
 				flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + "," + location + "\n";
@@ -590,10 +592,28 @@ public class App
 					newP = new Point(transformPoint(currPoint, angle));
 					
 				} else { //Try floor and ceiling angles
-					angle -= remainder;
+					Double newAngle = angle - remainder;
 					
 					//Point with floored angle
-					newP = new Point(transformPoint(currPoint, angle));
+					Point newPF = new Point(transformPoint(currPoint, newAngle));
+					Double distF = calcDistance(nextSensor.point, newPF);
+					
+					//Point with ceilinged angle
+					if (newAngle == 360) {
+						newAngle = 10.0;
+					} else {
+						newAngle += 10;
+					}
+					Point newPC = new Point(transformPoint(currPoint, newAngle));
+					Double distC = calcDistance(nextSensor.point, newPC);
+					
+					if (distF < distC) {
+						angle -= remainder;
+						newP = new Point(newPF);
+					} else {
+						angle += 10 - remainder;
+						newP = new Point(newPC);
+					}
 				}
 				route.add(newP);
 				String comma = "";
@@ -603,12 +623,12 @@ public class App
 				}
 
 				//Writing to files
-				System.out.println(moves);
 				flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + ",null\n";
 				dataGeojson += lineGeojson + "\n\t\t\t\t[" + currPoint.lng.toString() + ", " + currPoint.lat.toString() + "], [" + newP.lng.toString() + ", " + newP.lat.toString() + "]\n\t\t\t\t]\n\t\t\t},\"properties\":{\n\t\t}\n\t}" + comma + "\n\t\t";
 						
 				moves += 1;
 			}
+			System.out.println(moves);
 		}
 		dataGeojson += "\n\t]\n}";
 		
