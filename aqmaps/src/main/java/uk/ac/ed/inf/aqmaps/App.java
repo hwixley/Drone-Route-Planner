@@ -264,7 +264,6 @@ public class App
         ArrayList<Sensor> sensors = new ArrayList<Sensor>();
         
         //Iterate through the lines of the '/YYYY/MM/DD/air-quality-data.json' file and store them as Sensors in the 'sensors' ArrayList
-        Boolean newSensor = true;
         Integer sensorIndex = 0;
         Sensor sens = new Sensor();
         String[]mapLines = mapsFile.split(System.getProperty("line.separator"));
@@ -306,7 +305,6 @@ public class App
         	//Else check if there is no more data for the given sensor
         	} else if (line.indexOf("}") != -1) {
         		sensors.add(new Sensor(sens));
-        		newSensor = true;
         		sensorIndex = 0;
         	}
         }
@@ -447,11 +445,14 @@ public class App
         ArrayList<Point> pointRoute = new ArrayList<Point>();
 		ArrayList<Sensor> sensorRoute = new ArrayList<Sensor>();
 		ArrayList<Sensor> unexploredSensors = new ArrayList<Sensor>(sensors);
-		pointRoute.add(startPoint);
-		sensorRoute.add(new Sensor());
 		 
 		for (int s = 0; s < sensors.size()+1; s++) {
-			Point currPoint = pointRoute.get(s);
+			Point currPoint;
+			if (s == 0) {
+				currPoint = new Point(startPoint);
+			} else {
+				currPoint = pointRoute.get(s-1);
+			}
 			Double minDist = 100.0;
 			Point minPoint = new Point();
 			int minSensor = -1;
@@ -473,6 +474,7 @@ public class App
 			}
 		}
 		System.out.println(calcRouteCost(pointRoute));
+		
 		//2) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
 		Boolean better = true;
 		while (better) {
@@ -508,19 +510,26 @@ public class App
 		 	}
 		}
 		System.out.println(calcRouteCost(pointRoute));
-		 
+		
+		//Variables
+		String lineGeojson = "\n\t{\"type\"\t\t: \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\" : \"LineString\",\n\t\t\t\t\"coordinates\" : [";
+		ArrayList<Point> route = new ArrayList<Point>();
+		route.add(startPoint);
+		int moves = 0;
+		sensorRoute.remove(0);
+		ArrayList<Sensor> unreadSensors = new ArrayList<Sensor>(sensorRoute);
+		String flightpathTxt = "";
 		
 		//FIND MOVES FOR CHOSEN ROUTE
-		for (int s = 0; s < sensors.size()-1; s++) {
-			Point currPoint = new Point(pointRoute.get(s));
-			Sensor nextSensor = new Sensor(sensorRoute.get(s+1));
-			 
+		while ((unreadSensors.size() > 0) && (moves < 150)) {
+			Sensor nextSensor = new Sensor(unreadSensors.get(0));
+			Point currPoint = new Point(route.get(route.size()-1));
+			
 			Double dist = calcDistance(currPoint, nextSensor.point);
 			
 			if ((dist < 0.0005) && (dist > 0.0001)) { // valid length
 				Double angle = calcAngle(currPoint, nextSensor.point);
 				Double remainder = angle % 10;
-				LineGraph path = new LineGraph(currPoint, nextSensor.point);
 				Point newP = new Point();
 				
 				//Valid angle
@@ -528,34 +537,96 @@ public class App
 					newP = new Point(transformPoint(currPoint, angle));
 					
 				} else { //Try floor and ceiling angles
-					Double roundedAngle = angle -= remainder;
+					angle -= remainder;
 					
 					//Point with floored angle
-					newP = new Point(transformPoint(currPoint, roundedAngle));
+					newP = new Point(transformPoint(currPoint, angle));
 					
 					if (!checkPoint(nextSensor.point, newP)) { //Invalid floored angle point
-						roundedAngle += 10;
+						angle += 10;
 						//Point with ceilinged angle
-						newP = new Point(transformPoint(currPoint, roundedAngle));
+						newP = new Point(transformPoint(currPoint, angle));
 					}
+				}
+				route.add(newP);
+				String location = "null";
+				String comma = "";
+				
+				if (unreadSensors.size() > 1) {
+					comma = ",";
 				}
 				
 				if (checkPoint(nextSensor.point, newP)) { //Checks if point is valid
-					pointRoute.set(s+1, newP);
 					System.out.println("valid");
-					
-				} else { //Else we must do a segmented route
-					Double subAngle = Math.acos((dist/2)/pathLength);
-					System.out.println(subAngle);
-					
+					location = nextSensor.location;
+					unreadSensors.remove(0);
 				}
+				//Writing to files
+				flightpathTxt += flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + "," + location + "\n";
+				dataGeojson += lineGeojson + "\n\t\t\t\t[" + currPoint.lng.toString() + ", " + currPoint.lat.toString() + "], [" + newP.lng.toString() + ", " + newP.lat.toString() + "]\n\t\t\t\t]\n\t\t\t}}" + comma + "\n\t\t";
+						
+				moves += 1;
 				
 				
 			} else if (dist >= 0.0005) { //zigzag
+				Double angle = calcAngle(currPoint, nextSensor.point);
+				Double remainder = angle % 10;
+				Point newP = new Point();
 				
+				//Valid angle
+				if (remainder == 0) {
+					newP = new Point(transformPoint(currPoint, angle));
+					
+				} else { //Try floor and ceiling angles
+					Double roundedAngle = angle - remainder;
+					
+					//Point with floored angle
+					newP = new Point(transformPoint(currPoint, roundedAngle));
+				}
+				route.add(newP);
+
+				//Writing to files
+				System.out.println(moves);
+				flightpathTxt += flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + ",null\n";
+				dataGeojson += lineGeojson + "\n\t\t\t\t[" + currPoint.lng.toString() + ", " + currPoint.lat.toString() + "], [" + newP.lng.toString() + ", " + newP.lat.toString() + "]\n\t\t\t\t]\n\t\t\t}},\n\t\t";
+						
+				moves += 1;
 			}
 		}
-		System.out.println(calcRouteCost(pointRoute));
+		dataGeojson += "\n\t]\n}";
+		
+		
+        //OUTPUT OUR GEO-JSON AQMAPS FILE
+        
+        //Try write the code in the 'dataGeojson' String variable to a Geo-JSON file
+        try {
+        	String geojsonFilename = "/readings-" + dateDD + "-" + dateMM + "-" + dateYY + ".geojson"; 
+        	FileWriter writer = new FileWriter(System.getProperty("user.dir") + geojsonFilename);
+        	writer.write(dataGeojson);
+        	writer.close();
+        	//Success writing to file 'readings-DD-MM-YYYY.geojson'
+        	System.out.println("The air quality sensors from " + dateDD + "-" + dateMM + "-" + dateYY + " have been read by the drone and formatted into a Geo-JSON map.\nGeo-JSON file path:\t" + System.getProperty("user.dir") + geojsonFilename);
+        	
+        } catch (IOException e) {
+        	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
+        	e.printStackTrace();
+        }
+        
+        //Try write the code in the 'flightpathTxt' String variable to a .txt file
+        try {
+        	String txtFilename = "/flightpath-" + dateDD + "-" + dateMM + "-" + dateYY +".txt"; 
+        	FileWriter writer = new FileWriter(System.getProperty("user.dir") + txtFilename);
+        	writer.write(flightpathTxt);
+        	writer.close();
+        	//Success writing to file 'flightpath-DD-MM-YYYY.geojson'
+        	System.out.println("All the drone moves from " + dateDD + "-" + dateMM + "-" + dateYY + " have been logged into a text file.\nText file path:\t" + System.getProperty("user.dir") + txtFilename);
+        	
+        } catch (IOException e) {
+        	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
+        	e.printStackTrace();
+        }
+		
+		//System.out.println(calcRouteCost(pointRoute));
         /*
 		
 		//ROUTE FIND WITH APPROPRIATE TURNING ANGLES (DIVISIBLE BY 10)
