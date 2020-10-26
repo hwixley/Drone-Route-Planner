@@ -51,6 +51,68 @@ public class App
     	}
     }
     
+    //METHOD: find point
+    private static Point findPoint(Double angle, Double remainder, Point currPoint, Point nextPoint) {
+		//Valid angle
+		if (remainder == 0) {
+			return new Point(transformPoint(currPoint, angle));
+
+		} else { //Try floor and ceiling angles
+			Double newAngle = angle - remainder;
+			
+			//Point with floored angle
+			Point newPF = new Point(transformPoint(currPoint, newAngle));
+			Double distF = calcDistance(nextPoint, newPF);
+			
+			//Point with ceilinged angle
+			if (newAngle == 360) {
+				newAngle = 10.0;
+			} else {
+				newAngle += 10;
+			}
+			Point newPC = new Point(transformPoint(currPoint, newAngle));
+			Double distC = calcDistance(nextPoint, newPC);
+			
+			if ((distF < distC) && checkConfinement(newPF)) {
+				angle -= remainder;
+				return new Point(newPF);
+			} else if (checkConfinement(newPC)) {
+				angle += 10 - remainder;
+				return new Point(newPC);
+			} else {
+				Double pfAngle = newAngle;
+				Double pcAngle = angle - remainder;
+				
+				while (!checkConfinement(newPF)) {
+					if (pfAngle == 360) {
+						pfAngle = 10.0;
+					} else {
+						pfAngle += 10;
+					}
+					newPF = new Point(transformPoint(currPoint, pfAngle));
+				}
+				while (!checkConfinement(newPC)) {
+					if (pcAngle == 0) {
+						pcAngle = 350.0;
+					} else {
+						pcAngle -= 10;
+					}
+					newPC = new Point(transformPoint(currPoint,pcAngle));
+				}
+				distF = calcDistance(nextPoint, newPF);
+				distC = calcDistance(nextPoint, newPC);
+				
+				if (distF < distC) {
+					angle = pfAngle;
+					return new Point(newPF);
+				} else {
+					angle = pcAngle;
+					return new Point(newPC);
+				}
+			}
+		}
+    }
+    
     //METHOD: transform point
     private static Point transformPoint(Point origin, Double angle) {
     	Point out = new Point(origin);
@@ -573,66 +635,8 @@ public class App
 			if ((dist < 0.0005) && (dist > 0.0001)) { // valid length
 				Double angle = calcAngle(currPoint, nextSensor.point);
 				Double remainder = angle % 10;
-				Point newP = new Point();
+				Point newP = new Point(findPoint(angle,remainder,currPoint,nextSensor.point));
 				
-				//Valid angle
-				if (remainder == 0) {
-					newP = new Point(transformPoint(currPoint, angle));
-
-				} else { //Try floor and ceiling angles
-					Double newAngle = angle - remainder;
-					
-					//Point with floored angle
-					Point newPF = new Point(transformPoint(currPoint, newAngle));
-					Double distF = calcDistance(nextSensor.point, newPF);
-					
-					//Point with ceilinged angle
-					if (newAngle == 360) {
-						newAngle = 10.0;
-					} else {
-						newAngle += 10;
-					}
-					Point newPC = new Point(transformPoint(currPoint, newAngle));
-					Double distC = calcDistance(nextSensor.point, newPC);
-					
-					if ((distF < distC) && checkConfinement(newPF)) {
-						angle -= remainder;
-						newP = new Point(newPF);
-					} else if (checkConfinement(newPC)) {
-						angle += 10 - remainder;
-						newP = new Point(newPC);
-					} else {
-						Double pfAngle = newAngle;
-						Double pcAngle = angle - remainder;
-						
-						while (!checkConfinement(newPF)) {
-							if (pfAngle == 360) {
-								pfAngle = 10.0;
-							} else {
-								pfAngle += 10;
-							}
-							newPF = new Point(transformPoint(currPoint, pfAngle));
-						}
-						while (!checkConfinement(newPC)) {
-							if (pcAngle == 0) {
-								pcAngle = 350.0;
-							} else {
-								pcAngle -= 10;
-							}
-							newPC = new Point(transformPoint(currPoint,pcAngle));
-						}
-						distF = calcDistance(nextSensor.point, newPF);
-						distC = calcDistance(nextSensor.point, newPC);
-						
-						if (distF < distC) {
-							angle = pfAngle;
-							newP = new Point(newPF);
-						} else {
-							angle = pcAngle;
-							newP = new Point(newPC);
-						}
-					}
-				}
 				route.add(newP);
 				String location = "null";
 				String comma = "";
@@ -662,66 +666,8 @@ public class App
 			} else if (dist >= 0.0005) { //zigzag
 				Double angle = calcAngle(currPoint, nextSensor.point);
 				Double remainder = angle % 10;
-				Point newP = new Point();
+				Point newP = new Point(findPoint(angle,remainder,currPoint,nextSensor.point));
 				
-				//Valid angle
-				if (remainder == 0) {
-					newP = new Point(transformPoint(currPoint, angle));
-					
-				} else { //Try floor and ceiling angles
-					Double newAngle = angle - remainder;
-					
-					//Point with floored angle
-					Point newPF = new Point(transformPoint(currPoint, newAngle));
-					Double distF = calcDistance(nextSensor.point, newPF);
-					
-					//Point with ceilinged angle
-					if (newAngle == 360) {
-						newAngle = 10.0;
-					} else {
-						newAngle += 10;
-					}
-					Point newPC = new Point(transformPoint(currPoint, newAngle));
-					Double distC = calcDistance(nextSensor.point, newPC);
-					
-					if ((distF < distC) && checkConfinement(newPF)) {
-						angle -= remainder;
-						newP = new Point(newPF);
-					} else if (checkConfinement(newPC)) {
-						angle += 10 - remainder;
-						newP = new Point(newPC);
-					} else {
-						Double pfAngle = newAngle;
-						Double pcAngle = angle - remainder;
-						
-						while (!checkConfinement(newPF)) {
-							if (pfAngle == 360) {
-								pfAngle = 10.0;
-							} else {
-								pfAngle += 10;
-							}
-							newPF = new Point(transformPoint(currPoint, pfAngle));
-						}
-						while (!checkConfinement(newPC)) {
-							if (pcAngle == 0) {
-								pcAngle = 350.0;
-							} else {
-								pcAngle -= 10;
-							}
-							newPC = new Point(transformPoint(currPoint,pcAngle));
-						}
-						distF = calcDistance(nextSensor.point, newPF);
-						distC = calcDistance(nextSensor.point, newPC);
-						
-						if (distF < distC) {
-							angle = pfAngle;
-							newP = new Point(newPF);
-						} else {
-							angle = pcAngle;
-							newP = new Point(newPC);
-						}
-					}
-				}
 				route.add(newP);
 				String comma = "";
 				
