@@ -97,31 +97,14 @@ public class App
     	String location;
     	Double battery;
     	Double reading;
-    	Point swPoint;
-    	Point sePoint;
-    	Point nePoint;
-    	Point nwPoint;
-    	
-    	//Method to return array of points
-    	private static ArrayList<Point> getPoints(Sensor s) {
-    		ArrayList<Point> out = new ArrayList<Point>();
-    		out.add(s.nePoint);
-    		out.add(s.nwPoint);
-    		out.add(s.swPoint);
-    		out.add(s.sePoint);
-    		
-    		return out;
-    	}
+    	Point point;
     	
     	//Constructor created to clone custom objects effectively
     	public Sensor(Sensor another) {
     		this.location = another.location;
     		this.battery = another.battery;
     		this.reading = another.reading;
-    		this.swPoint = another.swPoint;
-    		this.sePoint = another.sePoint;
-    		this.nePoint = another.nePoint;
-    		this.nwPoint = another.nwPoint;
+    		this.point = another.point;
     	}
     	
     	//Constructor with no arguments for default properties
@@ -337,39 +320,27 @@ public class App
     		String[]linesW3W = w3wFile.split(System.getProperty("line.separator"));
     		for(String line : linesW3W) {
     			
-    			if (line.indexOf("southwest") != -1) {
+    			if (line.indexOf("coordinates") != -1) {
     				stage = 1;
-    			} else if (line.indexOf("northeast") != -1) {
-    				stage = 4;
     			}
     			
     			//Parse the latitude and longitude values into doubles, and pass these into our 'point' object
-    			if ((stage == 2) || (stage == 5)) {
+    			if (stage == 2){
     				point.lng = Double.parseDouble(line.substring(line.indexOf(":") + 1, line.length() - 1));
-    			} else if ((stage == 3) || (stage == 6)) {
+    			} else if (stage == 3) {
     				point.lat = Double.parseDouble(line.substring(line.indexOf(":") + 1, line.length()));
+    				s.point = new Point(point);
+    				break;
     			}
-    			
-    			//Pass the given Point object 'point' to the Sensor object 's'
-    			if (stage == 3) {
-    				s.swPoint = new Point(point);
-    			} else if (stage == 6) {
-    				s.nePoint = new Point(point);
-    				Point se = new Point();
-    				se.lat = s.swPoint.lat;
-    				se.lng = s.nePoint.lng;
-    				Point nw = new Point();
-    				nw.lat = s.nePoint.lat;
-    				nw.lng = s.swPoint.lng;
-    				s.nwPoint = nw;
-    				s.sePoint = se;
-    			}
-    			
+
     			stage += 1;
     		}
+    		System.out.println(s.location);
+    		System.out.println(s.point.lat);
+    		System.out.println(s.point.lng);
         }
         
-        
+        /*
         //GET THE NO-FLY-ZONE DATA
         
         //1) Retrieve files from the WebServer
@@ -446,14 +417,14 @@ public class App
 			int minSensor = -1;
 			 
 			for (int u = 0; u < unexploredSensors.size(); u++) {
-				ArrayList<Point> nextSensorPoints = Sensor.getPoints(unexploredSensors.get(u));
+				Point nextPoint = unexploredSensors.get(u);
 				 
 				for (int v = 0; v < 4; v++) {
-					if (calcDistance(nextSensorPoints.get(v), currPoint) < minDist) {
-						minDist = calcDistance(nextSensorPoints.get(v), currPoint);
-						minPoint = new Point(nextSensorPoints.get(v));
-						minSensor = u;
-					}
+					//if (calcDistance(nextSensorPoints.get(v), currPoint) < minDist) {
+					//	minDist = calcDistance(nextSensorPoints.get(v), currPoint);
+					//	minPoint = new Point(nextSensorPoints.get(v));
+					//	minSensor = u;
+					//}
 				}
 				 
 			}
