@@ -133,6 +133,7 @@ public class App
 	//private static Boolean isValid()
 	
 	//Returns true if path between p1 and p2 does not pass through any buildings
+	@SuppressWarnings("unused")
 	private static Boolean checkBuildings(Point p1, Point p2) {
 		LineGraph path = new LineGraph(p1,p2);
 		
@@ -233,6 +234,7 @@ public class App
     	
     	return angle;
     }
+    
     
     
     public static void main( String[] args ) throws IOException
