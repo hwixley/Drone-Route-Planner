@@ -52,7 +52,10 @@ public class App
     }
     
     //METHOD: find point
-    private static Point findPoint(Double angle, Double remainder, Point currPoint, Point nextPoint) {
+    private static Point findPoint(Point currPoint, Point nextPoint) {
+		Double angle = calcAngle(currPoint, nextPoint);
+		Double remainder = angle % 10;
+    	
 		//Valid angle
 		if (remainder == 0) {
 			return new Point(transformPoint(currPoint, angle));
@@ -634,8 +637,7 @@ public class App
 			
 			if ((dist < 0.0005) && (dist > 0.0001)) { // valid length
 				Double angle = calcAngle(currPoint, nextSensor.point);
-				Double remainder = angle % 10;
-				Point newP = new Point(findPoint(angle,remainder,currPoint,nextSensor.point));
+				Point newP = new Point(findPoint(currPoint,nextSensor.point));
 				
 				route.add(newP);
 				String location = "null";
@@ -665,8 +667,7 @@ public class App
 				
 			} else if (dist >= 0.0005) { //zigzag
 				Double angle = calcAngle(currPoint, nextSensor.point);
-				Double remainder = angle % 10;
-				Point newP = new Point(findPoint(angle,remainder,currPoint,nextSensor.point));
+				Point newP = new Point(findPoint(currPoint,nextSensor.point));
 				
 				route.add(newP);
 				String comma = "";
