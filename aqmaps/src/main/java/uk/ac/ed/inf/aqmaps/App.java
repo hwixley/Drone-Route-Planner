@@ -337,9 +337,18 @@ public class App
     		}
         }
         
-        
+		
         //PARSE SENSORS INTO GEOJSON MARKERS
-        
+		String dataGeojson = "{\"type\"\t: \"FeatureCollection\",\n\t\"features\"\t: [";
+		String markerGeojson = "\n\t{\"type\"\t\t: \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\" : \"Point\",\n\t\t\t\t\"coordinates\" : [";
+		
+		for (int m = 0; m < sensors.size(); m++) {
+			Sensor sensor = new Sensor(sensors.get(m));
+			
+			dataGeojson += markerGeojson + sensor.point.lng.toString() + ", " + sensor.point.lat.toString() + "]\n";
+			dataGeojson += "\t\t\t\"properties\"\t: {\"marker-size\": \"medium\", \"location\": \"" + sensor.location  + "\", \"rgb-string\": \"" + readingColour(sensor.reading) + "\", ";
+			dataGeojson += "\"marker-color\": \"" + readingColour(sensor.reading) + "\", \"marker-symbol\": \"" + readingSymbol(sensor.reading) + "\"}},";
+		}
         
         
         //GET THE NO-FLY-ZONE DATA
@@ -471,8 +480,7 @@ public class App
 		System.out.println(calcRouteCost(pointRoute));
 		 
 		
-		//3) Minimize route cost by choosing closest vertices on the sensors' w3w tiles
-		//Loop through the sensor route
+		//FIND MOVES FOR CHOSEN ROUTE
 		for (int s = 0; s < sensors.size()-1; s++) {
 			Point currPoint = new Point(pointRoute.get(s));
 			Sensor nextSensor = new Sensor(sensorRoute.get(s+1));
