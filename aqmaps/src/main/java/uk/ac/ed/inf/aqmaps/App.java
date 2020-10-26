@@ -564,7 +564,7 @@ public class App
 				}
 				//Writing to files
 				//flightpathTxt += flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + "," + location + "\n";
-				dataGeojson += lineGeojson + "\n\t\t\t\t[" + currPoint.lng.toString() + ", " + currPoint.lat.toString() + "], [" + newP.lng.toString() + ", " + newP.lat.toString() + "]\n\t\t\t\t]\n\t\t\t}}" + comma + "\n\t\t";
+				dataGeojson += lineGeojson + "\n\t\t\t\t[" + currPoint.lng.toString() + ", " + currPoint.lat.toString() + "], [" + newP.lng.toString() + ", " + newP.lat.toString() + "]\n\t\t\t\t]\n\t\t\t},\"properties\":{\n\t\t}\n\t}" + comma + "\n\t\t";
 						
 				moves += 1;
 				
@@ -594,7 +594,7 @@ public class App
 				//Writing to files
 				System.out.println(moves);
 				//flightpathTxt += flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + ",null\n";
-				dataGeojson += lineGeojson + "\n\t\t\t\t[" + currPoint.lng.toString() + ", " + currPoint.lat.toString() + "], [" + newP.lng.toString() + ", " + newP.lat.toString() + "]\n\t\t\t\t]\n\t\t\t}}" + comma + "\n\t\t";
+				dataGeojson += lineGeojson + "\n\t\t\t\t[" + currPoint.lng.toString() + ", " + currPoint.lat.toString() + "], [" + newP.lng.toString() + ", " + newP.lat.toString() + "]\n\t\t\t\t]\n\t\t\t},\"properties\":{\n\t\t}\n\t}" + comma + "\n\t\t";
 						
 				moves += 1;
 			}
@@ -631,127 +631,5 @@ public class App
         	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
         	e.printStackTrace();
         }
-		
-		//System.out.println(calcRouteCost(pointRoute));
-        /*
-		
-		//ROUTE FIND WITH APPROPRIATE TURNING ANGLES (DIVISIBLE BY 10)
-		
-		//1) Find range of angles for a straight line to a sensor's w3w tile
-		for (int a = 0; a < sensors.size(); a++) {
-			Point currPoint = new Point(pointRoute.get(a));
-			Sensor nextSensor = new Sensor(sensorRoute.get(a+1));
-			ArrayList<Point> nextPoints = Sensor.getPoints(nextSensor);
-			int pointIndex;
-		}
-		
-		/*
-		//Start mapping route
-		String flightpathTxt = "";
-		String readingsGeojson = "{\"type\"\t: \"FeatureCollection\",\n\t\"features\"\t: [";
-		String cellGeojson = "\n\t{\"type\"\t\t: \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\" : \"Point\",\n\t\t\t\t\"coordinates\" : [";
-		
-		ArrayList<Sensor> unreadSensors = new ArrayList<Sensor>(sensors);
-		Point lastPoint = null;
-		Sensor lastSensor = new Sensor();
-		int pathIndex = 1;
-		
-		while (unreadSensors.size() > 0) {
-			
-			Sensor nextSensor = new Sensor();
-			
-			if (lastPoint == null) {
-				lastSensor = unreadSensors.get(0);
-				unreadSensors.remove(0);
-				lastPoint = lastSensor.nePoint;
-			}
-			
-			Double minDist = 0.0;
-			int minIndex = -1;
-			int vertexNum = -1;
-			
-			//Find the closest sensor from the last point
-			for (int g = 0; g < unreadSensors.size(); g++) {
-				Double dist = calcDistance(unreadSensors.get(g).nePoint, lastPoint);
-				int vNum = 1;
-				
-				if (calcDistance(unreadSensors.get(g).nwPoint, lastPoint) < dist) {
-					vNum = 2;
-				} else if (calcDistance(unreadSensors.get(g).swPoint, lastPoint) < dist) {
-					vNum = 3;
-				} else if (calcDistance(unreadSensors.get(g).sePoint, lastPoint) < dist) {
-					vNum = 4;
-				}
-				
-				if (dist < minDist) {
-					minDist = dist;
-					minIndex = g;
-					vertexNum = vNum;
-				}
-			}
-			
-			nextSensor = unreadSensors.get(minIndex);
-			unreadSensors.remove(minIndex);
-			Point closestPoint = new Point();
-			
-			if (vertexNum == 1) {
-				closestPoint = new Point(nextSensor.nePoint);
-			} else if (vertexNum == 2) {
-				closestPoint = new Point(nextSensor.nwPoint);
-			} else if (vertexNum == 3) {
-				closestPoint = new Point(nextSensor.swPoint);
-			} else if (vertexNum == 4) {
-				closestPoint = new Point(nextSensor.sePoint);
-			}
-			
-			//Map route to this new sensor 's'
-			double pathAngle = calcAngle(lastPoint, closestPoint);
-			
-			if (pathAngle % 10 == 0) {
-				flightpathTxt += pathIndex + "," + lastPoint.lng + "," + lastPoint.lat + "," + pathAngle + "," + closestPoint.lng + "," + closestPoint.lat + "," + nextSensor.location + "\n";
-				readingsGeojson += cellGeojson + closestPoint.lng.toString() + ", " + closestPoint.lat.toString() + "]\n";
-				readingsGeojson += "\t\t\t\"properties\"\t: {\"marker-size\": \"medium\", \"location\": \"" + nextSensor.location  + "\", \"rgb-string\": \"" + readingColour(nextSensor.reading) + "\", ";
-				readingsGeojson += "\"marker-color\": \"" + readingColour(nextSensor.reading) + "\", \"marker-symbol\": \"" + readingSymbol(nextSensor.reading) + "\"}}";
-				
-				if (unreadSensors.size() > 1) {
-					readingsGeojson += ",";
-				}
-				pathIndex += 1;
-				
-			} else { // First try all possible angles for a straight line by varying latitude and longitude whilst still remaining in the w3w tile
-				if (vertexNum == 1) {
-					//for (int latOff = 0; latOff < 0.000001 0.0000001)
-				} else if (vertexNum == 2) {
-					
-				} else if (vertexNum == 3) {
-					
-				} else if (vertexNum == 4) {
-					
-				}
-				
-				//for (int latOff = 0.0)
-			}
-		}
-		
-        //Add the closing brackets for our FeatureCollection in our Geo-JSON code variable ('readingsGeojson')
-        readingsGeojson += "\n\t]\n}";
-        
-        
-        
-        //OUTPUT OUR GEO-JSON AQMAPS FILE
-        
-        //Try write the code in the 'geojsonText' String variable to a Geo-JSON file ('heatmap.geojson')
-        try {
-        	FileWriter writer = new FileWriter(System.getProperty("user.dir") + "/readings-" + dateDD + "-" + dateMM + "-" + dateYY +".geojson");
-        	writer.write(readingsGeojson);
-        	writer.close();
-        	//Success writing to file 'readings-DD-MM-YYYY.geojson'
-        	System.out.println("The air quality sensors from " + dateDD + "-" + dateMM + "-" + dateYY + " have been read by the drone and formatted into a Geo-JSON map.\nGeo-JSON file path:\t" + System.getProperty("user.dir") + "/heatmap.geojson");
-        	
-        } catch (IOException e) {
-        	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
-        	e.printStackTrace();
-        }
-        */
     }
 }
