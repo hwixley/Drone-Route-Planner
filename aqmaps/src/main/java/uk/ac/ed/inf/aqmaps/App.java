@@ -80,7 +80,7 @@ public class App
     //METHOD: returns the appropriate colour for a given air quality reading
     @SuppressWarnings("unused")
 	private static String readingColour(Double reading) {
-		String colour = "";
+		String colour = "#000000";
 		
 		//Classify the given 'reading' by returning it's appropriate rgb-string
 		if (reading == Double.NaN) {
@@ -109,7 +109,7 @@ public class App
    //METHOD: returns the appropriate symbol for a given air quality reading
     @SuppressWarnings("unused")
 	private static String readingSymbol(Double reading) {
-    	String symbol = "";
+    	String symbol = "cross";
     	
     	if (reading == Double.NaN) {
     		symbol = "cross";
@@ -368,6 +368,9 @@ public class App
 		
         //PARSE SENSORS INTO GEOJSON MARKERS
 		String dataGeojson = "{\"type\": \"FeatureCollection\",\n\t\"features\"\t: [";
+		dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
+		dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
+		dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
 		String markerGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Point\", \"coordinates\": [";
 		
 		for (int m = 0; m < sensors.size(); m++) {

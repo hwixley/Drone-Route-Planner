@@ -1,6 +1,9 @@
 {"type": "FeatureCollection",
 	"features"	: [
 	{"type": "Feature",
+			"geometry"	: {"type": "Polygon", "coordinates": [[[-3.184319, 55.946233], [-3.184319, 55.942617], [-3.192473, 55.942617], [-3.192473, 55.946233]]]},
+		"properties": {"fill-opacity": 0}},
+	{"type": "Feature",
 			"geometry"	: {"type": "Point", "coordinates": [-3.189957, 55.94603]},
 			"properties": {"marker-size": "medium", "location": "love.behind.orchestra", "rgb-string": "#ff0000", "marker-color": "#ff0000", "marker-symbol": "danger"}
 			},
@@ -38,7 +41,7 @@
 			},
 	{"type": "Feature",
 			"geometry"	: {"type": "Point", "coordinates": [-3.188463, 55.945761]},
-			"properties": {"marker-size": "medium", "location": "bend.tubes.chops", "rgb-string": "", "marker-color": "", "marker-symbol": ""}
+			"properties": {"marker-size": "medium", "location": "bend.tubes.chops", "rgb-string": "#000000", "marker-color": "#000000", "marker-symbol": "cross"}
 			},
 	{"type": "Feature",
 			"geometry"	: {"type": "Point", "coordinates": [-3.188608, 55.943119]},
