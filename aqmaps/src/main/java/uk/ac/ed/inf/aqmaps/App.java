@@ -367,15 +367,15 @@ public class App
         
 		
         //PARSE SENSORS INTO GEOJSON MARKERS
-		String dataGeojson = "{\"type\"\t: \"FeatureCollection\",\n\t\"features\"\t: [";
-		String markerGeojson = "\n\t{\"type\"\t\t: \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\" : \"Point\",\n\t\t\t\t\"coordinates\" : [";
+		String dataGeojson = "{\"type\": \"FeatureCollection\",\n\t\"features\"\t: [";
+		String markerGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Point\", \"coordinates\": [";
 		
 		for (int m = 0; m < sensors.size(); m++) {
 			Sensor sensor = new Sensor(sensors.get(m));
 			
-			dataGeojson += markerGeojson + sensor.point.lng.toString() + ", " + sensor.point.lat.toString() + "]\n";
-			dataGeojson += "\t\t\t\"properties\"\t: {\"marker-size\": \"medium\", \"location\": \"" + sensor.location  + "\", \"rgb-string\": \"" + readingColour(sensor.reading) + "\", ";
-			dataGeojson += "\"marker-color\": \"" + readingColour(sensor.reading) + "\", \"marker-symbol\": \"" + readingSymbol(sensor.reading) + "\"}},";
+			dataGeojson += markerGeojson + sensor.point.lng.toString() + ", " + sensor.point.lat.toString() + "]},\n";
+			dataGeojson += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + sensor.location  + "\", \"rgb-string\": \"" + readingColour(sensor.reading) + "\", ";
+			dataGeojson += "\"marker-color\": \"" + readingColour(sensor.reading) + "\", \"marker-symbol\": \"" + readingSymbol(sensor.reading) + "\"}\n\t\t\t},";
 		}
         
         
@@ -473,7 +473,7 @@ public class App
 		    	unexploredSensors.remove(minSensor);
 			}
 		}
-		System.out.println(calcRouteCost(pointRoute));
+		unexploredSensors.clear();
 		
 		//2) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
 		Boolean better = true;
@@ -509,10 +509,11 @@ public class App
 				}
 		 	}
 		}
-		System.out.println(calcRouteCost(pointRoute));
+		pointRoute.clear();
+		
 		
 		//Variables
-		String lineGeojson = "\n\t{\"type\"\t\t: \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\" : \"LineString\",\n\t\t\t\t\"coordinates\" : [";
+		String lineGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\": {\"type\": \"LineString\",\n\t\t\t\t\"coordinates\": [";
 		ArrayList<Point> route = new ArrayList<Point>();
 		route.add(startPoint);
 		int moves = 0;
@@ -552,7 +553,7 @@ public class App
 				String location = "null";
 				String comma = "";
 				
-				if (unreadSensors.size() > 1) {
+				if ((unreadSensors.size() > 1) || (moves < 149)) {
 					comma = ",";
 				}
 				
@@ -562,7 +563,7 @@ public class App
 					unreadSensors.remove(0);
 				}
 				//Writing to files
-				flightpathTxt += flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + "," + location + "\n";
+				//flightpathTxt += flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + "," + location + "\n";
 				dataGeojson += lineGeojson + "\n\t\t\t\t[" + currPoint.lng.toString() + ", " + currPoint.lat.toString() + "], [" + newP.lng.toString() + ", " + newP.lat.toString() + "]\n\t\t\t\t]\n\t\t\t}}" + comma + "\n\t\t";
 						
 				moves += 1;
@@ -584,11 +585,16 @@ public class App
 					newP = new Point(transformPoint(currPoint, roundedAngle));
 				}
 				route.add(newP);
+				String comma = "";
+				
+				if (moves < 149) {
+					comma = ",";
+				}
 
 				//Writing to files
 				System.out.println(moves);
-				flightpathTxt += flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + ",null\n";
-				dataGeojson += lineGeojson + "\n\t\t\t\t[" + currPoint.lng.toString() + ", " + currPoint.lat.toString() + "], [" + newP.lng.toString() + ", " + newP.lat.toString() + "]\n\t\t\t\t]\n\t\t\t}},\n\t\t";
+				//flightpathTxt += flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + ",null\n";
+				dataGeojson += lineGeojson + "\n\t\t\t\t[" + currPoint.lng.toString() + ", " + currPoint.lat.toString() + "], [" + newP.lng.toString() + ", " + newP.lat.toString() + "]\n\t\t\t\t]\n\t\t\t}}" + comma + "\n\t\t";
 						
 				moves += 1;
 			}
