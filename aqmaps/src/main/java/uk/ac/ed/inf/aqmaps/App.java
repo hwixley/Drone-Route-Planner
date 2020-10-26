@@ -1,9 +1,5 @@
 package uk.ac.ed.inf.aqmaps;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,13 +7,10 @@ import java.net.URI;
 import java.net.http.*;
 import java.net.http.HttpResponse.BodyHandlers;
 
-import com.mapbox.geojson.*;
-
 import uk.ac.ed.inf.aqmaps.Objects.Point;
 import uk.ac.ed.inf.aqmaps.Objects.Building;
 import uk.ac.ed.inf.aqmaps.Objects.LineGraph;
 import uk.ac.ed.inf.aqmaps.Objects.Sensor;
-import uk.ac.ed.inf.aqmaps.Objects.Building;
 
 public class App 
 {
