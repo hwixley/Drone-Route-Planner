@@ -542,7 +542,7 @@ public class App
 				//Valid angle
 				if (remainder == 0) {
 					newP = new Point(transformPoint(currPoint, angle));
-					System.out.println("yes?");
+
 				} else { //Try floor and ceiling angles
 					angle -= remainder;
 					
@@ -550,7 +550,11 @@ public class App
 					newP = new Point(transformPoint(currPoint, angle));
 					
 					if (!checkPoint(nextSensor.point, newP)) { //Invalid floored angle point
-						angle += 10;
+						if (angle == 360) {
+							angle = 10.0;
+						} else {
+							angle += 10;
+						}
 						//Point with ceilinged angle
 						newP = new Point(transformPoint(currPoint, angle));
 					}
@@ -586,10 +590,10 @@ public class App
 					newP = new Point(transformPoint(currPoint, angle));
 					
 				} else { //Try floor and ceiling angles
-					Double roundedAngle = angle - remainder;
+					angle -= remainder;
 					
 					//Point with floored angle
-					newP = new Point(transformPoint(currPoint, roundedAngle));
+					newP = new Point(transformPoint(currPoint, angle));
 				}
 				route.add(newP);
 				String comma = "";
