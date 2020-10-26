@@ -620,11 +620,11 @@ public class App
 		String flightpathTxt = "";
 		
         //PARSE SENSORS INTO GEOJSON MARKERS
-		//Add geojson Polygon to represent confinement area
+		//Add Geo-JSON Polygon to represent confinement area
 		dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
 		dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
 		dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
-		//Geojson marker point
+		//Geo-JSON marker point
 		String markerGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Point\", \"coordinates\": [";
 		
 		
@@ -635,43 +635,45 @@ public class App
 			
 			Double dist = calcDistance(currPoint, nextSensor.point);
 			
-			if ((dist < 0.0005) && (dist > 0.0001)) { // valid length
+			//Checks if current point is in range of next point
+			if ((dist < 0.0005) && (dist > 0.0001)) {
 				Double angle = calcAngle(currPoint, nextSensor.point);
 				Point newP = new Point(findPoint(currPoint,nextSensor.point));
 				
 				route.add(newP);
+				
 				String location = "null";
 				String comma = "";
-				
 				if ((unreadSensors.size() > 1) && (moves < 149)) {
 					comma = ",";
 				}
 				
-				if (checkPoint(nextSensor.point, newP)) { //Checks if point is valid
-					System.out.println("valid");
+				//Checks if point is valid
+				if (checkPoint(nextSensor.point, newP)) { 
 					location = nextSensor.location;
 					System.out.println(location);
 					unreadSensors.remove(0);
 					
-					//Add geojson Point for each sensor
+					//Add Geo-JSON Point for each sensor
 					dataGeojson += markerGeojson + nextSensor.point.lng.toString() + ", " + nextSensor.point.lat.toString() + "]},\n";
 					dataGeojson += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + nextSensor.location  + "\", \"rgb-string\": \"" + readingColour(nextSensor.reading) + "\", ";
 					dataGeojson += "\"marker-color\": \"" + readingColour(nextSensor.reading) + "\", \"marker-symbol\": \"" + readingSymbol(nextSensor.reading) + "\"}\n\t\t\t},";
 				}
+				
 				//Writing to files
 				flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + "," + location + "\n";
 				dataGeojson += lineGeojson + "\n\t\t\t\t[" + currPoint.lng.toString() + ", " + currPoint.lat.toString() + "], [" + newP.lng.toString() + ", " + newP.lat.toString() + "]\n\t\t\t\t]\n\t\t\t},\"properties\":{\n\t\t}\n\t}" + comma + "\n\t\t";
 						
 				moves += 1;
 				
-				
-			} else if (dist >= 0.0005) { //zigzag
+			//Checks if the current point is not in range of the next point
+			} else if (dist >= 0.0005) {
 				Double angle = calcAngle(currPoint, nextSensor.point);
 				Point newP = new Point(findPoint(currPoint,nextSensor.point));
 				
 				route.add(newP);
-				String comma = "";
 				
+				String comma = "";
 				if (moves < 149) {
 					comma = ",";
 				}
