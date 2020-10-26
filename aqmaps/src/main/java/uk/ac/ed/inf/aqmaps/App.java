@@ -149,10 +149,9 @@ public class App
 				} else {
 					next = b.points.get(j+1);
 				}
-				bounds.add(new LineGraph(b.points.get(j), next));
+				LineGraph bound = new LineGraph(b.points.get(j), next);
+				bounds.add(bound);
 			}
-			
-			
 		}
 		return true;
 	}
