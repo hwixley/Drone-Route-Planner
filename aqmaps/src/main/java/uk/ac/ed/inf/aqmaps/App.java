@@ -542,7 +542,7 @@ public class App
 				//Valid angle
 				if (remainder == 0) {
 					newP = new Point(transformPoint(currPoint, angle));
-					
+					System.out.println("yes?");
 				} else { //Try floor and ceiling angles
 					angle -= remainder;
 					
@@ -566,10 +566,11 @@ public class App
 				if (checkPoint(nextSensor.point, newP)) { //Checks if point is valid
 					System.out.println("valid");
 					location = nextSensor.location;
+					System.out.println(location);
 					unreadSensors.remove(0);
 				}
 				//Writing to files
-				//flightpathTxt += flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + "," + location + "\n";
+				flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + "," + location + "\n";
 				dataGeojson += lineGeojson + "\n\t\t\t\t[" + currPoint.lng.toString() + ", " + currPoint.lat.toString() + "], [" + newP.lng.toString() + ", " + newP.lat.toString() + "]\n\t\t\t\t]\n\t\t\t},\"properties\":{\n\t\t}\n\t}" + comma + "\n\t\t";
 						
 				moves += 1;
@@ -599,7 +600,7 @@ public class App
 
 				//Writing to files
 				System.out.println(moves);
-				//flightpathTxt += flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + ",null\n";
+				flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + ",null\n";
 				dataGeojson += lineGeojson + "\n\t\t\t\t[" + currPoint.lng.toString() + ", " + currPoint.lat.toString() + "], [" + newP.lng.toString() + ", " + newP.lat.toString() + "]\n\t\t\t\t]\n\t\t\t},\"properties\":{\n\t\t}\n\t}" + comma + "\n\t\t";
 						
 				moves += 1;
