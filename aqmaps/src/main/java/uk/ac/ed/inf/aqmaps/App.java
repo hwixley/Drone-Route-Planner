@@ -42,7 +42,7 @@ public class App
 		move.origin = currPoint;
     	
 		//Valid angle
-		if (remainder == 0) {
+		if ((remainder == 0) && isValid(currPoint, transformPoint(currPoint, angle))) {
 			move.angle = angle;
 			move.dest = transformPoint(currPoint, angle);
 
@@ -62,17 +62,17 @@ public class App
 			Point newPC = new Point(transformPoint(currPoint, newAngle));
 			Double distC = calcDistance(nextPoint, newPC);
 			
-			if ((distF < distC) && checkConfinement(newPF)) {
+			if ((distF < distC) && isValid(currPoint,newPF)) { //checkConfinement(newPF)
 				move.angle = angle - remainder;
 				move.dest = newPF;
-			} else if (checkConfinement(newPC)) {
+			} else if (isValid(currPoint,newPC)) { //checkConfinement(newPC)
 				move.angle = newAngle;
 				move.dest = newPC;
 			} else {
 				Double pfAngle = newAngle;
 				Double pcAngle = angle - remainder;
 				
-				while (!checkConfinement(newPF)) {
+				while (!isValid(currPoint, newPF)) { //!checkConfinement(newPF)
 					if (pfAngle == 360) {
 						pfAngle = 10.0;
 					} else {
@@ -80,7 +80,7 @@ public class App
 					}
 					newPF = new Point(transformPoint(currPoint, pfAngle));
 				}
-				while (!checkConfinement(newPC)) {
+				while (!isValid(currPoint, newPC)) { //!checkConfinement(newPC)
 					if (pcAngle == 0) {
 						pcAngle = 350.0;
 					} else {
@@ -133,13 +133,20 @@ public class App
     	unreadPoints.remove(0);
     	
     	while (unreadPoints.size() > 0) {
-    		Point newP = findPoint(route.get(route.size()-1), unreadPoints.get(0)).dest;
+    		//Point newP = findPoint(route.get(route.size()-1), unreadPoints.get(0)).dest;
     		
-    		if (checkPoint(unreadPoints.get(0),newP)) {
-    			unreadPoints.remove(0);
+    		//if (checkPoint(unreadPoints.get(0),newP)) {
+    		//	unreadPoints.remove(0);
+    		//}
+    		Double dist = calcDistance(route.get(route.size()-1),unreadPoints.get(0));
+    		
+    		if (!isValid(route.get(route.size()-1),unreadPoints.get(0))) {
+    			dist = dist*2;
     		}
-			cost += calcDistance(route.get(route.size()-1),newP);
-			route.add(newP);
+    		
+			cost += dist;
+			route.add(unreadPoints.get(0));
+			unreadPoints.remove(0);
     	}
     	cost += calcDistance(route.get(route.size()-1),route.get(0))*1.2;
     	
@@ -147,16 +154,21 @@ public class App
     }
 	
 	//Returns true if point is valid (within appropriate areas)
-	//private static Boolean isValid()
+	private static Boolean isValid(Point origin, Point dest) {
+		
+		if (checkConfinement(dest) && checkBuildings(origin, dest)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 	
 	//Returns true if path between p1 and p2 does not pass through any buildings
-	@SuppressWarnings("unused")
 	private static Boolean checkBuildings(Point p1, Point p2) {
 		LineGraph path = new LineGraph(p1,p2);
 		
 		for (int i = 0; i < buildings.size(); i++) {
 			Building building = new Building(buildings.get(i));
-			ArrayList<LineGraph> bounds = new ArrayList<LineGraph>();
 			
 			for (int j=0; j < building.points.size(); j++) {
 				Point next = new Point();
@@ -167,22 +179,50 @@ public class App
 					next = building.points.get(j+1);
 				}
 				LineGraph bound = new LineGraph(building.points.get(j), next);
-				bounds.add(bound);
-			}
-
-			for (int b = 0; b < bounds.size(); b++) {
-				LineGraph bnd = bounds.get(b);
 				
+				if (!checkBound(path,bound)) {
+					return false;
+				}
 			}
 				
 		}
 		return true;
 	}
 	
+	//returns True if these do not intersect
 	private static Boolean checkBound(LineGraph path, LineGraph bound) {
-		Double interLat;
-		Double interLng;
-		return true;
+		Double icLat;
+		Double icLng;
+		Double netGrad = path.gradient - bound.gradient;
+		Double netYint = bound.yint - path.yint;
+		Double max_lat = bound.p1.lat;
+		Double min_lat = bound.p1.lat;
+		Double max_lng = bound.p1.lng;
+		Double min_lng = bound.p1.lng;
+		
+		if (bound.p2.lat > bound.p1.lat) {
+			max_lat = bound.p2.lat;
+		} else {
+			min_lat = bound.p2.lat;
+		}
+		if (bound.p2.lng > bound.p1.lng) {
+			max_lng = bound.p2.lng;
+		} else {
+			min_lng = bound.p2.lng;
+		}
+		
+		if (netGrad != 0) {
+			icLng = netYint/netGrad;
+			icLat = path.gradient*icLng + path.yint;
+			
+			if (((icLng <= max_lng) && (icLng >= min_lng)) || ((icLat <= max_lat) && (icLat >= min_lat))) {
+				return false;
+			} else {
+				return true;
+			}
+		} else {
+			return true;
+		}
 	}
 	
 	//Returns true if point is in confinement area
@@ -490,11 +530,20 @@ public class App
 				dataGeojson += "[" + building.points.get(0).lng + ", " + building.points.get(0).lat + "]]]},\n\t\t";
 				dataGeojson += "\"properties\": {\"fill-opacity\": 0.5, \"fill\": \"#ff0000\"}},";
 			}
-		}
+		}/*
+        LineGraph path = new LineGraph(new Point(55.944,-3.188), new Point(55.944487503,-3.187));
+        LineGraph bound = new LineGraph(new Point(55.94448750356385,-3.1871804594993587),new Point(55.944193856370475,-3.187042325735092));
+        System.out.println(path.gradient);
+        System.out.println(path.yint);
+        System.out.println(bound.gradient);
+        System.out.println(bound.yint);
+        System.out.println(checkBound(path,bound));
+        System.out.println(checkBuildings(path.p1, path.p2));
+        System.out.println(isValid(path.p1, path.p2));
 
-        
+        */
         //FIND OPTIMAL ROUTE
-        
+
         //1) Use greedy algorithm to choose closest points
         ArrayList<Point> pointRoute = new ArrayList<Point>();
 		ArrayList<Sensor> sensorRoute = new ArrayList<Sensor>();
@@ -528,7 +577,7 @@ public class App
 			}
 		}
 		unexploredSensors.clear();
-		
+
 		//2) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
 		Boolean better = true;
 		while (better) {
@@ -591,7 +640,7 @@ public class App
 		//Geo-JSON marker point
 		String markerGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Point\", \"coordinates\": [";
 		
-		
+
 		//FIND MOVES FOR CHOSEN ROUTE
 		while ((unreadSensors.size() > 0) && (moves < 150)) {
 			Sensor nextSensor = new Sensor(unreadSensors.get(0));

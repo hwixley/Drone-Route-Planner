@@ -81,7 +81,7 @@ public class Objects {
     	//Constructor with angle input
     	public LineGraph(Double angle, Point origin) {
     		this.gradient = Math.tan(angle);
-    		this.yint = -gradient*origin.lat + origin.lng;
+    		this.yint = -gradient*origin.lng + origin.lat;
     		this.p1 = origin;
     	}
     	
