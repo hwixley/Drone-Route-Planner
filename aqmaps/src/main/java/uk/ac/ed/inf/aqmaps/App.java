@@ -563,7 +563,7 @@ public class App
 			Double dist = calcDistance(currPoint, nextSensor.point);
 			
 			//Checks if current point is in range of next point
-			if ((dist < 0.0005) && (dist > 0.0001)) {
+			if (dist < 0.0005) {
 				Double angle = calcAngle(currPoint, nextSensor.point);
 				Point newP = new Point(findPoint(currPoint,nextSensor.point));
 				
