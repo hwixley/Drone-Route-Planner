@@ -69,8 +69,8 @@ public class App
 				move.angle = newAngle;
 				move.dest = newPC;
 			} else {
-				Double pfAngle = newAngle;
-				Double pcAngle = angle - remainder;
+				Double pcAngle = newAngle;
+				Double pfAngle = angle - remainder;
 				
 				while (!isValid(currPoint, newPF)) { //!checkConfinement(newPF)
 					if (pfAngle == 360) {
@@ -141,14 +141,19 @@ public class App
     		Double dist = calcDistance(route.get(route.size()-1),unreadPoints.get(0));
     		
     		if (!isValid(route.get(route.size()-1),unreadPoints.get(0))) {
-    			dist = dist*2;
+    			dist = dist*10;
     		}
     		
 			cost += dist;
 			route.add(unreadPoints.get(0));
 			unreadPoints.remove(0);
     	}
-    	cost += calcDistance(route.get(route.size()-1),route.get(0))*1.2;
+    	Double dist = calcDistance(route.get(route.size()-1),route.get(0));
+    	
+    	if (!isValid(route.get(route.size()-1),route.get(0))) {
+    		dist = dist*10;
+    	}
+    	cost += dist;
     	
     	return cost;
     }
@@ -191,8 +196,6 @@ public class App
 	
 	//returns True if these do not intersect
 	private static Boolean checkBound(LineGraph path, LineGraph bound) {
-		Double icLat;
-		Double icLng;
 		Double netGrad = path.gradient - bound.gradient;
 		Double netYint = bound.yint - path.yint;
 		Double max_lat = bound.p1.lat;
@@ -212,8 +215,8 @@ public class App
 		}
 		
 		if (netGrad != 0) {
-			icLng = netYint/netGrad;
-			icLat = path.gradient*icLng + path.yint;
+			Double icLng = netYint/netGrad;
+			Double icLat = path.gradient*icLng + path.yint;
 			
 			if (((icLng <= max_lng) && (icLng >= min_lng)) || ((icLat <= max_lat) && (icLat >= min_lat))) {
 				return false;
