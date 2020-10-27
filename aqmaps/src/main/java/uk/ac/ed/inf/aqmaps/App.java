@@ -179,7 +179,9 @@ public class App
 		return true;
 	}
 	
-	private static Boolean checkBound(LineGraph bound) {
+	private static Boolean checkBound(LineGraph path, LineGraph bound) {
+		Double interLat;
+		Double interLng;
 		return true;
 	}
 	
