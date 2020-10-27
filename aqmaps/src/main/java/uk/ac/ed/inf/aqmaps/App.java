@@ -121,10 +121,21 @@ public class App
     //Calculate distance of route
 	private static Double calcRouteCost(ArrayList<Point> points) {
     	Double cost = 0.0;
+    	ArrayList<Point> unreadPoints = new ArrayList<Point>(points);
+    	ArrayList<Point> route = new ArrayList<Point>();
+    	route.add(points.get(0));
+    	unreadPoints.remove(0);
     	
-    	for (int p = 0; p < points.size()-1; p++) {
-    		cost += calcDistance(points.get(p),points.get(p+1));
+    	while (unreadPoints.size() > 0) {
+    		Point newP = findPoint(route.get(route.size()-1), unreadPoints.get(0));
+    		
+    		if (checkPoint(unreadPoints.get(0),newP)) {
+    			unreadPoints.remove(0);
+    		}
+			cost += calcDistance(route.get(route.size()-1),newP);
+			route.add(newP);
     	}
+    	cost += calcDistance(route.get(route.size()-1),route.get(0))*1.2;
     	
     	return cost;
     }
@@ -595,7 +606,7 @@ public class App
 				moves += 1;
 				
 			//Checks if the current point is not in range of the next point
-			} else if (dist >= 0.0005) {
+			} else {
 				Double angle = calcAngle(currPoint, nextSensor.point);
 				Point newP = new Point(findPoint(currPoint,nextSensor.point));
 				
@@ -616,6 +627,8 @@ public class App
 			System.out.println(moves);
 		}
 		
+		
+		//Add the unread sensors as gray markers to the Geo-JSON map
 		if (unreadSensors.size() > 0) {
 			dataGeojson += ",";
 			for (int s = 0; s < unreadSensors.size(); s++) {
@@ -632,6 +645,7 @@ public class App
 			}
 		}
 		dataGeojson += "\n\t]\n}";
+		
 		
 		
         //OUTPUT OUR GEO-JSON AQMAPS FILE
