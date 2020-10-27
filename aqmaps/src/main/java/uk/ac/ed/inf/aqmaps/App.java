@@ -615,6 +615,22 @@ public class App
 			}
 			System.out.println(moves);
 		}
+		
+		if (unreadSensors.size() > 0) {
+			dataGeojson += ",";
+			for (int s = 0; s < unreadSensors.size(); s++) {
+				Sensor unreadSensor = new Sensor(unreadSensors.get(s));
+				String comma = ",";
+				if (s == unreadSensors.size()-1) {
+					comma = "";
+				}
+				
+				//Add Geo-JSON Point for each sensor
+				dataGeojson += markerGeojson + unreadSensor.point.lng.toString() + ", " + unreadSensor.point.lat.toString() + "]},\n";
+				dataGeojson += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + unreadSensor.location  + "\", \"rgb-string\": \"#aaaaaa\", ";
+				dataGeojson += "\"marker-color\": \"#aaaaaa\"}\n\t\t\t}" + comma; //, \"marker-symbol\": \"" + readingSymbol(nextSensor.reading) + "\"
+			}
+		}
 		dataGeojson += "\n\t]\n}";
 		
 		

@@ -1472,6 +1472,26 @@
 			},"properties":{
 		}
 	}
-		
+		,
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.189908, 55.942904]},
+			"properties": {"marker-size": "medium", "location": "second.launch.miles", "rgb-string": "#aaaaaa", "marker-color": "#aaaaaa"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.190294, 55.943712]},
+			"properties": {"marker-size": "medium", "location": "sculpture.shot.melon", "rgb-string": "#aaaaaa", "marker-color": "#aaaaaa"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.191065, 55.944709]},
+			"properties": {"marker-size": "medium", "location": "estate.gave.votes", "rgb-string": "#aaaaaa", "marker-color": "#aaaaaa"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.191113, 55.94417]},
+			"properties": {"marker-size": "medium", "location": "hills.giant.crate", "rgb-string": "#aaaaaa", "marker-color": "#aaaaaa"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.191161, 55.942742]},
+			"properties": {"marker-size": "medium", "location": "along.spill.limp", "rgb-string": "#aaaaaa", "marker-color": "#aaaaaa"}
+			}
 	]
 }
