@@ -24,7 +24,7 @@ public class App
     private static final double minLng = -3.192473;
     
     //Constants
-    private static final double errorMargin = 0.0002;
+    private static double errorMargin = 0.0002;
     private static final double pathLength = 0.0003;
     
     //Global variables
@@ -479,7 +479,7 @@ public class App
 				dataGeojson += "\"properties\": {\"fill-opacity\": 0.5, \"fill\": \"#ff0000\"}},";
 			}
 		}
-		
+
         
         //FIND OPTIMAL ROUTE
         
@@ -523,11 +523,16 @@ public class App
 			better = false;
 			 
 			for (int j = 0; j < pointRoute.size()-1; j++) {
-				for (int i = 1; i < j; i++) {
+				for (int i = 0; i < j; i++) {
 					Double oldCost = calcRouteCost(pointRoute);
 					 
 					Point iPoint = pointRoute.get(i);
-					Point iPointP = pointRoute.get(i-1);
+					Point iPointP = new Point();
+					if (i == 0) {
+						iPointP = pointRoute.get(pointRoute.size()-1);
+					} else {
+						iPointP = pointRoute.get(i-1);
+					}
 					Point jPoint = pointRoute.get(j);
 					Point jPointP = pointRoute.get(j+1);
 					 
@@ -553,7 +558,6 @@ public class App
 		}
 		pointRoute.clear();
 		
-		
 		//Variables
 		String lineGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\": {\"type\": \"LineString\",\n\t\t\t\t\"coordinates\": [";
 		ArrayList<Point> route = new ArrayList<Point>();
@@ -561,6 +565,10 @@ public class App
 		int moves = 0;
 		sensorRoute.remove(0);
 		ArrayList<Sensor> unreadSensors = new ArrayList<Sensor>(sensorRoute);
+		Sensor finishPoint = new Sensor();
+		finishPoint.point = startPoint;
+		finishPoint.location = "end";
+		unreadSensors.add(finishPoint);
 		String flightpathTxt = "";
 		
         //PARSE SENSORS INTO GEOJSON MARKERS
@@ -578,6 +586,10 @@ public class App
 			Point currPoint = new Point(route.get(route.size()-1));
 			
 			Double dist = calcDistance(currPoint, nextSensor.point);
+			
+			if (nextSensor.location == "end") {
+				errorMargin = 0.0003;
+			}
 			
 			//Checks if current point is in range of next point
 			if (dist < 0.0005) {
@@ -597,13 +609,15 @@ public class App
 				//Checks if point is valid
 				if (checkPoint(nextSensor.point, newP)) { 
 					location = nextSensor.location;
-					System.out.println(location);
 					unreadSensors.remove(0);
 					
-					//Add Geo-JSON Point for each sensor
-					dataGeojson += markerGeojson + nextSensor.point.lng.toString() + ", " + nextSensor.point.lat.toString() + "]},\n";
-					dataGeojson += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + nextSensor.location  + "\", \"rgb-string\": \"" + readingColour(nextSensor.reading) + "\", ";
-					dataGeojson += "\"marker-color\": \"" + readingColour(nextSensor.reading) + "\", \"marker-symbol\": \"" + readingSymbol(nextSensor.reading) + "\"}\n\t\t\t},";
+					//Checks if it is the end point
+					if (location != "end") {
+						//Add Geo-JSON Point for each sensor
+						dataGeojson += markerGeojson + nextSensor.point.lng.toString() + ", " + nextSensor.point.lat.toString() + "]},\n";
+						dataGeojson += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + nextSensor.location  + "\", \"rgb-string\": \"" + readingColour(nextSensor.reading) + "\", ";
+						dataGeojson += "\"marker-color\": \"" + readingColour(nextSensor.reading) + "\", \"marker-symbol\": \"" + readingSymbol(nextSensor.reading) + "\"}\n\t\t\t},";
+					}
 				}
 				
 				//Writing to files
@@ -632,7 +646,6 @@ public class App
 						
 				moves += 1;
 			}
-			System.out.println(moves);
 		}
 		
 		
@@ -646,14 +659,18 @@ public class App
 					comma = "";
 				}
 				
-				//Add Geo-JSON Point for each sensor
-				dataGeojson += markerGeojson + unreadSensor.point.lng.toString() + ", " + unreadSensor.point.lat.toString() + "]},\n";
-				dataGeojson += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + unreadSensor.location  + "\", \"rgb-string\": \"#aaaaaa\", ";
-				dataGeojson += "\"marker-color\": \"#aaaaaa\"}\n\t\t\t}" + comma; //, \"marker-symbol\": \"" + readingSymbol(nextSensor.reading) + "\"
+				if (unreadSensor.location != "end") {
+					//Add Geo-JSON Point for each sensor
+					dataGeojson += markerGeojson + unreadSensor.point.lng.toString() + ", " + unreadSensor.point.lat.toString() + "]},\n";
+					dataGeojson += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + unreadSensor.location  + "\", \"rgb-string\": \"#aaaaaa\", ";
+					dataGeojson += "\"marker-color\": \"#aaaaaa\"}\n\t\t\t}" + comma;
+				}
 			}
 		}
 		dataGeojson += "\n\t]\n}";
 		
+		System.out.println("# Moves: " + moves);
+		System.out.println("# Unread sensors: " + unreadSensors.size());
 		
 		
         //OUTPUT OUR GEO-JSON AQMAPS FILE
@@ -685,6 +702,5 @@ public class App
         	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
         	e.printStackTrace();
         }
-        System.out.println(unreadSensors.size());
     }
 }
