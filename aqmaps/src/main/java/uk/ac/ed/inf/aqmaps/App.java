@@ -106,6 +106,7 @@ public class App
     //Transform point
     private static Point transformPoint(Point origin, Double angle) {
     	Point out = new Point(origin);
+    	angle = Math.toRadians(angle);
     	
     	out.lat += pathLength*Math.sin(angle);
     	out.lng += pathLength*Math.cos(angle);
@@ -685,5 +686,8 @@ public class App
         	e.printStackTrace();
         }
         System.out.println(unreadSensors.size());
+        Point p = transformPoint(new Point(1.0,1.0), 90.0);
+        System.out.println(p.lng);
+        System.out.println(p.lat);
     }
 }
