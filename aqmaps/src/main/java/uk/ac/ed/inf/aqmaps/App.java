@@ -155,21 +155,31 @@ public class App
 		LineGraph path = new LineGraph(p1,p2);
 		
 		for (int i = 0; i < buildings.size(); i++) {
-			Building b = new Building(buildings.get(i));
+			Building building = new Building(buildings.get(i));
 			ArrayList<LineGraph> bounds = new ArrayList<LineGraph>();
 			
-			for (int j=0; j < b.points.size(); j++) {
+			for (int j=0; j < building.points.size(); j++) {
 				Point next = new Point();
 				
-				if (j == b.points.size()-1) {
-					next = b.points.get(0);
+				if (j == building.points.size()-1) {
+					next = building.points.get(0);
 				} else {
-					next = b.points.get(j+1);
+					next = building.points.get(j+1);
 				}
-				LineGraph bound = new LineGraph(b.points.get(j), next);
+				LineGraph bound = new LineGraph(building.points.get(j), next);
 				bounds.add(bound);
 			}
+
+			for (int b = 0; b < bounds.size(); b++) {
+				LineGraph bnd = bounds.get(b);
+				
+			}
+				
 		}
+		return true;
+	}
+	
+	private static Boolean checkBound(LineGraph bound) {
 		return true;
 	}
 	

@@ -67,17 +67,22 @@ public class Objects {
     public static class LineGraph {
     	Double gradient;
     	Double yint;
+    	Point p1;
+    	Point p2;
     	
     	//Constructor with input
     	public LineGraph(Point p1, Point p2) {
     		this.gradient = (p1.lat - p2.lat)/(p1.lng - p2.lng);
     		this.yint = -gradient*p1.lng + p1.lat;
+    		this.p1 = p1;
+    		this.p2 = p2;
     	}
     	
     	//Constructor with angle input
     	public LineGraph(Double angle, Point origin) {
     		this.gradient = Math.tan(angle);
     		this.yint = -gradient*origin.lat + origin.lng;
+    		this.p1 = origin;
     	}
     	
     	//Default constructor
