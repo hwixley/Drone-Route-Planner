@@ -84,4 +84,13 @@ public class Objects {
     	public LineGraph() {
     	}
     }
+    
+    public static class Move {
+    	Point origin;
+    	Point dest;
+    	Double angle;
+    	
+    	public Move() {
+    	}
+    }
 }

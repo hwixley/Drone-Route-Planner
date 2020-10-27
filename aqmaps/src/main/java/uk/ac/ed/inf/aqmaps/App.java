@@ -11,6 +11,7 @@ import uk.ac.ed.inf.aqmaps.Objects.Point;
 import uk.ac.ed.inf.aqmaps.Objects.Building;
 import uk.ac.ed.inf.aqmaps.Objects.LineGraph;
 import uk.ac.ed.inf.aqmaps.Objects.Sensor;
+import uk.ac.ed.inf.aqmaps.Objects.Move;
 
 public class App 
 {
@@ -34,13 +35,16 @@ public class App
     //METHODS
     
     //Find point
-    private static Point findPoint(Point currPoint, Point nextPoint) {
+    private static Move findPoint(Point currPoint, Point nextPoint) {
 		Double angle = calcAngle(currPoint, nextPoint);
 		Double remainder = angle % 10;
+		Move move = new Move();
+		move.origin = currPoint;
     	
 		//Valid angle
 		if (remainder == 0) {
-			return new Point(transformPoint(currPoint, angle));
+			move.angle = angle;
+			move.dest = transformPoint(currPoint, angle);
 
 		} else { //Try floor and ceiling angles
 			Double newAngle = angle - remainder;
@@ -59,11 +63,11 @@ public class App
 			Double distC = calcDistance(nextPoint, newPC);
 			
 			if ((distF < distC) && checkConfinement(newPF)) {
-				angle -= remainder;
-				return new Point(newPF);
+				move.angle = angle - remainder;
+				move.dest = newPF;
 			} else if (checkConfinement(newPC)) {
-				angle += 10 - remainder;
-				return new Point(newPC);
+				move.angle = newAngle;
+				move.dest = newPC;
 			} else {
 				Double pfAngle = newAngle;
 				Double pcAngle = angle - remainder;
@@ -88,14 +92,15 @@ public class App
 				distC = calcDistance(nextPoint, newPC);
 				
 				if (distF < distC) {
-					angle = pfAngle;
-					return new Point(newPF);
+					move.angle = pfAngle;
+					move.dest = newPF;
 				} else {
-					angle = pcAngle;
-					return new Point(newPC);
+					move.angle = pcAngle;
+					move.dest = newPC;
 				}
 			}
 		}
+		return move;
     }
     
     //Transform point
@@ -127,7 +132,7 @@ public class App
     	unreadPoints.remove(0);
     	
     	while (unreadPoints.size() > 0) {
-    		Point newP = findPoint(route.get(route.size()-1), unreadPoints.get(0));
+    		Point newP = findPoint(route.get(route.size()-1), unreadPoints.get(0)).dest;
     		
     		if (checkPoint(unreadPoints.get(0),newP)) {
     			unreadPoints.remove(0);
@@ -575,8 +580,9 @@ public class App
 			
 			//Checks if current point is in range of next point
 			if (dist < 0.0005) {
-				Double angle = calcAngle(currPoint, nextSensor.point);
-				Point newP = new Point(findPoint(currPoint,nextSensor.point));
+				Move move = findPoint(currPoint,nextSensor.point);
+				Point newP = move.dest;
+				Double angle = move.angle;
 				
 				route.add(newP);
 				
@@ -607,8 +613,9 @@ public class App
 				
 			//Checks if the current point is not in range of the next point
 			} else {
-				Double angle = calcAngle(currPoint, nextSensor.point);
-				Point newP = new Point(findPoint(currPoint,nextSensor.point));
+				Move move = findPoint(currPoint,nextSensor.point);
+				Point newP = move.dest;
+				Double angle = move.angle;
 				
 				route.add(newP);
 				
