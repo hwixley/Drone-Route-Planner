@@ -686,8 +686,5 @@ public class App
         	e.printStackTrace();
         }
         System.out.println(unreadSensors.size());
-        Point p = transformPoint(new Point(1.0,1.0), 90.0);
-        System.out.println(p.lng);
-        System.out.println(p.lat);
     }
 }
