@@ -26,13 +26,12 @@ public class App
     //Constants
     private static double errorMargin = 0.0002;
     private static final double pathLength = 0.0003;
-    private static double undefTan = Math.tan(Math.toRadians(90));
     
     //Global variables
     private static ArrayList<Building> buildings = new ArrayList<Building>();
     private static ArrayList<Sensor> sensors = new ArrayList<Sensor>();
     
-    //Temporary variables
+    //Temporary variables (for findPoint method)
     private static Move lastMove = new Move();
     
     
@@ -44,6 +43,8 @@ public class App
 		Double remainder = angle % 10;
 		Move move = new Move();
 		move.origin = currPoint;
+		
+		//This Move variable is used to determine if the given move is the opposite as last (prevents infinite loops)
 		Move tempMove = new Move(move);
     	
 		//Valid angle
@@ -66,25 +67,31 @@ public class App
 			}
 			Point newPC = new Point(transformPoint(currPoint, newAngle));
 			Double distC = calcDistance(nextPoint, newPC);
+			
+			//Temporary Move variable initialisation
 			tempMove.angle = angle - remainder;
 			tempMove.dest = newPF;
 			
+			//Check if the floored angle point is best and valid
 			if ((distF < distC) && isValid(currPoint,newPF) && !isStuck(tempMove)) {
 				move.angle = angle - remainder;
 				move.dest = newPF;
-				
+			
 			} else {
 				tempMove.angle = newAngle;
 				tempMove.dest = newPC;
 				
+				//Check if the ceilinged angle point is valid
 				if (isValid(currPoint,newPC) && !isStuck(tempMove)) {
 					move.angle = newAngle;
 					move.dest = newPC;
-					
+				
+				//Choose next best valid angle point
 				} else {
 					Double pcAngle = newAngle;
 					Double pfAngle = angle - remainder;
 					
+					//Iterate until valid floored angle point is found
 					while (!isValid(currPoint, newPF)) {
 						if (pfAngle == 360) {
 							pfAngle = 10.0;
@@ -93,6 +100,7 @@ public class App
 						}
 						newPF = new Point(transformPoint(currPoint, pfAngle));
 					}
+					//Iterate until valid ceilinged angle point is found
 					while (!isValid(currPoint, newPC)) {
 						if (pcAngle == 0) {
 							pcAngle = 350.0;
@@ -107,6 +115,7 @@ public class App
 					tempMove.angle = pfAngle;
 					tempMove.dest = newPF;
 					
+					//Check if the floored angle point is best and valid
 					if ((distF < distC) && !isStuck(tempMove)) {
 						move.angle = pfAngle;
 						move.dest = newPF;
@@ -114,9 +123,12 @@ public class App
 						tempMove.angle = pcAngle;
 						tempMove.dest = newPC;
 						
+						//Check if the ceilinged angle point is valid
 						if (!isStuck(tempMove)) {
 							move.angle = pcAngle;
 							move.dest = newPC;
+							
+						//Else use the floored angle point
 						} else {
 							move.angle = pfAngle;
 							move.dest = newPF;
@@ -129,13 +141,15 @@ public class App
 		return move;
     }
     
-    //Checks if algorithm is stuck (checks if last and current moves are equivalent)
+    //Checks if algorithm is stuck (checks if last and current moves are opposite)
     private static Boolean isStuck(Move current) {
-
+    	
+    	//Returns false if no move has been made yet
     	if (Move.isNull(lastMove)) {
     		return false;
     	} else {
-    	
+    		
+    		//Returns true if the last and current moves are opposite (angle difference of 180 degrees)
 	    	if (Math.abs(lastMove.angle - current.angle) == 180) {
 	    		return true;
 	    	} else {
@@ -149,13 +163,14 @@ public class App
     	Point out = new Point(origin);
     	angle = Math.toRadians(angle);
     	
+    	//Uses planar trigonometry to transform the current point given the angle of movement
     	out.lat += pathLength*Math.sin(angle);
     	out.lng += pathLength*Math.cos(angle);
     	
     	return out;
     }
     
-    //Check if valid point
+    //Checks if valid point (within the range of a sensor)
     private static Boolean checkPoint(Point destination, Point actual) {
     	
     	if (calcDistance(destination, actual) < errorMargin) {
@@ -173,14 +188,11 @@ public class App
     	route.add(points.get(0));
     	unreadPoints.remove(0);
     	
+    	//Iterates through the points in the route 
     	while (unreadPoints.size() > 0) {
-    		//Point newP = findPoint(route.get(route.size()-1), unreadPoints.get(0)).dest;
-    		
-    		//if (checkPoint(unreadPoints.get(0),newP)) {
-    		//	unreadPoints.remove(0);
-    		//}
     		Double dist = calcDistance(route.get(route.size()-1),unreadPoints.get(0));
     		
+    		//If the path between adjacent points is not valid (intersects a building) we increase the added cost 
     		if (!isValid(route.get(route.size()-1),unreadPoints.get(0))) {
     			dist = dist*10;
     		}
@@ -189,8 +201,10 @@ public class App
 			route.add(unreadPoints.get(0));
 			unreadPoints.remove(0);
     	}
+    	//Add distance for the final path from the last sensor to the starting point
     	Double dist = calcDistance(route.get(route.size()-1),route.get(0));
     	
+    	//If the path between adjacent points is not valid (intersects a building) we increase the added cost 
     	if (!isValid(route.get(route.size()-1),route.get(0))) {
     		dist = dist*10;
     	}
@@ -211,21 +225,28 @@ public class App
 	
 	//Returns true if path between p1 and p2 does not pass through any buildings
 	private static Boolean checkBuildings(Point p1, Point p2) {
+		
+		//Define the function for our given path
 		LineGraph path = new LineGraph(p1,p2);
 		
+		//Iterates through the no-fly-zone buildings
 		for (int i = 0; i < buildings.size(); i++) {
 			Building building = new Building(buildings.get(i));
 			
+			//Iterates through the bounds of a given building
 			for (int j=0; j < building.points.size(); j++) {
 				Point next = new Point();
 				
+				//Initialises value of next point
 				if (j == building.points.size()-1) {
 					next = building.points.get(0);
 				} else {
 					next = building.points.get(j+1);
 				}
+				//Define the function for the given bound of the building
 				LineGraph bound = new LineGraph(building.points.get(j), next);
 				
+				//Checks if the path intersects the given bound (if so then returns false)
 				if (!checkBound(path,bound)) {
 					return false;
 				}
@@ -237,13 +258,17 @@ public class App
 	
 	//returns True if these do not intersect
 	private static Boolean checkBound(LineGraph path, LineGraph bound) {
+		
+		//Variables to determine point of intersection between the functions
 		Double netGrad = path.gradient - bound.gradient;
 		Double netYint = bound.yint - path.yint;
+		//Variables to define the bounds of latitude and longitude values for the given building boundary
 		Double max_lat = bound.p1.lat;
 		Double min_lat = bound.p1.lat;
 		Double max_lng = bound.p1.lng;
 		Double min_lng = bound.p1.lng;
 		
+		//Initialise bound variables appropriately
 		if (bound.p2.lat > bound.p1.lat) {
 			max_lat = bound.p2.lat;
 		} else {
@@ -255,17 +280,23 @@ public class App
 			min_lng = bound.p2.lng;
 		}
 		
+		//Checks if the path is a vertical line (given when angle = 90/180)
 		if ((path.gradient == Double.NEGATIVE_INFINITY) || (path.gradient == Double.POSITIVE_INFINITY)) {
+			
+			//Checks if the longitude of the path is within the bounds of the given building boundary (meaning an intersection)
 			if ((path.p1.lng <= max_lng) && (path.p1.lng >= min_lng)) {
 				return true;
 			} else {
 				return false;
 			}
 		} else {
+			
+			//Checks that the net gradient is not zero (this means no intersection)
 			if (netGrad != 0) {
 				Double icLng = netYint/netGrad;
 				Double icLat = path.gradient*icLng + path.yint;
 				
+				//Checks whether the point of intersectionis within the bounds of the given building boundary (meaning an intersection)
 				if (((icLng <= max_lng) && (icLng >= min_lng)) || ((icLat <= max_lat) && (icLat >= min_lat))) {
 					return false;
 				} else {
@@ -582,18 +613,10 @@ public class App
 				dataGeojson += "[" + building.points.get(0).lng + ", " + building.points.get(0).lat + "]]]},\n\t\t";
 				dataGeojson += "\"properties\": {\"fill-opacity\": 0.5, \"fill\": \"#ff0000\"}},";
 			}
-		}/*
-        LineGraph path = new LineGraph(new Point(55.944,-3.188), new Point(55.944487503,-3.187));
-        LineGraph bound = new LineGraph(new Point(55.94448750356385,-3.1871804594993587),new Point(55.944193856370475,-3.187042325735092));
-        System.out.println(path.gradient);
-        System.out.println(path.yint);
-        System.out.println(bound.gradient);
-        System.out.println(bound.yint);
-        System.out.println(checkBound(path,bound));
-        System.out.println(checkBuildings(path.p1, path.p2));
-        System.out.println(isValid(path.p1, path.p2));
+		}
 
-        */
+        
+        
         //FIND OPTIMAL ROUTE
 
         //1) Use greedy algorithm to choose closest points
@@ -671,25 +694,35 @@ public class App
 		}
 		pointRoute.clear();
 		
-		//Variables
-		String lineGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\": {\"type\": \"LineString\",\n\t\t\t\t\"coordinates\": [";
-		ArrayList<Point> route = new ArrayList<Point>();
-		route.add(startPoint);
-		int moves = 0;
-		ArrayList<Sensor> unreadSensors = new ArrayList<Sensor>(sensorRoute);
-		Sensor finishPoint = new Sensor();
-		finishPoint.point = startPoint;
-		finishPoint.location = "end";
-		unreadSensors.add(finishPoint);
-		String flightpathTxt = "";
 		
-        //PARSE SENSORS INTO GEOJSON MARKERS
+        //GEO-JSON FEATURE SYNTAX
+		
 		//Add Geo-JSON Polygon to represent confinement area
 		dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
 		dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
 		dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
-		//Geo-JSON marker point
+		//Geo-JSON marker Point syntax
 		String markerGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Point\", \"coordinates\": [";
+		//Geo-JSON LineString syntax
+		String lineGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\": {\"type\": \"LineString\",\n\t\t\t\t\"coordinates\": [";
+		
+		
+		//ROUTE FINDING VARIABLES
+		
+		//ArrayList to store the sequential points in the route
+		ArrayList<Point> route = new ArrayList<Point>();
+		route.add(startPoint);
+		//Moves to store number of moves executed
+		int moves = 0;
+		//ArrayList to store the sensors the drone still needs to visit and read
+		ArrayList<Sensor> unreadSensors = new ArrayList<Sensor>(sensorRoute);
+		//Add the start point to 'unreadSensors' so our drone finishes at this point
+		Sensor finishPoint = new Sensor();
+		finishPoint.point = startPoint;
+		finishPoint.location = "end";
+		unreadSensors.add(finishPoint);
+		//Iinitialize the flightpath log text variable
+		String flightpathTxt = "";
 		
 
 		//FIND MOVES FOR CHOSEN ROUTE
@@ -819,15 +852,6 @@ public class App
         } catch (IOException e) {
         	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
         	e.printStackTrace();
-        }/*
-        lastMove.angle=180.0;
-        Point p1 = new Point(0.0,1.0);
-        Point p2 = new Point(1.0, 2.0);
-        lastMove.dest = p1;
-        lastMove.origin = p2;
-        
-        Move m = new Move(p1,p2,0.0);
-        
-        System.out.println(isStuck(m));*/
+        }
     }
 }

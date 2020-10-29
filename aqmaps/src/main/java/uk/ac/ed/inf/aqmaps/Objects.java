@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Objects {
 	
-    //OBJECT: Custom Point object
+    //OBJECT: custom Point object
     public static class Point {
     	Double lat = -1.0;
     	Double lng = -1.0;
@@ -15,6 +15,7 @@ public class Objects {
     		this.lng = another.lng;
     	}
     	
+    	//Constructor with all variable arguments
     	public Point(Double lat, Double lng) {
     		this.lat = lat;
     		this.lng = lng;
@@ -25,7 +26,7 @@ public class Objects {
     	}
     }
     
-    //OBJECT: Custom Sensor object
+    //OBJECT: custom Sensor object
     public static class Sensor {
     	String location;
     	Double battery;
@@ -45,7 +46,7 @@ public class Objects {
 		}
     }
 	
-    //OBJECT: Custom building(no-fly-zone) object
+    //OBJECT: custom Building(no-fly-zone) object
     public static class Building {
     	ArrayList<Point> points = new ArrayList<Point>();
     	String name;
@@ -63,7 +64,7 @@ public class Objects {
     	}
     }
     
-    //OBJECT: lineGraph custom object
+    //OBJECT: custom LineGraph object
     public static class LineGraph {
     	Double gradient;
     	Double yint;
@@ -90,26 +91,31 @@ public class Objects {
     	}
     }
     
+    //OBJECT: custom Move object
     public static class Move {
     	Point origin;
     	Point dest;
     	Double angle;
     	
+    	//Default constructor
     	public Move() {
     	}
     	
+    	//Constructor with move variable
     	public Move(Move move) {
     		this.origin = move.origin;
     		this.dest = move.dest;
     		this.angle = move.angle;
     	}
     	
+    	//Constructor with all variable arguments
     	public Move(Point origin, Point dest, Double angle) {
     		this.origin = origin;
     		this.dest = dest;
     		this.angle = angle;
     	}
     	
+    	//Method that checks whether a given Move object instance is null
     	public static Boolean isNull(Move move) {
     		if ((move.origin == null) && (move.dest == null) && (move.angle == null)) {
     			return true;
