@@ -720,7 +720,7 @@ public class App
 				}
 				
 				//Checks if point is valid
-				if (checkPoint(nextSensor.point, newP)) { 
+				if (checkPoint(nextSensor.point, newP)) {
 					location = nextSensor.location;
 					unreadSensors.remove(0);
 					
@@ -731,6 +731,9 @@ public class App
 						dataGeojson += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + nextSensor.location  + "\", \"rgb-string\": \"" + readingColour(nextSensor.reading) + "\", ";
 						dataGeojson += "\"marker-color\": \"" + readingColour(nextSensor.reading) + "\", \"marker-symbol\": \"" + readingSymbol(nextSensor.reading) + "\"}\n\t\t\t},";
 					}
+				}
+				if (location == "end") {
+					location = "null";
 				}
 				
 				//Writing to files
