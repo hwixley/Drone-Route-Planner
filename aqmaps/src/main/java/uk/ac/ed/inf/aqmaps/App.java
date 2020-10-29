@@ -256,7 +256,7 @@ public class App
 		return true;
 	}
 	
-	//returns True if these do not intersect
+	//Returns True if these lines do not intersect
 	private static Boolean checkBound(LineGraph path, LineGraph bound) {
 		
 		//Variables to determine point of intersection between the functions
@@ -422,6 +422,7 @@ public class App
 		}
 
     	
+    	
     	//GET THE AIR QUALITY DATA FOR THE GIVEN DATE
     	
     	//1) Retrieve file from the WebServer
@@ -493,6 +494,7 @@ public class App
         }
         
         //3) Get the given coordinates of the W3W location
+        
         //Get swPoint and nePoint for the given w3w location
         for (int i = 0; i < sensors.size(); i++) {
         	Sensor s = sensors.get(i);
@@ -547,6 +549,7 @@ public class App
     			stage += 1;
     		}
         }
+        
         
         
         //GET THE NO-FLY-ZONE DATA
@@ -721,11 +724,13 @@ public class App
 		finishPoint.point = startPoint;
 		finishPoint.location = "end";
 		unreadSensors.add(finishPoint);
-		//Iinitialize the flightpath log text variable
+		//Iinitialise the flightpath log text variable
 		String flightpathTxt = "";
 		
 
 		//FIND MOVES FOR CHOSEN ROUTE
+		
+		//Continues to find points in our route while we have available moves and unread sensors
 		while ((unreadSensors.size() > 0) && (moves < 150)) {
 			Sensor nextSensor = new Sensor(unreadSensors.get(0));
 			Point currPoint = new Point(route.get(route.size()-1));
@@ -744,12 +749,8 @@ public class App
 				
 				route.add(newP);
 				
-				//Adds comma for further Geo-JSON object additions
+				//Adds location variable for paths which do not visit a sensor
 				String location = "null";
-				String comma = ",";
-				if ((unreadSensors.size() == 1) || (moves == 149)) {
-					comma = "";
-				}
 				
 				//Checks if point is valid
 				if (checkPoint(nextSensor.point, newP)) {
@@ -763,18 +764,16 @@ public class App
 						dataGeojson += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + nextSensor.location  + "\", \"rgb-string\": \"" + readingColour(nextSensor.reading) + "\", ";
 						dataGeojson += "\"marker-color\": \"" + readingColour(nextSensor.reading) + "\", \"marker-symbol\": \"" + readingSymbol(nextSensor.reading) + "\"}\n\t\t\t},";
 					}
-				} else {
-					comma = ",";
 				}
 				if (location == "end") {
 					location = "null";
 				}
 				
-				//Writing to files
+				//Writing to flightpath textfile
 				flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + "," + location + "\n";
-				dataGeojson += lineGeojson + "\n\t\t\t\t[" + currPoint.lng.toString() + ", " + currPoint.lat.toString() + "], [" + newP.lng.toString() + ", " + newP.lat.toString() + "]\n\t\t\t\t]\n\t\t\t},\"properties\":{\n\t\t}\n\t}" + comma + "\n\t\t";
 						
 				moves += 1;
+				
 				
 			//Checks if the current point is not in range of the next point
 			} else {
@@ -783,16 +782,9 @@ public class App
 				Double angle = move.angle;
 				
 				route.add(newP);
-				
-				//Adds comma for further Geo-JSON object additions
-				String comma = ",";
-				if (moves == 149) {
-					comma = "";
-				}
 
-				//Writing to files
+				//Writing to flightpath textfile
 				flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + ",null\n";
-				dataGeojson += lineGeojson + "\n\t\t\t\t[" + currPoint.lng.toString() + ", " + currPoint.lat.toString() + "], [" + newP.lng.toString() + ", " + newP.lat.toString() + "]\n\t\t\t\t]\n\t\t\t},\"properties\":{\n\t\t}\n\t}" + comma + "\n\t\t";
 						
 				moves += 1;
 			}
@@ -804,21 +796,34 @@ public class App
 			dataGeojson += ",";
 			for (int s = 0; s < unreadSensors.size(); s++) {
 				Sensor unreadSensor = new Sensor(unreadSensors.get(s));
-				String comma = ",";
-				if (s == unreadSensors.size()-2) {
-					comma = "";
-				}
 				
 				if (unreadSensor.location != "end") {
 					//Add Geo-JSON Point for each sensor
 					dataGeojson += markerGeojson + unreadSensor.point.lng.toString() + ", " + unreadSensor.point.lat.toString() + "]},\n";
 					dataGeojson += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + unreadSensor.location  + "\", \"rgb-string\": \"#aaaaaa\", ";
-					dataGeojson += "\"marker-color\": \"#aaaaaa\"}\n\t\t\t}" + comma;
+					dataGeojson += "\"marker-color\": \"#aaaaaa\"}\n\t\t\t},";
 				}
 			}
 		}
-		dataGeojson += "\n\t]\n}";
 		
+		//Add the route as a single LineString Geo-JSON feature
+		dataGeojson += lineGeojson + "\n\t\t\t\t";
+		for (int r = 0; r < route.size(); r++) {
+			Point point = route.get(r);
+			
+			//Add a comma to appropriately separate points
+			String comma = ",";
+			if (r == route.size()-1) {
+				comma = "";
+			}
+			
+			dataGeojson += "[" + point.lng.toString() + ", " + point.lat.toString() + "]" + comma;
+		}
+		//Add the closing brackets to the Geo-JSON LineString Feature and FeatureCollection
+		dataGeojson += "\n\t\t\t\t]\n\t\t\t},\"properties\":{\n\t\t}\n\t}\n\t\t\n\t]\n}";
+		
+		
+		//Print performance of our drone for the given day
 		System.out.println("# Moves: " + moves);
 		System.out.println("# Unread sensors: " + unreadSensors.size());
 		System.out.println("# Read sensors: " + sensorRoute.size());
