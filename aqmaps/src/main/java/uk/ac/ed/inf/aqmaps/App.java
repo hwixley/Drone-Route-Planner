@@ -698,6 +698,7 @@ public class App
 		pointRoute.clear();
 		
 		
+		
         //GEO-JSON FEATURE SYNTAX
 		
 		//Add Geo-JSON Polygon to represent confinement area
@@ -724,7 +725,7 @@ public class App
 		finishPoint.point = startPoint;
 		finishPoint.location = "end";
 		unreadSensors.add(finishPoint);
-		//Iinitialise the flightpath log text variable
+		//Initialise the flightpath log text variable
 		String flightpathTxt = "";
 		
 
@@ -769,7 +770,7 @@ public class App
 					location = "null";
 				}
 				
-				//Writing to flightpath textfile
+				//Writing to our flightpath text file
 				flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + "," + location + "\n";
 						
 				moves += 1;
@@ -783,13 +784,15 @@ public class App
 				
 				route.add(newP);
 
-				//Writing to flightpath textfile
+				//Writing to flightpath text file
 				flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + ",null\n";
 						
 				moves += 1;
 			}
 		}
 		
+		
+		//ADD FINAL FEATURES TO OUR GEO-JSON TEXT VARIABLE 'dataGeojson'
 		
 		//Add the unread sensors as gray markers to the Geo-JSON map
 		if (unreadSensors.size() > 0) {
@@ -823,10 +826,13 @@ public class App
 		dataGeojson += "\n\t\t\t\t]\n\t\t\t},\"properties\":{\n\t\t}\n\t}\n\t\t\n\t]\n}";
 		
 		
+		
+		
 		//Print performance of our drone for the given day
 		System.out.println("# Moves: " + moves);
 		System.out.println("# Unread sensors: " + unreadSensors.size());
 		System.out.println("# Read sensors: " + sensorRoute.size());
+		
 		
 		
         //OUTPUT OUR GEO-JSON AQMAPS FILE
@@ -844,6 +850,9 @@ public class App
         	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
         	e.printStackTrace();
         }
+        
+        
+        //OUTPUT OUR FLIGHTPATH TEXT FILE
         
         //Try write the code in the 'flightpathTxt' String variable to a .txt file
         try {
