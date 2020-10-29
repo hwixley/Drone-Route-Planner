@@ -26,10 +26,14 @@ public class App
     //Constants
     private static double errorMargin = 0.0002;
     private static final double pathLength = 0.0003;
+    private static double undefTan = Math.tan(Math.toRadians(90));
     
     //Global variables
     private static ArrayList<Building> buildings = new ArrayList<Building>();
     private static ArrayList<Sensor> sensors = new ArrayList<Sensor>();
+    
+    //Temporary variables
+    private static Move lastMove = new Move();
     
     
     //METHODS
@@ -40,6 +44,7 @@ public class App
 		Double remainder = angle % 10;
 		Move move = new Move();
 		move.origin = currPoint;
+		Move tempMove = new Move(move);
     	
 		//Valid angle
 		if ((remainder == 0) && isValid(currPoint, transformPoint(currPoint, angle))) {
@@ -61,46 +66,72 @@ public class App
 			}
 			Point newPC = new Point(transformPoint(currPoint, newAngle));
 			Double distC = calcDistance(nextPoint, newPC);
+			tempMove.angle = angle - remainder;
+			tempMove.dest = newPF;
 			
-			if ((distF < distC) && isValid(currPoint,newPF)) { //checkConfinement(newPF)
+			if ((distF < distC) && isValid(currPoint,newPF) && !isStuck(tempMove)) {
 				move.angle = angle - remainder;
 				move.dest = newPF;
-			} else if (isValid(currPoint,newPC)) { //checkConfinement(newPC)
-				move.angle = newAngle;
-				move.dest = newPC;
+				
 			} else {
-				Double pcAngle = newAngle;
-				Double pfAngle = angle - remainder;
+				tempMove.angle = newAngle;
+				tempMove.dest = newPC;
 				
-				while (!isValid(currPoint, newPF)) { //!checkConfinement(newPF)
-					if (pfAngle == 360) {
-						pfAngle = 10.0;
-					} else {
-						pfAngle += 10;
-					}
-					newPF = new Point(transformPoint(currPoint, pfAngle));
-				}
-				while (!isValid(currPoint, newPC)) { //!checkConfinement(newPC)
-					if (pcAngle == 0) {
-						pcAngle = 350.0;
-					} else {
-						pcAngle -= 10;
-					}
-					newPC = new Point(transformPoint(currPoint,pcAngle));
-				}
-				distF = calcDistance(nextPoint, newPF);
-				distC = calcDistance(nextPoint, newPC);
-				
-				if (distF < distC) {
-					move.angle = pfAngle;
-					move.dest = newPF;
-				} else {
-					move.angle = pcAngle;
+				if (isValid(currPoint,newPC) && !isStuck(tempMove)) {
+					move.angle = newAngle;
 					move.dest = newPC;
+				} else {
+					Double pcAngle = newAngle;
+					Double pfAngle = angle - remainder;
+					
+					while (!isValid(currPoint, newPF)) {
+						if (pfAngle == 360) {
+							pfAngle = 10.0;
+						} else {
+							pfAngle += 10;
+						}
+						newPF = new Point(transformPoint(currPoint, pfAngle));
+					}
+					while (!isValid(currPoint, newPC)) {
+						if (pcAngle == 0) {
+							pcAngle = 350.0;
+						} else {
+							pcAngle -= 10;
+						}
+						newPC = new Point(transformPoint(currPoint,pcAngle));
+					}
+					distF = calcDistance(nextPoint, newPF);
+					distC = calcDistance(nextPoint, newPC);
+					
+					tempMove.angle = pfAngle;
+					tempMove.dest = newPF;
+					
+					if ((distF < distC) && !isStuck(tempMove)) {
+						move.angle = pfAngle;
+						move.dest = newPF;
+					} else {
+						move.angle = pcAngle;
+						move.dest = newPC;
+					}
 				}
 			}
 		}
+		lastMove = move;
 		return move;
+    }
+    
+    //Checks if algorithm is stuck (checks if last and current moves are equivalent)
+    private static Boolean isStuck(Move current) {
+
+    	if (Move.isNull(lastMove)) {
+    		return false;
+    	}
+    	
+    	if ((Math.abs(lastMove.angle - current.angle) == 180) && (lastMove.dest == current.origin) && (lastMove.origin == current.dest)) {
+    		return true;
+    	} else {
+    		return false;
+    	}
     }
     
     //Transform point
@@ -214,17 +245,25 @@ public class App
 			min_lng = bound.p2.lng;
 		}
 		
-		if (netGrad != 0) {
-			Double icLng = netYint/netGrad;
-			Double icLat = path.gradient*icLng + path.yint;
-			
-			if (((icLng <= max_lng) && (icLng >= min_lng)) || ((icLat <= max_lat) && (icLat >= min_lat))) {
+		if ((path.gradient == Double.NEGATIVE_INFINITY) || (path.gradient == Double.POSITIVE_INFINITY)) {
+			if ((path.p1.lng <= max_lng) && (path.p1.lng >= min_lng)) {
+				return true;
+			} else {
 				return false;
+			}
+		} else {
+			if (netGrad != 0) {
+				Double icLng = netYint/netGrad;
+				Double icLat = path.gradient*icLng + path.yint;
+				
+				if (((icLng <= max_lng) && (icLng >= min_lng)) || ((icLat <= max_lat) && (icLat >= min_lat))) {
+					return false;
+				} else {
+					return true;
+				}
 			} else {
 				return true;
 			}
-		} else {
-			return true;
 		}
 	}
 	
@@ -719,7 +758,7 @@ public class App
 			for (int s = 0; s < unreadSensors.size(); s++) {
 				Sensor unreadSensor = new Sensor(unreadSensors.get(s));
 				String comma = ",";
-				if (s == unreadSensors.size()-1) {
+				if (s == unreadSensors.size()-2) {
 					comma = "";
 				}
 				

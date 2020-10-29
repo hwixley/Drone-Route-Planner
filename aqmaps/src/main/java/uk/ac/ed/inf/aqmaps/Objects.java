@@ -97,5 +97,19 @@ public class Objects {
     	
     	public Move() {
     	}
+    	
+    	public Move(Move move) {
+    		this.origin = move.origin;
+    		this.dest = move.dest;
+    		this.angle = move.angle;
+    	}
+    	
+    	public static Boolean isNull(Move move) {
+    		if ((move.origin == null) && (move.dest == null) && (move.angle == null)) {
+    			return true;
+    		} else {
+    			return false;
+    		}
+    	}
     }
 }
