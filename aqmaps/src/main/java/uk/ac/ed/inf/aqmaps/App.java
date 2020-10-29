@@ -714,9 +714,9 @@ public class App
 				
 				//Adds comma for further Geo-JSON object additions
 				String location = "null";
-				String comma = "";
-				if ((unreadSensors.size() > 1) && (moves < 149)) {
-					comma = ",";
+				String comma = ",";
+				if ((unreadSensors.size() == 1) || (moves == 149)) {
+					comma = "";
 				}
 				
 				//Checks if point is valid
@@ -731,6 +731,8 @@ public class App
 						dataGeojson += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + nextSensor.location  + "\", \"rgb-string\": \"" + readingColour(nextSensor.reading) + "\", ";
 						dataGeojson += "\"marker-color\": \"" + readingColour(nextSensor.reading) + "\", \"marker-symbol\": \"" + readingSymbol(nextSensor.reading) + "\"}\n\t\t\t},";
 					}
+				} else {
+					comma = ",";
 				}
 				if (location == "end") {
 					location = "null";
@@ -751,9 +753,9 @@ public class App
 				route.add(newP);
 				
 				//Adds comma for further Geo-JSON object additions
-				String comma = "";
-				if (moves < 149) {
-					comma = ",";
+				String comma = ",";
+				if (moves == 149) {
+					comma = "";
 				}
 
 				//Writing to files
@@ -787,6 +789,7 @@ public class App
 		
 		System.out.println("# Moves: " + moves);
 		System.out.println("# Unread sensors: " + unreadSensors.size());
+		System.out.println("# Sensors: " + sensorRoute.size());
 		
 		
         //OUTPUT OUR GEO-JSON AQMAPS FILE
