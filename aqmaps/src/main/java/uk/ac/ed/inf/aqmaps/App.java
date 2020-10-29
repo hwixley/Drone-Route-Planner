@@ -676,7 +676,6 @@ public class App
 		ArrayList<Point> route = new ArrayList<Point>();
 		route.add(startPoint);
 		int moves = 0;
-		sensorRoute.remove(0);
 		ArrayList<Sensor> unreadSensors = new ArrayList<Sensor>(sensorRoute);
 		Sensor finishPoint = new Sensor();
 		finishPoint.point = startPoint;
@@ -789,7 +788,7 @@ public class App
 		
 		System.out.println("# Moves: " + moves);
 		System.out.println("# Unread sensors: " + unreadSensors.size());
-		System.out.println("# Sensors: " + sensorRoute.size());
+		System.out.println("# Read sensors: " + sensorRoute.size());
 		
 		
         //OUTPUT OUR GEO-JSON AQMAPS FILE

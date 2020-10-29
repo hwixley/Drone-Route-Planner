@@ -61,6 +61,10 @@
 	},
 		
 	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.186537, 55.944925]},
+			"properties": {"marker-size": "medium", "location": "laws.merit.bleak", "rgb-string": "#ff4000", "marker-color": "#ff4000", "marker-symbol": "danger"}
+			},
+	{"type": "Feature",
 			"geometry": {"type": "LineString",
 				"coordinates": [
 				[-3.186918788370481, 55.944685472266514], [-3.186636880584245, 55.944788078309514]
