@@ -104,6 +104,12 @@ public class Objects {
     		this.angle = move.angle;
     	}
     	
+    	public Move(Point origin, Point dest, Double angle) {
+    		this.origin = origin;
+    		this.dest = dest;
+    		this.angle = angle;
+    	}
+    	
     	public static Boolean isNull(Move move) {
     		if ((move.origin == null) && (move.dest == null) && (move.angle == null)) {
     			return true;

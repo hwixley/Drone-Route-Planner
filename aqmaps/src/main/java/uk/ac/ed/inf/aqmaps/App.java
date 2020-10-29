@@ -80,6 +80,7 @@ public class App
 				if (isValid(currPoint,newPC) && !isStuck(tempMove)) {
 					move.angle = newAngle;
 					move.dest = newPC;
+					
 				} else {
 					Double pcAngle = newAngle;
 					Double pfAngle = angle - remainder;
@@ -110,8 +111,16 @@ public class App
 						move.angle = pfAngle;
 						move.dest = newPF;
 					} else {
-						move.angle = pcAngle;
-						move.dest = newPC;
+						tempMove.angle = pcAngle;
+						tempMove.dest = newPC;
+						
+						if (!isStuck(tempMove)) {
+							move.angle = pcAngle;
+							move.dest = newPC;
+						} else {
+							move.angle = pfAngle;
+							move.dest = newPF;
+						}
 					}
 				}
 			}
@@ -125,12 +134,13 @@ public class App
 
     	if (Move.isNull(lastMove)) {
     		return false;
-    	}
-    	
-    	if ((Math.abs(lastMove.angle - current.angle) == 180) && (lastMove.dest == current.origin) && (lastMove.origin == current.dest)) {
-    		return true;
     	} else {
-    		return false;
+    	
+	    	if (Math.abs(lastMove.angle - current.angle) == 180) {
+	    		return true;
+	    	} else {
+	    		return false;
+	    	}
     	}
     }
     
@@ -782,7 +792,7 @@ public class App
         try {
         	String geojsonFilename = "/readings-" + dateDD + "-" + dateMM + "-" + dateYY + ".geojson"; 
         	FileWriter writer = new FileWriter(System.getProperty("user.dir") + geojsonFilename);
-        	writer.write(dataGeojson);
+        	writer.write(dataGeojson); 
         	writer.close();
         	//Success writing to file 'readings-DD-MM-YYYY.geojson'
         	System.out.println("\nThe air quality sensors from " + dateDD + "-" + dateMM + "-" + dateYY + " have been read by the drone and formatted into a Geo-JSON map.\nGeo-JSON file path:   " + System.getProperty("user.dir") + geojsonFilename);
@@ -804,6 +814,15 @@ public class App
         } catch (IOException e) {
         	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
         	e.printStackTrace();
-        }
+        }/*
+        lastMove.angle=180.0;
+        Point p1 = new Point(0.0,1.0);
+        Point p2 = new Point(1.0, 2.0);
+        lastMove.dest = p1;
+        lastMove.origin = p2;
+        
+        Move m = new Move(p1,p2,0.0);
+        
+        System.out.println(isStuck(m));*/
     }
 }
