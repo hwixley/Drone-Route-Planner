@@ -829,6 +829,7 @@ public class App
 		
 		
 		//Print performance of our drone for the given day
+		System.out.println("\nA drone route has been successfully found!");
 		System.out.println("# Moves: " + moves);
 		System.out.println("# Unread sensors: " + unreadSensors.size());
 		System.out.println("# Read sensors: " + sensorRoute.size());
