@@ -190,7 +190,7 @@ public class App
     	
     	//Iterates through the points in the route 
     	while (unreadPoints.size() > 0) {
-			cost += calcEdgeCost(route.get(route.size()-1),route.get(0));
+			cost += calcEdgeCost(route.get(route.size()-1),unreadPoints.get(0));
 			
 			route.add(unreadPoints.get(0));
 			unreadPoints.remove(0);
