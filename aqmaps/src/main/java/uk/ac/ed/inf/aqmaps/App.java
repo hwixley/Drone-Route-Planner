@@ -190,28 +190,27 @@ public class App
     	
     	//Iterates through the points in the route 
     	while (unreadPoints.size() > 0) {
-    		Double dist = calcDistance(route.get(route.size()-1),unreadPoints.get(0));
-    		
-    		//If the path between adjacent points is not valid (intersects a building) we increase the added cost 
-    		if (!isValid(route.get(route.size()-1),unreadPoints.get(0))) {
-    			dist = dist*10;
-    		}
-    		
-			cost += dist;
+			cost += calcEdgeCost(route.get(route.size()-1),route.get(0));
+			
 			route.add(unreadPoints.get(0));
 			unreadPoints.remove(0);
     	}
-    	//Add distance for the final path from the last sensor to the starting point
-    	Double dist = calcDistance(route.get(route.size()-1),route.get(0));
-    	
-    	//If the path between adjacent points is not valid (intersects a building) we increase the added cost 
-    	if (!isValid(route.get(route.size()-1),route.get(0))) {
-    		dist = dist*10;
-    	}
-    	cost += dist;
+    	cost += calcEdgeCost(route.get(route.size()-1),route.get(0));
     	
     	return cost;
     }
+	
+	//Returns the estimated distance between two points
+	private static Double calcEdgeCost(Point origin, Point dest) {
+		Double dist = calcDistance(origin,dest);
+		
+		//If the path between adjacent points is not valid (intersects a building) we increase the added cost 
+		if (!isValid(origin,dest)) {
+			dist = dist*2.5;
+		}
+		
+		return dist;
+	}
 	
 	//Returns true if point is valid (within appropriate areas)
 	private static Boolean isValid(Point origin, Point dest) {
