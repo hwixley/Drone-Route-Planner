@@ -206,7 +206,7 @@ public class App
 		
 		//If the path between adjacent points is not valid (intersects a building) we increase the added cost 
 		if (!isValid(origin,dest)) {
-			dist = dist*2.5;
+			dist = dist*2;
 		}
 		
 		return dist;
