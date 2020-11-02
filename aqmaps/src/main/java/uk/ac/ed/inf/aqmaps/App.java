@@ -640,8 +640,8 @@ public class App
 			for (int u = 0; u < unexploredSensors.size(); u++) {
 				Sensor nextSensor = unexploredSensors.get(u);
 				 
-				if (calcDistance(nextSensor.point, currPoint) < minDist) {
-					minDist = calcDistance(nextSensor.point, currPoint);
+				if (calcEdgeCost(nextSensor.point, currPoint) < minDist) {
+					minDist = calcEdgeCost(nextSensor.point, currPoint);
 					minPoint = new Point(nextSensor.point);
 					minSensor = u;
 				}
