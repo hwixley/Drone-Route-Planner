@@ -573,6 +573,19 @@ public class App
         }
     }
     
+    //Retrieves the Sensor and air-quality data from the WebServer for the given date
+    private static void getSensorData() {
+    	
+    	//1) Retrieve maps file from the WebServer (stored in 'mapsFile' global variable)
+        getMapsFile();
+        
+        //2) Parse this maps file into a list of Sensor objects (stored in 'sensors' global variable)
+        parseMapSensors();
+        
+        //3) Get the given coordinates of the W3W location for each sensor (stored in 'sensors' global variable)
+        getSensorCoords();
+    }
+    
     //Retrieves the no-fly-zones file from the WebServer
     private static void getNoflyzonesFile() {
     	
@@ -642,6 +655,16 @@ public class App
 				dataGeojson += "\"properties\": {\"fill-opacity\": 0.5, \"fill\": \"#ff0000\"}},";
 			}
 		}
+    }
+    
+    //Get the no-fly-zone Geo-JSON data (stored in global 'buildings' variable)
+    private static void getNoflyzoneData() {
+    	
+        //1) Retrieve files from the WebServer (stored in the 'noflyzoneFile' global variable)
+        getNoflyzonesFile();
+        
+        //2) Parse these files into appropriate java Building objects (stored in 'buildings' global variable)
+        parseNoflyzoneBuildings();
     }
     
     //Greedy route optimisation algorithm
@@ -840,69 +863,9 @@ public class App
 		dataGeojson += "\n\t\t\t\t]\n\t\t\t},\"properties\":{\n\t\t}\n\t}\n\t\t\n\t]\n}";
     }
     
-    
-    
-    public static void main( String[] args ) throws IOException
-    {    	
-    	//SETUP
+    //Output our Geo-JSON 'aqmaps' file
+    private static void outputAqmaps() {
     	
-    	//Storing command line arguments into appropriate variables
-        dateDD = args[0];
-        dateMM = args[1];
-        dateYY = args[2];
-        startPoint = new Point(Double.parseDouble(args[3]), Double.parseDouble(args[4]));
-		randomSeed = Integer.parseInt(args[5]);
-        portNumber = args[6];
-        
-    	//Initialise WebServer
-        initWebserver();
-
-    	
-    	//GET THE AIR QUALITY DATA FOR THE GIVEN DATE
-    	
-    	//1) Retrieve maps file from the WebServer (stored in 'mapsFile' global variable)
-        getMapsFile();
-        
-        //2) Parse this maps file into a list of Sensor objects (stored in 'sensors' global variable)
-        parseMapSensors();
-        
-        //3) Get the given coordinates of the W3W location for each sensor (stored in 'sensors' global variable)
-        getSensorCoords();
-        
-        
-        //GET THE NO-FLY-ZONE DATA
-        
-        //1) Retrieve files from the WebServer (stored in the 'noflyzoneFile' global variable)
-        getNoflyzonesFile();
-        
-        //2) Parse these files into appropriate java Building objects (stored in 'buildings' global variable)
-        parseNoflyzoneBuildings();
-
-        
-        //FIND OPTIMAL ROUTE (stored in 'sensorRoute' global variable)
-        findOptimalRoute();
-        
-        
-		//DELETE: CONFINEMENT AREA GEOJSON
-		dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
-		dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
-		dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
-		
-		
-		//MOVE FINDING (sequence of points stored in 'route' global variable)
-		findMoves();
-		
-		
-		//Print performance of our drone for the given day
-		System.out.println("\nA drone route has been successfully found!");
-		System.out.println("# Moves: " + moves);
-		System.out.println("# Unread sensors: " + unreadSensors.size());
-		System.out.println("# Read sensors: " + sensorRoute.size());
-		
-		
-		/*
-        //OUTPUT OUR GEO-JSON AQMAPS FILE
-        
         //Try write the code in the 'dataGeojson' String variable to a Geo-JSON file
         try {
         	String geojsonFilename = "/readings-" + dateDD + "-" + dateMM + "-" + dateYY + ".geojson"; 
@@ -916,10 +879,11 @@ public class App
         	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
         	e.printStackTrace();
         }
-        
-        
-        //OUTPUT OUR FLIGHTPATH TEXT FILE
-        
+    }
+    
+    //Output our 'flightpath' text file
+    private static void outputFlightpath() {
+    	
         //Try write the code in the 'flightpathTxt' String variable to a .txt file
         try {
         	String txtFilename = "/flightpath-" + dateDD + "-" + dateMM + "-" + dateYY +".txt"; 
@@ -932,6 +896,64 @@ public class App
         } catch (IOException e) {
         	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
         	e.printStackTrace();
-        }*/
+        }
+    }
+    
+    //Output our 'aqmaps' (.geojson) and 'flightpath' (.txt) files
+    private static void writeOutputFiles() {
+    	
+    	//1) Output our 'aqmaps' Geo-JSON file
+    	outputAqmaps();
+    	
+    	//2) Output our 'flightpath' text file
+    	outputFlightpath();
+    }
+    
+    public static void main( String[] args ) throws IOException
+    {    	
+    	//SETUP
+    	//Storing command line arguments into appropriate variables
+        dateDD = args[0];
+        dateMM = args[1];
+        dateYY = args[2];
+        startPoint = new Point(Double.parseDouble(args[3]), Double.parseDouble(args[4]));
+		randomSeed = Integer.parseInt(args[5]);
+        portNumber = args[6];
+        
+    	//Initialise WebServer
+        initWebserver();
+
+    	
+    	//GET THE SENSORS & AIR QUALITY DATA FOR THE GIVEN DATE
+        getSensorData();
+        
+        
+        //GET THE NO-FLY-ZONE DATA
+        getNoflyzoneData();
+
+        
+        //FIND OPTIMAL ROUTE (stored in 'sensorRoute' global variable)
+        findOptimalRoute();
+        
+        
+		//DELETE: CONFINEMENT AREA GEOJSON
+		dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
+		dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
+		dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
+		
+		
+		//FIND DRONE MOVEMENTS (sequence of points stored in 'route' global variable)
+		findMoves();
+		
+		
+		//Print performance of our drone for the given day
+		System.out.println("\nA drone route has been successfully found!");
+		System.out.println("# Moves: " + moves);
+		System.out.println("# Unread sensors: " + unreadSensors.size());
+		System.out.println("# Read sensors: " + sensorRoute.size());
+		
+		
+		//Output our results to a 'aqmaps' and 'flightpath' file for the given date
+		writeOutputFiles();
     }
 }
