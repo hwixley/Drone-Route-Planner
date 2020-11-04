@@ -3,6 +3,7 @@ package uk.ac.ed.inf.aqmaps;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.net.URI;
 import java.net.http.*;
 import java.net.http.HttpResponse.BodyHandlers;
@@ -72,6 +73,56 @@ public class App
 	
 	
     //METHODS
+	
+	
+	//INPUT ARGUMENT VALIDATION METHODS
+	
+	//Checks the date is valid and fixes any formatting issues (repairs single digit inputs)
+	private static void checkDate(String day, String month, String year) {
+		int dayVal = checkIsNumber(day,"day");
+		int monthVal = checkIsNumber(month,"month");
+		int yearVal = checkIsNumber(year,"year");
+		
+		//Array describing valid number of days for each month
+		ArrayList<Integer> monthDays = new ArrayList<Integer>(Arrays.asList(31,28,31,30,31,30,31,31,30,31,30,31));
+		
+		//Account for leap years
+		if (yearVal % 4 == 0) {
+			monthDays.set(1, 29);
+		}
+		
+		//Checks if the month is valid
+		if ((monthVal < 1) || (monthVal > 13)) {
+			System.out.println("INPUT ERROR: " + month + " is not a valid entry for the month. This entry must in the range [1,12].");
+			System.exit(0);
+		}
+		
+		//Checks if the day is valid for the respective month
+		if ((dayVal < 1) || (dayVal > monthDays.get(monthVal-1))) {
+			System.out.println("INPUT ERROR: " + day + " is not a valid entry for the day in month " + month + " of year " + year + ". This entry must in the range [1," + monthDays.get(monthVal-1).toString() + "].");
+			System.exit(0);
+		}
+		
+		if (day.length() == 1) {
+			dateDD = "0" + day;
+		}
+		if (month.length() == 1) {
+			dateMM = "0" + month;
+		}
+	}
+	
+	//Checks if the given date input argument is an integer 
+	private static Integer checkIsNumber(String date, String name) {
+
+		try {
+			return Integer.parseInt(date);
+			
+		} catch (NumberFormatException e) {
+			System.out.println("INPUT ERROR: " + date + " is not a valid entry for the " + name + ". This entry must be an integer.");
+			System.exit(0);
+		}
+		return -1;
+	}
 	
 	
 	//FIND NEXT POINT METHOD 
@@ -966,6 +1017,8 @@ public class App
         dateDD = args[0];
         dateMM = args[1];
         dateYY = args[2];
+        checkDate(dateDD,dateMM,dateYY);
+        
         startPoint = new Point(Double.parseDouble(args[3]), Double.parseDouble(args[4]));
 		randomSeed = Integer.parseInt(args[5]);
         portNumber = args[6];
