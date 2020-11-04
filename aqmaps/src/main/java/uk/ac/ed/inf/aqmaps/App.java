@@ -1017,6 +1017,7 @@ public class App
         dateDD = args[0];
         dateMM = args[1];
         dateYY = args[2];
+        //Checks date inputs are valid and repairs any single digit inputs
         checkDate(dateDD,dateMM,dateYY);
         
         startPoint = new Point(Double.parseDouble(args[3]), Double.parseDouble(args[4]));
