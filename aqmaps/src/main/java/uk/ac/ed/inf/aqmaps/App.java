@@ -40,6 +40,13 @@ public class App
 	private static int randomSeed;
     private static String portNumber;
     
+    //Global WebServer variables
+    private static String wsURL;
+    private static HttpClient client = HttpClient.newHttpClient();;
+    
+    //Global WebServer file strings
+    private static String mapsFile;
+    
     //Temporary variables (for findPoint method)
     private static Move lastMove = new Move();
     
@@ -394,28 +401,20 @@ public class App
     	return angle;
     }
     
-    
-    
-    public static void main( String[] args ) throws IOException
-    {    	
-    	//SETUP
+    //Initialise WebServer
+    private static void initWebserver() {
     	
-    	//Storing command line arguments into appropriate variables
-        dateDD = args[0];
-        dateMM = args[1];
-        dateYY = args[2];
-        startPoint = new Point(Double.parseDouble(args[3]), Double.parseDouble(args[4]));
-		randomSeed = Integer.parseInt(args[5]);
-        portNumber = args[6];
-        
-    	//Initialise WebServer
-    	var client = HttpClient.newHttpClient();
-    	var wsURL = "http://localhost:" + portNumber + "/";
+    	//Set up the HTTP Request, and URL variables
+    	wsURL = "http://localhost:" + portNumber + "/";
     	var request = HttpRequest.newBuilder().uri(URI.create(wsURL)).build();
+    	
+    	//Try connect to the WebServer at this URL
     	try { 
 			var response = client.send(request, BodyHandlers.ofString());
 			if (response.statusCode() == 200) {
 				System.out.println("Successfully connected to the WebServer at port " + portNumber);
+			
+			//If the WebServer response is not successful then terminate the program
 			} else {
 				System.out.println("ERROR: unable to connect to the WebServer at port " + portNumber);
 				System.exit(0);
@@ -423,18 +422,16 @@ public class App
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
-
+    }
+    
+    //Retrieve the Maps file for the given date
+    private static void getMapsFile() {
     	
-    	
-    	//GET THE AIR QUALITY DATA FOR THE GIVEN DATE
-    	
-    	//1) Retrieve file from the WebServer
         //Define maps filePath
         String mapsFilePath = wsURL + "maps/" + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json";
         
     	//Read the '/YYYY/MM/DD/air-quality-data.json' file from the WebServer
         var mapsRequest = HttpRequest.newBuilder().uri(URI.create(mapsFilePath)).build();
-        String mapsFile = "";
         try {
         	var response = client.send(mapsRequest, BodyHandlers.ofString());
         	if (response.statusCode() == 200) {
@@ -447,9 +444,11 @@ public class App
         } catch (IOException | InterruptedException e) {
         	e.printStackTrace();
         }
-        
-        //2) Parse this file into a list of Sensor objects
-        
+    }
+    
+    //Parse Maps file into a list of Sensor objects
+    private static void parseMapSensors() {
+    	
         //Iterate through the lines of the '/YYYY/MM/DD/air-quality-data.json' file and store them as Sensors in the 'sensors' ArrayList
         Integer sensorIndex = 0;
         Sensor sens = new Sensor();
@@ -495,9 +494,11 @@ public class App
         		sensorIndex = 0;
         	}
         }
-        
-        //3) Get the given coordinates of the W3W location
-        
+    }
+    
+    //Adds the central coordinates of each sensor by parsing each W3W location
+    private static void getSensorCoords() {
+    	
         //Get swPoint and nePoint for the given w3w location
         for (int i = 0; i < sensors.size(); i++) {
         	Sensor s = sensors.get(i);
@@ -552,7 +553,34 @@ public class App
     			stage += 1;
     		}
         }
+    }
+    
+    public static void main( String[] args ) throws IOException
+    {    	
+    	//SETUP
+    	
+    	//Storing command line arguments into appropriate variables
+        dateDD = args[0];
+        dateMM = args[1];
+        dateYY = args[2];
+        startPoint = new Point(Double.parseDouble(args[3]), Double.parseDouble(args[4]));
+		randomSeed = Integer.parseInt(args[5]);
+        portNumber = args[6];
         
+    	//Initialise WebServer
+        initWebserver();
+
+    	
+    	//GET THE AIR QUALITY DATA FOR THE GIVEN DATE
+    	
+    	//1) Retrieve file from the WebServer
+        getMapsFile();
+        
+        //2) Parse this file into a list of Sensor objects
+        parseMapSensors();
+        
+        //3) Get the given coordinates of the W3W location
+        getSensorCoords();
         
         
         //GET THE NO-FLY-ZONE DATA
