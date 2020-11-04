@@ -17,6 +17,7 @@ public class App
 {
 	//VARIABLES
 	
+	
 	//Confinement area coordinates
     private static final double maxLat = 55.946233; 
     private static final double minLat = 55.942617;
@@ -49,8 +50,8 @@ public class App
     private static String noflyzoneFile;
     
     //Global output file strings
-    private static String dataGeojson;
-    private static String flightpathTxt;
+    private static String dataGeojson = "";
+    private static String flightpathTxt = "";
     
     //findPoint method temporary variable
     private static Move lastMove = new Move();
@@ -69,10 +70,15 @@ public class App
 	private static ArrayList<Sensor> unreadSensors = new ArrayList<Sensor>();
 	
 	
+	
     //METHODS
+	
+	
+	//FIND NEXT POINT METHOD 
     
-    //Find point
+    //Find next valid point to move to given the current and destination sensors
     private static Move findPoint(Point currPoint, Point nextPoint) {
+    	
 		Double angle = calcAngle(currPoint, nextPoint);
 		Double remainder = angle % 10;
 		Move move = new Move();
@@ -175,6 +181,9 @@ public class App
 		return move;
     }
     
+    
+    //METHOD THAT CHECKS FOR REDUNDANT MOVES (algorithm is stuck)
+    
     //Checks if algorithm is stuck (checks if last and current moves are opposite)
     private static Boolean isStuck(Move current) {
     	
@@ -192,17 +201,8 @@ public class App
     	}
     }
     
-    //Transform point
-    private static Point transformPoint(Point origin, Double angle) {
-    	Point out = new Point(origin);
-    	angle = Math.toRadians(angle);
-    	
-    	//Uses planar trigonometry to transform the current point given the angle of movement
-    	out.lat += pathLength*Math.sin(angle);
-    	out.lng += pathLength*Math.cos(angle);
-    	
-    	return out;
-    }
+    
+    //METHOD THAT CHECKS IF A POINT IS WITHIN RANGE OF THE DESTINATION SENSOR
     
     //Checks if valid point (within the range of a sensor)
     private static Boolean checkPoint(Point destination, Point actual) {
@@ -213,6 +213,9 @@ public class App
     		return false;
     	}
     }
+    
+    
+    //METHODS FOR CALCULATING ROUTE AND MOVE COST (used in route optimisation methods)
     
     //Calculate distance of route
 	private static Double calcRouteCost(ArrayList<Point> points) {
@@ -245,6 +248,9 @@ public class App
 		
 		return dist;
 	}
+	
+	
+	//METHODS FOR CHECKING FOR VALID MOVES (within confinement area and outside of no-fly-zone buildings)
 	
 	//Returns true if point is valid (within appropriate areas)
 	private static Boolean isValid(Point origin, Point dest) {
@@ -350,6 +356,9 @@ public class App
 		}
 	}
     
+	
+	//AIR-QUALITY CLASSIFICATION METHODS
+	
     //Returns the appropriate colour for a given air quality reading
 	private static String readingColour(Double reading) {
 		String colour = "#000000";
@@ -393,6 +402,9 @@ public class App
     	return symbol;
     }
 	
+	
+	//GEOMETRICAL CALCULATOINS
+	
     //Calculates distance between 2 points
     private static Double calcDistance(Point p1, Point p2) { 
     	Double lats = Math.pow(p1.lat - p2.lat,2);
@@ -419,6 +431,21 @@ public class App
     	return angle;
     }
     
+    //Transform point
+    private static Point transformPoint(Point origin, Double angle) {
+    	Point out = new Point(origin);
+    	angle = Math.toRadians(angle);
+    	
+    	//Uses planar trigonometry to transform the current point given the angle of movement
+    	out.lat += pathLength*Math.sin(angle);
+    	out.lng += pathLength*Math.cos(angle);
+    	
+    	return out;
+    }
+    
+    
+    //WEBSERVER METHOD
+    
     //Initialise WebServer
     private static void initWebserver() {
     	
@@ -441,6 +468,9 @@ public class App
 			e.printStackTrace();
 		}
     }
+    
+    
+    //RETRIEVING THE SENSOR AND AIR-QUALITY DATA METHODS
     
     //Retrieve the Maps file for the given date
     private static void getMapsFile() {
@@ -529,7 +559,9 @@ public class App
 			
 			w3w = w1 + "/" + w2 + "/" + w3 + "/details.json";
     		
-			//RETRIEVE W3W DATA FROM WEBSERVER
+			
+			//1) Retrieve W3W data from the WebServer
+			
             //Define W3W filePath
             String w3wFilePath = wsURL + "words/" + w3w;
             
@@ -548,8 +580,8 @@ public class App
             	e.printStackTrace();
             }
     		
-            //PARSE W3W FILE AND APPEND DATA TO THE APPROPRIATE SENSOR OBJECTS
-    		//Loop through file
+            
+            //2) Parse the W3W file and append the coordinate data to the appropriate sensor object
     		Point point = new Point();
     		Integer stage = -20;
     		String[]linesW3W = w3wFile.split(System.getProperty("line.separator"));
@@ -585,6 +617,9 @@ public class App
         //3) Get the given coordinates of the W3W location for each sensor (stored in 'sensors' global variable)
         getSensorCoords();
     }
+    
+    
+    //RETRIEVING THE NO-FLY-ZONE DATA METHODS
     
     //Retrieves the no-fly-zones file from the WebServer
     private static void getNoflyzonesFile() {
@@ -666,6 +701,9 @@ public class App
         //2) Parse these files into appropriate java Building objects (stored in 'buildings' global variable)
         parseNoflyzoneBuildings();
     }
+    
+    
+    //ROUTE OPTIMISATION METHODS
     
     //Greedy route optimisation algorithm
     private static void greedy() {
@@ -753,13 +791,18 @@ public class App
     	twoOpt();
     }
     
+    
+    //MOVE FINDING METHOD
+    
     //Method that finds valid moves for the drone to move along the optimised route
     private static void findMoves() {
     	
 		//ArrayList to store the sequential points in the route
 		route.add(startPoint);
+		
 		//ArrayList to store the sensors the drone still needs to visit and read
 		unreadSensors = new ArrayList<Sensor>(sensorRoute);
+		
 		//Add the start point to 'unreadSensors' so our drone finishes at this point
 		Sensor finishPoint = new Sensor();
 		finishPoint.point = startPoint;
@@ -809,7 +852,7 @@ public class App
 				}
 				
 				//Writing to our flight path text file
-				flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + "," + location + "\n";
+				flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + String.valueOf(angle.intValue()) + "," + newP.lng.toString() + "," + newP.lat.toString() + "," + location + "\n";
 						
 				moves += 1;
 				
@@ -823,7 +866,7 @@ public class App
 				route.add(newP);
 
 				//Writing to our flight path text file
-				flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + ",null\n";
+				flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + String.valueOf(angle.intValue()) + "," + newP.lng.toString() + "," + newP.lat.toString() + ",null\n";
 						
 				moves += 1;
 			}
@@ -862,6 +905,9 @@ public class App
 		//Add the closing brackets to the Geo-JSON LineString Feature and FeatureCollection
 		dataGeojson += "\n\t\t\t\t]\n\t\t\t},\"properties\":{\n\t\t}\n\t}\n\t\t\n\t]\n}";
     }
+    
+    
+    //FILE OUTPUT METHODS:
     
     //Output our Geo-JSON 'aqmaps' file
     private static void outputAqmaps() {
@@ -908,6 +954,9 @@ public class App
     	//2) Output our 'flightpath' text file
     	outputFlightpath();
     }
+    
+    
+    
     
     public static void main( String[] args ) throws IOException
     {    	
