@@ -24,7 +24,7 @@ public class App
     private static final double minLng = -3.192473;
     
     //Constants
-    private static double errorMargin = 0.0002;
+    private static double errorMargin = 0.0002; //Not left as final to cater for the 0.0003 error margin when returning to startPoint
     private static final double pathLength = 0.0003;
     
     //Global variables
@@ -42,15 +42,33 @@ public class App
     
     //Global WebServer variables
     private static String wsURL;
-    private static HttpClient client = HttpClient.newHttpClient();;
+    private static final HttpClient client = HttpClient.newHttpClient();;
     
     //Global WebServer file strings
     private static String mapsFile;
+    private static String noflyzoneFile;
     
-    //Temporary variables (for findPoint method)
+    //Global output file strings
+    private static String dataGeojson;
+    private static String flightpathTxt;
+    
+    //findPoint method temporary variable
     private static Move lastMove = new Move();
     
+    //Route optimising variables
+    private static ArrayList<Point> pointRoute = new ArrayList<Point>();
+	private static ArrayList<Sensor> sensorRoute = new ArrayList<Sensor>();
     
+	//Geo-JSON Feature syntax
+	private static final String markerGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Point\", \"coordinates\": [";
+	private static final String lineGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\": {\"type\": \"LineString\",\n\t\t\t\t\"coordinates\": [";
+	
+	//Move finding variables
+	private static int moves = 0;
+	private static ArrayList<Point> route = new ArrayList<Point>();
+	private static ArrayList<Sensor> unreadSensors = new ArrayList<Sensor>();
+	
+	
     //METHODS
     
     //Find point
@@ -555,43 +573,14 @@ public class App
         }
     }
     
-    public static void main( String[] args ) throws IOException
-    {    	
-    	//SETUP
+    //Retrieves the no-fly-zones file from the WebServer
+    private static void getNoflyzonesFile() {
     	
-    	//Storing command line arguments into appropriate variables
-        dateDD = args[0];
-        dateMM = args[1];
-        dateYY = args[2];
-        startPoint = new Point(Double.parseDouble(args[3]), Double.parseDouble(args[4]));
-		randomSeed = Integer.parseInt(args[5]);
-        portNumber = args[6];
-        
-    	//Initialise WebServer
-        initWebserver();
-
-    	
-    	//GET THE AIR QUALITY DATA FOR THE GIVEN DATE
-    	
-    	//1) Retrieve file from the WebServer
-        getMapsFile();
-        
-        //2) Parse this file into a list of Sensor objects
-        parseMapSensors();
-        
-        //3) Get the given coordinates of the W3W location
-        getSensorCoords();
-        
-        
-        //GET THE NO-FLY-ZONE DATA
-        
-        //1) Retrieve files from the WebServer
         //Define no fly zones filePath
         String noflyzoneFilePath = wsURL + "buildings/no-fly-zones.geojson";
         
     	//Read the '/W1/W2/W3/details.json' file from the WebServer
         var noflyzoneRequest = HttpRequest.newBuilder().uri(URI.create(noflyzoneFilePath)).build();
-        String noflyzoneFile = "";
         try {
         	var response = client.send(noflyzoneRequest, BodyHandlers.ofString());
         	if (response.statusCode() == 200) {
@@ -604,9 +593,12 @@ public class App
         } catch (IOException | InterruptedException e) {
         	e.printStackTrace();
         }
-        
-        //2) Parse these files into appropriate java Building objects
-		String dataGeojson = "{\"type\": \"FeatureCollection\",\n\t\"features\"\t: [";
+    }
+    
+    //Parses the no-fly-zones file as Building objects
+    private static void parseNoflyzoneBuildings() {
+    	
+		dataGeojson = "{\"type\": \"FeatureCollection\",\n\t\"features\"\t: [";
 		//Iterate through the '/buildings/no-fly-zones.geojson' file
 		Building building = new Building();
 		Point polyPoint = new Point();
@@ -637,6 +629,8 @@ public class App
 			} else if ((line.indexOf("]") != -1) && (line.indexOf("],") == -1) && !buildingComplete) {
 				buildings.add(new Building(building));
 				buildingComplete = true;
+				
+				//DELETE: BUILDING GEOJSON
 				dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
 				
 				for (int p = 0; p < building.points.size(); p++) {
@@ -648,14 +642,10 @@ public class App
 				dataGeojson += "\"properties\": {\"fill-opacity\": 0.5, \"fill\": \"#ff0000\"}},";
 			}
 		}
-
-        
-        
-        //FIND OPTIMAL ROUTE
-
-        //1) Use greedy algorithm to choose closest points
-        ArrayList<Point> pointRoute = new ArrayList<Point>();
-		ArrayList<Sensor> sensorRoute = new ArrayList<Sensor>();
+    }
+    
+    //Greedy route optimisation algorithm
+    private static void greedy() {
 		ArrayList<Sensor> unexploredSensors = new ArrayList<Sensor>(sensors);
 		 
 		for (int s = 0; s < sensors.size()+1; s++) {
@@ -685,9 +675,10 @@ public class App
 		    	unexploredSensors.remove(minSensor);
 			}
 		}
-		unexploredSensors.clear();
-
-		//2) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
+    }
+    
+    //2-Opt heuristic route optimisation algorithm
+    private static void twoOpt() {
 		Boolean better = true;
 		while (better) {
 			better = false;
@@ -726,38 +717,31 @@ public class App
 				}
 		 	}
 		}
-		pointRoute.clear();
-		
-		
-		
-        //GEO-JSON FEATURE SYNTAX
-		
-		//Add Geo-JSON Polygon to represent confinement area
-		dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
-		dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
-		dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
-		//Geo-JSON marker Point syntax
-		String markerGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Point\", \"coordinates\": [";
-		//Geo-JSON LineString syntax
-		String lineGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\": {\"type\": \"LineString\",\n\t\t\t\t\"coordinates\": [";
-		
-		
-		//ROUTE FINDING VARIABLES
-		
+    }
+    
+    //Method for finding the optimal route
+    private static void findOptimalRoute() {
+    	//Route stored in sensorRoute and pointRoute variables
+    	
+    	//1) Use greedy algorithm to choose closest points
+    	greedy();
+    	
+		//2) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
+    	twoOpt();
+    }
+    
+    //Method that finds valid moves for the drone to move along the optimised route
+    private static void findMoves() {
+    	
 		//ArrayList to store the sequential points in the route
-		ArrayList<Point> route = new ArrayList<Point>();
 		route.add(startPoint);
-		//Moves to store number of moves executed
-		int moves = 0;
 		//ArrayList to store the sensors the drone still needs to visit and read
-		ArrayList<Sensor> unreadSensors = new ArrayList<Sensor>(sensorRoute);
+		unreadSensors = new ArrayList<Sensor>(sensorRoute);
 		//Add the start point to 'unreadSensors' so our drone finishes at this point
 		Sensor finishPoint = new Sensor();
 		finishPoint.point = startPoint;
 		finishPoint.location = "end";
 		unreadSensors.add(finishPoint);
-		//Initialise the flightpath log text variable
-		String flightpathTxt = "";
 		
 
 		//FIND MOVES FOR CHOSEN ROUTE
@@ -801,7 +785,7 @@ public class App
 					location = "null";
 				}
 				
-				//Writing to our flightpath text file
+				//Writing to our flight path text file
 				flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + "," + location + "\n";
 						
 				moves += 1;
@@ -815,13 +799,12 @@ public class App
 				
 				route.add(newP);
 
-				//Writing to flightpath text file
+				//Writing to our flight path text file
 				flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + angle.toString() + "," + newP.lng.toString() + "," + newP.lat.toString() + ",null\n";
 						
 				moves += 1;
 			}
 		}
-		
 		
 		//ADD FINAL FEATURES TO OUR GEO-JSON TEXT VARIABLE 'dataGeojson'
 		
@@ -855,8 +838,59 @@ public class App
 		}
 		//Add the closing brackets to the Geo-JSON LineString Feature and FeatureCollection
 		dataGeojson += "\n\t\t\t\t]\n\t\t\t},\"properties\":{\n\t\t}\n\t}\n\t\t\n\t]\n}";
+    }
+    
+    
+    
+    public static void main( String[] args ) throws IOException
+    {    	
+    	//SETUP
+    	
+    	//Storing command line arguments into appropriate variables
+        dateDD = args[0];
+        dateMM = args[1];
+        dateYY = args[2];
+        startPoint = new Point(Double.parseDouble(args[3]), Double.parseDouble(args[4]));
+		randomSeed = Integer.parseInt(args[5]);
+        portNumber = args[6];
+        
+    	//Initialise WebServer
+        initWebserver();
+
+    	
+    	//GET THE AIR QUALITY DATA FOR THE GIVEN DATE
+    	
+    	//1) Retrieve maps file from the WebServer (stored in 'mapsFile' global variable)
+        getMapsFile();
+        
+        //2) Parse this maps file into a list of Sensor objects (stored in 'sensors' global variable)
+        parseMapSensors();
+        
+        //3) Get the given coordinates of the W3W location for each sensor (stored in 'sensors' global variable)
+        getSensorCoords();
+        
+        
+        //GET THE NO-FLY-ZONE DATA
+        
+        //1) Retrieve files from the WebServer (stored in the 'noflyzoneFile' global variable)
+        getNoflyzonesFile();
+        
+        //2) Parse these files into appropriate java Building objects (stored in 'buildings' global variable)
+        parseNoflyzoneBuildings();
+
+        
+        //FIND OPTIMAL ROUTE (stored in 'sensorRoute' global variable)
+        findOptimalRoute();
+        
+        
+		//DELETE: CONFINEMENT AREA GEOJSON
+		dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
+		dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
+		dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
 		
 		
+		//MOVE FINDING (sequence of points stored in 'route' global variable)
+		findMoves();
 		
 		
 		//Print performance of our drone for the given day
