@@ -31,6 +31,15 @@ public class App
     private static ArrayList<Building> buildings = new ArrayList<Building>();
     private static ArrayList<Sensor> sensors = new ArrayList<Sensor>();
     
+    //Global argument variables
+    private static String dateDD;
+    private static String dateMM;
+    private static String dateYY;
+    private static Point startPoint;
+    @SuppressWarnings("unused")
+	private static int randomSeed;
+    private static String portNumber;
+    
     //Temporary variables (for findPoint method)
     private static Move lastMove = new Move();
     
@@ -392,17 +401,12 @@ public class App
     	//SETUP
     	
     	//Storing command line arguments into appropriate variables
-        String dateDD = args[0];
-        String dateMM = args[1];
-        String dateYY = args[2];
-        Double startLat = Double.parseDouble(args[3]);
-        Double startLng = Double.parseDouble(args[4]);
-        Point startPoint = new Point();
-        startPoint.lat = startLat;
-        startPoint.lng = startLng;
-        @SuppressWarnings("unused")
-		int randomSeed = Integer.parseInt(args[5]);
-        String portNumber = args[6];
+        dateDD = args[0];
+        dateMM = args[1];
+        dateYY = args[2];
+        startPoint = new Point(Double.parseDouble(args[3]), Double.parseDouble(args[4]));
+		randomSeed = Integer.parseInt(args[5]);
+        portNumber = args[6];
         
     	//Initialise WebServer
     	var client = HttpClient.newHttpClient();
@@ -834,7 +838,7 @@ public class App
 		System.out.println("# Read sensors: " + sensorRoute.size());
 		
 		
-		
+		/*
         //OUTPUT OUR GEO-JSON AQMAPS FILE
         
         //Try write the code in the 'dataGeojson' String variable to a Geo-JSON file
@@ -866,6 +870,6 @@ public class App
         } catch (IOException e) {
         	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
         	e.printStackTrace();
-        }
+        }*/
     }
 }
