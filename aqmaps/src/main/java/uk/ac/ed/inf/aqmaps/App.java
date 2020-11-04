@@ -912,6 +912,7 @@ public class App
     public static void main( String[] args ) throws IOException
     {    	
     	//SETUP
+    	
     	//Storing command line arguments into appropriate variables
         dateDD = args[0];
         dateMM = args[1];
@@ -945,6 +946,8 @@ public class App
 		//FIND DRONE MOVEMENTS (sequence of points stored in 'route' global variable)
 		findMoves();
 		
+		
+		//OUTPUT FILES AND PERFORMANCE DATA
 		
 		//Print performance of our drone for the given day
 		System.out.println("\nA drone route has been successfully found!");
