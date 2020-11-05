@@ -392,7 +392,7 @@ public class App
 				Double icLng = netYint/netGrad;
 				Double icLat = path.gradient*icLng + path.yint;
 				
-				//Checks whether the point of intersectionis within the bounds of the given building boundary (meaning an intersection)
+				//Checks whether the point of intersection is within the bounds of the given building boundary (meaning an intersection)
 				if (((icLng <= max_lng) && (icLng >= min_lng)) || ((icLat <= max_lat) && (icLat >= min_lat))) {
 					return false;
 				} else {
@@ -529,35 +529,36 @@ public class App
 		}
     }
     
+    //Returns the file contents at the specified path of the WebServer
+    private static String getWebServerFile(String path) {
+    	
+    	//Set up the HTTP Request variable
+    	var request = HttpRequest.newBuilder().uri(URI.create(wsURL + path)).build();
+    	
+    	//Try read the file on the WebServer at this URL
+    	try {
+    		var response = client.send(request, BodyHandlers.ofString());
+    		
+    		if (response.statusCode() == 200) {
+    			System.out.println("Successfully retrieved the " + path + " file");
+    			return response.body();
+    		
+    		//If the WebServer response is not successful (cannot locate the file) then terminate the program
+    		} else {
+    			System.out.println("FILE NOT FOUND ERROR: the file at the specified path does not exist on the WebServer. Path = " + wsURL + path);
+        		System.exit(0);
+    		}
+    	
+    	//If the WebServer response is not successful (cannot locate the file) then terminate the program
+    	} catch (IOException | InterruptedException e) {
+    		System.out.println("FILE NOT FOUND ERROR: the file at the specified path does not exist on the WebServer. Path = " + wsURL + path);
+    		System.exit(0);
+    	}
+    	return "";
+    }
+    
     
     //RETRIEVING THE SENSOR AND AIR-QUALITY DATA METHODS
-    
-    //Retrieve the Maps file for the given date
-    private static void getMapsFile() {
-    	
-        //Set up the HTTP Request, and URL variables
-        String mapsFilePath = wsURL + "maps/" + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json";
-        var mapsRequest = HttpRequest.newBuilder().uri(URI.create(mapsFilePath)).build();
-        
-        //Try read the file on the WebServer at this URL
-        try {
-        	var response = client.send(mapsRequest, BodyHandlers.ofString());
-        	if (response.statusCode() == 200) {
-        		System.out.println("Successfully retrieved the maps json file");
-        		mapsFile = response.body();
-        		
-        	//If the WebServer response is not successful (cannot locate the file) then terminate the program
-        	} else {
-        		System.out.println("FILE NOT FOUND ERROR: this maps file does not exist. Path = " + mapsFilePath);
-        		System.exit(0);
-        	}
-        	
-        //If the WebServer response is not successful (cannot locate the file) then terminate the program
-        } catch (IOException | InterruptedException e) {
-    		System.out.println("FILE NOT FOUND ERROR: this maps file does not exist. Path = " + mapsFilePath);
-    		System.exit(0);
-        }
-    }
     
     //Parse Maps file into a list of Sensor objects
     private static void parseMapSensors() {
@@ -626,30 +627,7 @@ public class App
     		
 			
 			//1) Retrieve W3W data from the WebServer
-			
-            //Set up the HTTP Request, URL, and file content variables
-            String w3wFilePath = wsURL + "words/" + w3w;
-            var w3wRequest = HttpRequest.newBuilder().uri(URI.create(w3wFilePath)).build();
-            String w3wFile = "";
-            
-            //Try read the file on the WebServer at this URL
-            try {
-            	var response = client.send(w3wRequest, BodyHandlers.ofString());
-            	if (response.statusCode() == 200) {
-            		w3wFile = response.body();
-            		
-            	//If the WebServer response is not successful (cannot locate the file) then terminate the program
-            	} else {
-            		System.out.println("FILE NOT FOUND ERROR: this W3W file does not exist. Path = " + w3wFilePath);
-            		System.exit(0);
-            	}
-            
-            //If the WebServer response is not successful (cannot locate the file) then terminate the program
-            } catch (IOException | InterruptedException e) {
-        		System.out.println("FILE NOT FOUND ERROR: this W3W file does not exist. Path = " + w3wFilePath);
-        		System.exit(0);
-            }
-    		
+			String w3wFile = getWebServerFile("words/" + w3w);
             
             //2) Parse the W3W file and append the coordinate data to the appropriate sensor object
     		Point point = new Point();
@@ -679,7 +657,7 @@ public class App
     private static void getSensorData() {
     	
     	//1) Retrieve maps file from the WebServer (stored in 'mapsFile' global variable)
-        getMapsFile();
+    	mapsFile = getWebServerFile("maps/" + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json");
         
         //2) Parse this maps file into a list of Sensor objects (stored in 'sensors' global variable)
         parseMapSensors();
@@ -690,33 +668,6 @@ public class App
     
     
     //RETRIEVING THE NO-FLY-ZONE DATA METHODS
-    
-    //Retrieves the no-fly-zones file from the WebServer
-    private static void getNoflyzonesFile() {
-    	
-        //Set up the HTTP Request, and URL variables
-        String noflyzoneFilePath = wsURL + "buildings/no-fly-zones.geojson";
-        var noflyzoneRequest = HttpRequest.newBuilder().uri(URI.create(noflyzoneFilePath)).build();
-        
-        //Try read the file on the WebServer at this URL
-        try {
-        	var response = client.send(noflyzoneRequest, BodyHandlers.ofString());
-        	if (response.statusCode() == 200) {
-        		noflyzoneFile = response.body();
-        		System.out.println("Successfully retrieved the no fly zones geojson file");
-        		
-        	//If the WebServer response is not successful (cannot locate the file) then terminate the program
-        	} else {
-        		System.out.println("FILE NOT FOUND ERROR: this no fly zone file does not exist. Path = " + noflyzoneFilePath);
-        		System.exit(0);
-        	}
-        
-        //If the WebServer response is not successful (cannot locate the file) then terminate the program
-        } catch (IOException | InterruptedException e) {
-    		System.out.println("FILE NOT FOUND ERROR: this no fly zone file does not exist. Path = " + noflyzoneFilePath);
-    		System.exit(0);
-        }
-    }
     
     //Parses the no-fly-zones file as Building objects
     private static void parseNoflyzoneBuildings() {
@@ -771,7 +722,7 @@ public class App
     private static void getNoflyzoneData() {
     	
         //1) Retrieve files from the WebServer (stored in the 'noflyzoneFile' global variable)
-        getNoflyzonesFile();
+    	noflyzoneFile = getWebServerFile("buildings/no-fly-zones.geojson");
         
         //2) Parse these files into appropriate java Building objects (stored in 'buildings' global variable)
         parseNoflyzoneBuildings();
@@ -984,40 +935,20 @@ public class App
     
     //FILE OUTPUT METHODS:
     
-    //Output our Geo-JSON 'aqmaps' file
-    private static void outputAqmaps() {
-    	String geojsonFilename = "/readings-" + dateDD + "-" + dateMM + "-" + dateYY + ".geojson"; 
+    //Write to a file given the specified path and contents
+    private static void writeToFile(String filePath, String fileContents) {
     	
-        //Try write the code in the 'dataGeojson' String variable to a Geo-JSON file
+        //Try write the code in the 'fileContents' String variable to the file path 'filPath'
         try {
-        	FileWriter writer = new FileWriter(System.getProperty("user.dir") + geojsonFilename);
-        	writer.write(dataGeojson); 
+        	FileWriter writer = new FileWriter(System.getProperty("user.dir") + filePath);
+        	writer.write(fileContents);
         	writer.close();
-        	//Success writing to file 'readings-DD-MM-YYYY.geojson'
-        	System.out.println("\nThe air quality sensors from " + dateDD + "-" + dateMM + "-" + dateYY + " have been read by the drone and formatted into a Geo-JSON map.\nGeo-JSON file path:   " + System.getProperty("user.dir") + geojsonFilename);
+        	//Success writing to file
+        	System.out.println("\nFile for " + dateDD + "-" + dateMM + "-" + dateYY + " outputted successfully.\nFile path:   " + System.getProperty("user.dir") + filePath);
         	
+        //Failure writing to file
         } catch (IOException e) {
-        	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
-        	System.out.println("FILE OUTPUT ERROR: unable to write the Geo-JSON file. Attempted Geo-JSON file path: " + System.getProperty("user.dir") + geojsonFilename);
-        	System.exit(0);
-        }
-    }
-    
-    //Output our 'flightpath' text file
-    private static void outputFlightpath() {
-    	String txtFilename = "/flightpath-" + dateDD + "-" + dateMM + "-" + dateYY +".txt"; 
-    	
-        //Try write the code in the 'flightpathTxt' String variable to a .txt file
-        try {
-        	FileWriter writer = new FileWriter(System.getProperty("user.dir") + txtFilename);
-        	writer.write(flightpathTxt);
-        	writer.close();
-        	//Success writing to file 'flightpath-DD-MM-YYYY.geojson'
-        	System.out.println("\nAll the drone moves from " + dateDD + "-" + dateMM + "-" + dateYY + " have been logged into a text file.\nText file path:   " + System.getProperty("user.dir") + txtFilename);
-        	
-        } catch (IOException e) {
-        	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
-        	System.out.println("FILE OUTPUT ERROR: unable to write the text file. Attempted text file path: " + System.getProperty("user.dir") + txtFilename);
+        	System.out.println("FILE OUTPUT ERROR: unable to write to the file for " + dateDD +"-" + dateMM + "-" + dateYY + ". Attempted file path: " + System.getProperty("user.dir") + filePath);
         	System.exit(0);
         }
     }
@@ -1026,10 +957,10 @@ public class App
     private static void writeOutputFiles() {
     	
     	//1) Output our 'aqmaps' Geo-JSON file
-    	outputAqmaps();
+    	writeToFile("/readings-" + dateDD + "-" + dateMM + "-" + dateYY + ".geojson", dataGeojson);
     	
     	//2) Output our 'flightpath' text file
-    	outputFlightpath();
+    	writeToFile("/flightpath-" + dateDD + "-" + dateMM + "-" + dateYY +".txt", flightpathTxt);
     }
     
     
