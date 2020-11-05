@@ -501,7 +501,7 @@ public class App
     }
     
     
-    //WEBSERVER METHOD
+    //WEBSERVER METHODS
     
     //Initialise WebServer
     private static void initWebserver() {
