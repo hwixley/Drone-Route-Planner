@@ -548,7 +548,8 @@ public class App
         		System.exit(0);
         	}
         } catch (IOException | InterruptedException e) {
-        	e.printStackTrace();
+    		System.out.println("ERROR: this maps file does not exist. Path = " + mapsFilePath);
+    		System.exit(0);
         }
     }
     
@@ -635,7 +636,8 @@ public class App
             		System.exit(0);
             	}
             } catch (IOException | InterruptedException e) {
-            	e.printStackTrace();
+        		System.out.println("ERROR: this W3W file does not exist. Path = " + w3wFilePath);
+        		System.exit(0);
             }
     		
             
@@ -697,7 +699,8 @@ public class App
         		System.exit(0);
         	}
         } catch (IOException | InterruptedException e) {
-        	e.printStackTrace();
+    		System.out.println("ERROR: this no fly zone file does not exist. Path = " + noflyzoneFilePath);
+    		System.exit(0);
         }
     }
     
@@ -969,10 +972,10 @@ public class App
     
     //Output our Geo-JSON 'aqmaps' file
     private static void outputAqmaps() {
+    	String geojsonFilename = "/readings-" + dateDD + "-" + dateMM + "-" + dateYY + ".geojson"; 
     	
         //Try write the code in the 'dataGeojson' String variable to a Geo-JSON file
         try {
-        	String geojsonFilename = "/readings-" + dateDD + "-" + dateMM + "-" + dateYY + ".geojson"; 
         	FileWriter writer = new FileWriter(System.getProperty("user.dir") + geojsonFilename);
         	writer.write(dataGeojson); 
         	writer.close();
@@ -981,16 +984,17 @@ public class App
         	
         } catch (IOException e) {
         	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
-        	e.printStackTrace();
+        	System.out.println("OUTPUT ERROR: unable to write the Geo-JSON file. Attempted Geo-JSON file path: " + System.getProperty("user.dir") + geojsonFilename);
+        	System.exit(0);
         }
     }
     
     //Output our 'flightpath' text file
     private static void outputFlightpath() {
+    	String txtFilename = "/flightpath-" + dateDD + "-" + dateMM + "-" + dateYY +".txt"; 
     	
         //Try write the code in the 'flightpathTxt' String variable to a .txt file
         try {
-        	String txtFilename = "/flightpath-" + dateDD + "-" + dateMM + "-" + dateYY +".txt"; 
         	FileWriter writer = new FileWriter(System.getProperty("user.dir") + txtFilename);
         	writer.write(flightpathTxt);
         	writer.close();
@@ -999,7 +1003,8 @@ public class App
         	
         } catch (IOException e) {
         	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
-        	e.printStackTrace();
+        	System.out.println("OUTPUT ERROR: unable to write the text file. Attempted text file path: " + System.getProperty("user.dir") + txtFilename);
+        	System.exit(0);
         }
     }
     
