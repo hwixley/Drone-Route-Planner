@@ -616,13 +616,43 @@ public class App
         return totalSensors;
     }
     
-    //Adds the central coordinates of each sensor by parsing each W3W location
-    private static void getSensorCoords() {
+    private static Point parseJsonW3Wtile(String fileContents) {
     	
-        //Get swPoint and nePoint for the given w3w location
-        for (int i = 0; i < sensors.size(); i++) {
-        	Sensor s = sensors.get(i);
+    	//Output variable
+    	Point point = new Point();
+    	
+    	//Iteration variables
+		Integer stage = -20;
+		String[]linesW3W = fileContents.split(System.getProperty("line.separator"));
+		
+		//Iterate over the lines in the W3W file 
+		for(String line : linesW3W) {
+			
+			if (line.indexOf("coordinates") != -1) {
+				stage = 1;
+			}
+			
+			//Parse the latitude and longitude values into doubles, and pass these into our 'point' object
+			if (stage == 2){
+				point.lng = Double.parseDouble(line.substring(line.indexOf(":") + 1, line.length() - 1));
+			} else if (stage == 3) {
+				point.lat = Double.parseDouble(line.substring(line.indexOf(":") + 1, line.length()));
+				return point;
+			}
+
+			stage += 1;
+		}
+		return point;
+    }
+    
+    //Adds the central coordinates of each sensor by parsing each W3W location
+    private static ArrayList<Sensor> getSensorCoords(ArrayList<Sensor> inputSensors) {
+    	
+        //Get the central coordinates of the W3W tile for each sensor
+        for (int i = 0; i < inputSensors.size(); i++) {
+        	Sensor s = inputSensors.get(i);
         	
+        	//Get the file path for the W3W file on the WebServer
         	String w3w = s.location;
 			String w1 = w3w.substring(0, w3w.indexOf("."));
 			w3w = w3w.substring(w3w.indexOf(".") + 1);
@@ -636,27 +666,9 @@ public class App
 			String w3wFile = getWebServerFile("words/" + w3w);
             
             //2) Parse the W3W file and append the coordinate data to the appropriate sensor object
-    		Point point = new Point();
-    		Integer stage = -20;
-    		String[]linesW3W = w3wFile.split(System.getProperty("line.separator"));
-    		for(String line : linesW3W) {
-    			
-    			if (line.indexOf("coordinates") != -1) {
-    				stage = 1;
-    			}
-    			
-    			//Parse the latitude and longitude values into doubles, and pass these into our 'point' object
-    			if (stage == 2){
-    				point.lng = Double.parseDouble(line.substring(line.indexOf(":") + 1, line.length() - 1));
-    			} else if (stage == 3) {
-    				point.lat = Double.parseDouble(line.substring(line.indexOf(":") + 1, line.length()));
-    				s.point = new Point(point);
-    				break;
-    			}
-
-    			stage += 1;
-    		}
+			s.point = parseJsonW3Wtile(w3wFile);
         }
+        return inputSensors;
     }
     
     //Retrieves the Sensor and air-quality data from the WebServer for the given date
@@ -669,7 +681,7 @@ public class App
         sensors = parseJsonSensors(mapsFile);
         
         //3) Get the given coordinates of the W3W location for each sensor (stored in 'sensors' global variable)
-        getSensorCoords();
+        sensors = getSensorCoords(sensors);
     }
     
     
@@ -679,11 +691,14 @@ public class App
     private static void parseNoflyzoneBuildings() {
     	
 		dataGeojson = "{\"type\": \"FeatureCollection\",\n\t\"features\"\t: [";
-		//Iterate through the '/buildings/no-fly-zones.geojson' file
+		
+		//Variables for iteration
 		Building building = new Building();
 		Point polyPoint = new Point();
 		Boolean buildingComplete = false;
         String[]noflyzoneLines = noflyzoneFile.split(System.getProperty("line.separator"));
+        
+        //Iterate through the '/buildings/no-fly-zones.geojson' file
         for(String line : noflyzoneLines) {
 			
 			//Check if line contains name property
