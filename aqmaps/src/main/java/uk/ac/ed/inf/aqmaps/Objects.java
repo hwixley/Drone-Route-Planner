@@ -26,8 +26,8 @@ public class Objects {
     	}
     }
     
-    //OBJECT: custom Sensor object
-    public static class Sensor {
+    //OBJECT: custom Sensor object (inherits Point object features)
+    public static class Sensor extends Point {
     	String location;
     	Double battery;
     	Double reading;
