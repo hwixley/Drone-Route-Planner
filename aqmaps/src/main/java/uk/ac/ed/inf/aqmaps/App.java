@@ -239,7 +239,7 @@ public class App
     }
     
     
-    //METHOD THAT CHECKS FOR REDUNDANT MOVES (algorithm is stuck)
+    //METHOD THAT CHECKS FOR REDUNDANT MOVES (indicates algorithm is stuck)
     
     //Checks if algorithm is stuck (checks if last and current moves are opposite)
     private static Boolean isStuck(Move current) {
@@ -488,7 +488,7 @@ public class App
     	return angle;
     }
     
-    //Transform point
+    //Transform point (returns the transformed point by using the angle of the drone's movement)
     private static Point transformPoint(Point origin, Double angle) {
     	Point out = new Point(origin);
     	angle = Math.toRadians(angle);
@@ -521,6 +521,8 @@ public class App
 				System.out.println("WEBSERVER CONNECTION ERROR: unable to connect to the WebServer at port " + portNumber);
 				System.exit(0);
 			}
+			
+		//If the WebServer response is not successful then terminate the program
 		} catch (IOException | InterruptedException e) {
 			System.out.println("WEBSERVER CONNECTION ERROR: unable to connect to the WebServer at port " + portNumber + ".\nEither the WebServer is not running or the port is incorrect.");
 			System.exit(0);
@@ -533,20 +535,24 @@ public class App
     //Retrieve the Maps file for the given date
     private static void getMapsFile() {
     	
-        //Define maps filePath
+        //Set up the HTTP Request, and URL variables
         String mapsFilePath = wsURL + "maps/" + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json";
-        
-    	//Read the '/YYYY/MM/DD/air-quality-data.json' file from the WebServer
         var mapsRequest = HttpRequest.newBuilder().uri(URI.create(mapsFilePath)).build();
+        
+        //Try read the file on the WebServer at this URL
         try {
         	var response = client.send(mapsRequest, BodyHandlers.ofString());
         	if (response.statusCode() == 200) {
         		System.out.println("Successfully retrieved the maps json file");
         		mapsFile = response.body();
+        		
+        	//If the WebServer response is not successful (cannot locate the file) then terminate the program
         	} else {
         		System.out.println("FILE NOT FOUND ERROR: this maps file does not exist. Path = " + mapsFilePath);
         		System.exit(0);
         	}
+        	
+        //If the WebServer response is not successful (cannot locate the file) then terminate the program
         } catch (IOException | InterruptedException e) {
     		System.out.println("FILE NOT FOUND ERROR: this maps file does not exist. Path = " + mapsFilePath);
     		System.exit(0);
@@ -621,20 +627,24 @@ public class App
 			
 			//1) Retrieve W3W data from the WebServer
 			
-            //Define W3W filePath
+            //Set up the HTTP Request, URL, and file content variables
             String w3wFilePath = wsURL + "words/" + w3w;
-            
-        	//Read the '/W1/W2/W3/details.json' file from the WebServer
             var w3wRequest = HttpRequest.newBuilder().uri(URI.create(w3wFilePath)).build();
             String w3wFile = "";
+            
+            //Try read the file on the WebServer at this URL
             try {
             	var response = client.send(w3wRequest, BodyHandlers.ofString());
             	if (response.statusCode() == 200) {
             		w3wFile = response.body();
+            		
+            	//If the WebServer response is not successful (cannot locate the file) then terminate the program
             	} else {
             		System.out.println("FILE NOT FOUND ERROR: this W3W file does not exist. Path = " + w3wFilePath);
             		System.exit(0);
             	}
+            
+            //If the WebServer response is not successful (cannot locate the file) then terminate the program
             } catch (IOException | InterruptedException e) {
         		System.out.println("FILE NOT FOUND ERROR: this W3W file does not exist. Path = " + w3wFilePath);
         		System.exit(0);
@@ -684,20 +694,24 @@ public class App
     //Retrieves the no-fly-zones file from the WebServer
     private static void getNoflyzonesFile() {
     	
-        //Define no fly zones filePath
+        //Set up the HTTP Request, and URL variables
         String noflyzoneFilePath = wsURL + "buildings/no-fly-zones.geojson";
-        
-    	//Read the '/W1/W2/W3/details.json' file from the WebServer
         var noflyzoneRequest = HttpRequest.newBuilder().uri(URI.create(noflyzoneFilePath)).build();
+        
+        //Try read the file on the WebServer at this URL
         try {
         	var response = client.send(noflyzoneRequest, BodyHandlers.ofString());
         	if (response.statusCode() == 200) {
         		noflyzoneFile = response.body();
         		System.out.println("Successfully retrieved the no fly zones geojson file");
+        		
+        	//If the WebServer response is not successful (cannot locate the file) then terminate the program
         	} else {
         		System.out.println("FILE NOT FOUND ERROR: this no fly zone file does not exist. Path = " + noflyzoneFilePath);
         		System.exit(0);
         	}
+        
+        //If the WebServer response is not successful (cannot locate the file) then terminate the program
         } catch (IOException | InterruptedException e) {
     		System.out.println("FILE NOT FOUND ERROR: this no fly zone file does not exist. Path = " + noflyzoneFilePath);
     		System.exit(0);
