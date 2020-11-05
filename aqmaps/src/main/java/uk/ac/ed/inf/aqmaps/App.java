@@ -518,11 +518,11 @@ public class App
 			
 			//If the WebServer response is not successful then terminate the program
 			} else {
-				System.out.println("ERROR: unable to connect to the WebServer at port " + portNumber);
+				System.out.println("WEBSERVER CONNECTION ERROR: unable to connect to the WebServer at port " + portNumber);
 				System.exit(0);
 			}
 		} catch (IOException | InterruptedException e) {
-			System.out.println("ERROR: unable to connect to the WebServer at port " + portNumber);
+			System.out.println("WEBSERVER CONNECTION ERROR: unable to connect to the WebServer at port " + portNumber + ".\nEither the WebServer is not running or the port is incorrect.");
 			System.exit(0);
 		}
     }
@@ -544,11 +544,11 @@ public class App
         		System.out.println("Successfully retrieved the maps json file");
         		mapsFile = response.body();
         	} else {
-        		System.out.println("ERROR: this maps file does not exist. Path = " + mapsFilePath);
+        		System.out.println("FILE NOT FOUND ERROR: this maps file does not exist. Path = " + mapsFilePath);
         		System.exit(0);
         	}
         } catch (IOException | InterruptedException e) {
-    		System.out.println("ERROR: this maps file does not exist. Path = " + mapsFilePath);
+    		System.out.println("FILE NOT FOUND ERROR: this maps file does not exist. Path = " + mapsFilePath);
     		System.exit(0);
         }
     }
@@ -632,11 +632,11 @@ public class App
             	if (response.statusCode() == 200) {
             		w3wFile = response.body();
             	} else {
-            		System.out.println("ERROR: this W3W file does not exist. Path = " + w3wFilePath);
+            		System.out.println("FILE NOT FOUND ERROR: this W3W file does not exist. Path = " + w3wFilePath);
             		System.exit(0);
             	}
             } catch (IOException | InterruptedException e) {
-        		System.out.println("ERROR: this W3W file does not exist. Path = " + w3wFilePath);
+        		System.out.println("FILE NOT FOUND ERROR: this W3W file does not exist. Path = " + w3wFilePath);
         		System.exit(0);
             }
     		
@@ -695,11 +695,11 @@ public class App
         		noflyzoneFile = response.body();
         		System.out.println("Successfully retrieved the no fly zones geojson file");
         	} else {
-        		System.out.println("ERROR: this no fly zone file does not exist. Path = " + noflyzoneFilePath);
+        		System.out.println("FILE NOT FOUND ERROR: this no fly zone file does not exist. Path = " + noflyzoneFilePath);
         		System.exit(0);
         	}
         } catch (IOException | InterruptedException e) {
-    		System.out.println("ERROR: this no fly zone file does not exist. Path = " + noflyzoneFilePath);
+    		System.out.println("FILE NOT FOUND ERROR: this no fly zone file does not exist. Path = " + noflyzoneFilePath);
     		System.exit(0);
         }
     }
@@ -984,7 +984,7 @@ public class App
         	
         } catch (IOException e) {
         	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
-        	System.out.println("OUTPUT ERROR: unable to write the Geo-JSON file. Attempted Geo-JSON file path: " + System.getProperty("user.dir") + geojsonFilename);
+        	System.out.println("FILE OUTPUT ERROR: unable to write the Geo-JSON file. Attempted Geo-JSON file path: " + System.getProperty("user.dir") + geojsonFilename);
         	System.exit(0);
         }
     }
@@ -1003,7 +1003,7 @@ public class App
         	
         } catch (IOException e) {
         	//Failure writing to file 'readings-DD-MM-YYYY.geojson'
-        	System.out.println("OUTPUT ERROR: unable to write the text file. Attempted text file path: " + System.getProperty("user.dir") + txtFilename);
+        	System.out.println("FILE OUTPUT ERROR: unable to write the text file. Attempted text file path: " + System.getProperty("user.dir") + txtFilename);
         	System.exit(0);
         }
     }
