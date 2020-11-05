@@ -92,7 +92,7 @@ public class App
 		}
 		
 		//Checks if the month is valid
-		if ((monthVal < 1) || (monthVal > 13)) {
+		if ((monthVal < 1) || (monthVal > 12)) {
 			System.out.println("INPUT ERROR: " + month + " is not a valid entry for the month. This entry must in the range [1,12].");
 			System.exit(0);
 		}
@@ -1060,6 +1060,6 @@ public class App
 		
 		
 		//Output our results to a 'aqmaps' and 'flightpath' file for the given date
-		writeOutputFiles();
+		//writeOutputFiles();
     }
 }
