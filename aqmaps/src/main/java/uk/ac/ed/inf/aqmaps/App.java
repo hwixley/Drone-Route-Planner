@@ -103,11 +103,11 @@ public class App
 			System.exit(0);
 		}
 		
-		if (day.length() == 1) {
-			dateDD = "0" + day;
+		if (dayVal < 10) {
+			dateDD = "0" + String.valueOf(dayVal);
 		}
-		if (month.length() == 1) {
-			dateMM = "0" + month;
+		if (monthVal < 10) {
+			dateMM = "0" + String.valueOf(monthVal);
 		}
 	}
 	
@@ -115,10 +115,16 @@ public class App
 	private static Integer checkIsNumber(String date, String name) {
 
 		try {
-			return Integer.parseInt(date);
+			int val = Integer.parseInt(date);
+			
+			if (val < 0) {
+				System.out.println("INPUT ERROR: " + date + " is not a valid entry for the " + name + ". This entry must be a positive integer.");
+				System.exit(0);
+			}
+			return val;
 			
 		} catch (NumberFormatException e) {
-			System.out.println("INPUT ERROR: " + date + " is not a valid entry for the " + name + ". This entry must be an integer.");
+			System.out.println("INPUT ERROR: " + date + " is not a valid entry for the " + name + ". This entry must be a positive integer.");
 			System.exit(0);
 		}
 		return -1;
@@ -516,7 +522,8 @@ public class App
 				System.exit(0);
 			}
 		} catch (IOException | InterruptedException e) {
-			e.printStackTrace();
+			System.out.println("ERROR: unable to connect to the WebServer at port " + portNumber);
+			System.exit(0);
 		}
     }
     
@@ -1017,12 +1024,11 @@ public class App
         dateDD = args[0];
         dateMM = args[1];
         dateYY = args[2];
-        //Checks date inputs are valid and repairs any single digit inputs
-        checkDate(dateDD,dateMM,dateYY);
+        checkDate(dateDD,dateMM,dateYY); //Checks date inputs are valid and repairs any single digit inputs
         
         startPoint = new Point(Double.parseDouble(args[3]), Double.parseDouble(args[4]));
-		randomSeed = Integer.parseInt(args[5]);
-        portNumber = args[6];
+		randomSeed = checkIsNumber(args[5],"random seed");
+        portNumber = String.valueOf(checkIsNumber(args[6],"port number"));
         
     	//Initialise WebServer
         initWebserver();
@@ -1060,6 +1066,6 @@ public class App
 		
 		
 		//Output our results to a 'aqmaps' and 'flightpath' file for the given date
-		//writeOutputFiles();
+		writeOutputFiles();
     }
 }
