@@ -561,12 +561,17 @@ public class App
     //RETRIEVING THE SENSOR AND AIR-QUALITY DATA METHODS
     
     //Parse Maps file into a list of Sensor objects
-    private static void parseMapSensors() {
+    private static ArrayList<Sensor> parseJsonSensors(String fileContents) {
     	
-        //Iterate through the lines of the '/YYYY/MM/DD/air-quality-data.json' file and store them as Sensors in the 'sensors' ArrayList
+    	//Method output variable
+    	ArrayList<Sensor> totalSensors = new ArrayList<Sensor>();
+    	
+    	//Iteration variables
         Integer sensorIndex = 0;
         Sensor sens = new Sensor();
-        String[]mapLines = mapsFile.split(System.getProperty("line.separator"));
+        String[]mapLines = fileContents.split(System.getProperty("line.separator"));
+        
+        //Iterate through the lines of the '/YYYY/MM/DD/air-quality-data.json' file and store them as Sensors in the 'sensors' ArrayList
         for(String line : mapLines){
         	
         	//Check if the given line contains sensor data
@@ -604,10 +609,11 @@ public class App
         		
         	//Else check if there is no more data for the given sensor
         	} else if (line.indexOf("}") != -1) {
-        		sensors.add(new Sensor(sens));
+        		totalSensors.add(new Sensor(sens));
         		sensorIndex = 0;
         	}
         }
+        return totalSensors;
     }
     
     //Adds the central coordinates of each sensor by parsing each W3W location
@@ -660,7 +666,7 @@ public class App
     	mapsFile = getWebServerFile("maps/" + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json");
         
         //2) Parse this maps file into a list of Sensor objects (stored in 'sensors' global variable)
-        parseMapSensors();
+        sensors = parseJsonSensors(mapsFile);
         
         //3) Get the given coordinates of the W3W location for each sensor (stored in 'sensors' global variable)
         getSensorCoords();
