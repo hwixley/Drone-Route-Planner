@@ -1070,7 +1070,7 @@ public class App
         	        //findOptimalRoute();
         	        //greedy();
         	        //swap();
-        	        twoOpt();
+        	        //twoOpt();
         	        swap();
         	        
         			//DELETE: CONFINEMENT AREA GEOJSON
@@ -1098,7 +1098,7 @@ public class App
         		}
         	}
         }
-        writeToFile("TSMoves.txt",fileText);
+        writeToFile("SMoves.txt",fileText);
         //writeToFile("Dates.txt",dateText);
     	//Initialise WebServer
         //initWebserver();
