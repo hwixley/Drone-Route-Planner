@@ -782,6 +782,42 @@ public class App
 		}
     }
     
+    //Swap heuristic route optimisation algorithm
+    private static void swap() {
+    	Boolean better = true;
+    	
+		if (sensorRoute.isEmpty()) {
+			sensorRoute = new ArrayList<Sensor>(sensors);
+		}
+		
+		while (better) {
+			better = false;
+			
+			for (int i = 0; i < sensorRoute.size(); i++) {
+				Double oldCost = calcRouteCost(sensorRoute);
+				
+				int indexI2 = i+1;
+				if (i+1 == sensorRoute.size()) {
+					indexI2 = 0;
+				}
+				
+				Sensor newI = sensorRoute.get(indexI2);
+				Sensor newI2 = sensorRoute.get(i);
+				sensorRoute.set(indexI2, newI2);
+				sensorRoute.set(i, newI);
+				
+				Double newCost = calcRouteCost(sensorRoute);
+				
+				if (newCost < oldCost) {
+					better = true;
+				} else {
+					sensorRoute.set(i, newI2);
+					sensorRoute.set(indexI2, newI);
+				}
+			}
+		}
+    }
+    
     //2-Opt heuristic route optimisation algorithm
     private static void twoOpt() {
 		Boolean better = true;
@@ -832,6 +868,8 @@ public class App
     	
     	//1) Use greedy algorithm to choose closest points
     	greedy();
+    	
+    	swap();
     	
 		//2) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
     	twoOpt();
@@ -1031,7 +1069,9 @@ public class App
         	        //FIND OPTIMAL ROUTE (stored in 'sensorRoute' global variable)
         	        //findOptimalRoute();
         	        //greedy();
+        	        //swap();
         	        twoOpt();
+        	        swap();
         	        
         			//DELETE: CONFINEMENT AREA GEOJSON
         			//dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
@@ -1058,7 +1098,7 @@ public class App
         		}
         	}
         }
-        writeToFile("2OptMoves.txt",fileText);
+        writeToFile("TSMoves.txt",fileText);
         //writeToFile("Dates.txt",dateText);
     	//Initialise WebServer
         //initWebserver();
