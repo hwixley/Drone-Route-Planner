@@ -57,8 +57,7 @@ public class App
     //findPoint method temporary variable
     private static Move lastMove = new Move();
     
-    //Route optimising variables
-    private static ArrayList<Point> pointRoute = new ArrayList<Point>();
+    //Variable to store the optimized sensor route
 	private static ArrayList<Sensor> sensorRoute = new ArrayList<Sensor>();
     
 	//Geo-JSON Feature syntax
@@ -275,21 +274,22 @@ public class App
     //METHODS FOR CALCULATING ROUTE AND MOVE COST (used in route optimisation methods)
     
     //Calculate distance of route
-	private static Double calcRouteCost(ArrayList<Point> points) {
+	private static Double calcRouteCost(ArrayList<Sensor> sens) {
     	Double cost = 0.0;
-    	ArrayList<Point> unreadPoints = new ArrayList<Point>(points);
-    	ArrayList<Point> route = new ArrayList<Point>();
-    	route.add(points.get(0));
-    	unreadPoints.remove(0);
+
+    	ArrayList<Sensor> unreadSens = new ArrayList<Sensor>(sens);
+    	ArrayList<Sensor> route = new ArrayList<Sensor>();
+    	route.add(sens.get(0));
+    	unreadSens.remove(0);
     	
     	//Iterates through the points in the route 
-    	while (unreadPoints.size() > 0) {
-			cost += calcEdgeCost(route.get(route.size()-1),unreadPoints.get(0));
+    	while (unreadSens.size() > 0) {
+			cost += calcEdgeCost(route.get(route.size()-1).point,unreadSens.get(0).point);
 			
-			route.add(unreadPoints.get(0));
-			unreadPoints.remove(0);
+			route.add(unreadSens.get(0));
+			unreadSens.remove(0);
     	}
-    	cost += calcEdgeCost(route.get(route.size()-1),route.get(0));
+    	cost += calcEdgeCost(route.get(route.size()-1).point,route.get(0).point);
     	
     	return cost;
     }
@@ -540,7 +540,7 @@ public class App
     		var response = client.send(request, BodyHandlers.ofString());
     		
     		if (response.statusCode() == 200) {
-    			System.out.println("Successfully retrieved the " + path + " file");
+    			//System.out.println("Successfully retrieved the " + path + " file");
     			return response.body();
     		
     		//If the WebServer response is not successful (cannot locate the file) then terminate the program
@@ -761,10 +761,9 @@ public class App
 			if (s == 0) {
 				currPoint = new Point(startPoint);
 			} else {
-				currPoint = pointRoute.get(s-1);
+				currPoint = sensorRoute.get(s-1).point;
 			}
 			Double minDist = 100.0;
-			Point minPoint = new Point();
 			int minSensor = -1;
 			 
 			for (int u = 0; u < unexploredSensors.size(); u++) {
@@ -772,13 +771,11 @@ public class App
 				 
 				if (calcEdgeCost(nextSensor.point, currPoint) < minDist) {
 					minDist = calcEdgeCost(nextSensor.point, currPoint);
-					minPoint = new Point(nextSensor.point);
 					minSensor = u;
 				}
 				 
 			}
 			if (unexploredSensors.size() > 0) {
-		    	pointRoute.add(minPoint);
 		    	sensorRoute.add(unexploredSensors.get(minSensor));
 		    	unexploredSensors.remove(minSensor);
 			}
@@ -788,35 +785,37 @@ public class App
     //2-Opt heuristic route optimisation algorithm
     private static void twoOpt() {
 		Boolean better = true;
+		
+		if (sensorRoute.isEmpty()) {
+			sensorRoute = new ArrayList<Sensor>(sensors);
+		}
+		
 		while (better) {
 			better = false;
 			 
-			for (int j = 0; j < pointRoute.size()-1; j++) {
+			for (int j = 0; j < sensorRoute.size()-1; j++) {
 				for (int i = 0; i < j; i++) {
-					Double oldCost = calcRouteCost(pointRoute);
+					Double oldCost = calcRouteCost(sensorRoute);
 					 
-					Point iPoint = pointRoute.get(i);
+					Point iPoint = sensorRoute.get(i).point;
 					Point iPointP = new Point();
 					if (i == 0) {
-						iPointP = pointRoute.get(pointRoute.size()-1);
+						iPointP = sensorRoute.get(sensorRoute.size()-1).point;
 					} else {
-						iPointP = pointRoute.get(i-1);
+						iPointP = sensorRoute.get(i-1).point;
 					}
-					Point jPoint = pointRoute.get(j);
-					Point jPointP = pointRoute.get(j+1);
+					Point jPoint = sensorRoute.get(j).point;
+					Point jPointP = sensorRoute.get(j+1).point;
 					 
 					Double newCost = oldCost - calcDistance(iPointP, iPoint) - calcDistance(jPoint, jPointP) + calcDistance(iPointP, jPoint) + calcDistance(iPoint, jPointP);
 					 
 					if (newCost < oldCost) {
-						ArrayList<Point> revPoints = new ArrayList<Point>();
 						ArrayList<Sensor> revSensors = new ArrayList<Sensor>();
 						 
 						for (int v = 0; v < j-i+1; v++) {
-							revPoints.add(pointRoute.get(i+v));
 							revSensors.add(sensorRoute.get(i+v));
 						}
 						for (int z = 0; z < j-i+1; z++) {
-							pointRoute.set(i+z, revPoints.get(j-i-z));
 							sensorRoute.set(i+z, revSensors.get(j-i-z));
 						}
 						 
@@ -829,7 +828,7 @@ public class App
     
     //Method for finding the optimal route
     private static void findOptimalRoute() {
-    	//Route stored in sensorRoute and pointRoute variables
+    	//Route stored in sensorRoute variable
     	
     	//1) Use greedy algorithm to choose closest points
     	greedy();
@@ -1001,42 +1000,102 @@ public class App
 		randomSeed = checkIsNumber(args[5],"random seed");
         portNumber = String.valueOf(checkIsNumber(args[6],"port number"));
         
+        ArrayList<Integer> monthDays = new ArrayList<Integer>(Arrays.asList(31,29,31,30,31,30,31,31,30,31,30,31));
+        
     	//Initialise WebServer
         initWebserver();
-
-    	
-    	//GET THE SENSORS & AIR QUALITY DATA FOR THE GIVEN DATE
-        getSensorData();
-        
         
         //GET THE NO-FLY-ZONE DATA
         getNoflyzoneData();
+        
+        String fileText ="";
+        String dateText = "";
+        
+        for (int y = 0; y < 2; y++) {
+    		if (y==1) {
+    			monthDays.set(1,28);
+    		}
+        	for (int m = 0; m < 12; m++) {
+        		for (int d = 0; d < monthDays.get(m); d++) {
+        			
+        			dateDD = String.valueOf(d+1);
+        			dateMM = String.valueOf(m+1);
+        			dateYY = String.valueOf(2020+y);
+        			checkDate(String.valueOf(d+1),String.valueOf(m+1),String.valueOf(2020+y));
+        			
+        			
+        	    	//GET THE SENSORS & AIR QUALITY DATA FOR THE GIVEN DATE
+        	        getSensorData();
+
+        	        
+        	        //FIND OPTIMAL ROUTE (stored in 'sensorRoute' global variable)
+        	        //findOptimalRoute();
+        	        //greedy();
+        	        twoOpt();
+        	        
+        			//DELETE: CONFINEMENT AREA GEOJSON
+        			//dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
+        			//dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
+        			//dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
+        			
+        			
+        			//FIND DRONE MOVEMENTS (sequence of points stored in 'route' global variable)
+        			findMoves();
+        			
+        			System.out.println(dateDD + "/" + dateMM + "/" + dateYY + ": " + String.valueOf(moves));
+        			fileText += String.valueOf(moves) + "\n";
+        			dateText += dateDD + "/" + dateMM + "/" + dateYY + "\n";
+        			
+        			route.clear();
+        			sensorRoute.clear();
+        			unreadSensors.clear();
+        			sensors.clear();
+        			lastMove = new Move();
+        			moves = 0;
+        			errorMargin = 0.0002;
+        			dataGeojson="";
+        			flightpathTxt="";
+        		}
+        	}
+        }
+        writeToFile("2OptMoves.txt",fileText);
+        //writeToFile("Dates.txt",dateText);
+    	//Initialise WebServer
+        //initWebserver();
+
+    	
+    	//GET THE SENSORS & AIR QUALITY DATA FOR THE GIVEN DATE
+        //getSensorData();
+        
+        
+        //GET THE NO-FLY-ZONE DATA
+        //getNoflyzoneData();
 
         
         //FIND OPTIMAL ROUTE (stored in 'sensorRoute' global variable)
-        findOptimalRoute();
+        //findOptimalRoute();
         
         
 		//DELETE: CONFINEMENT AREA GEOJSON
-		dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
-		dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
-		dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
+		//dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
+		//dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
+		//dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
 		
 		
 		//FIND DRONE MOVEMENTS (sequence of points stored in 'route' global variable)
-		findMoves();
+		//findMoves();
 		
 		
 		//OUTPUT FILES AND PERFORMANCE DATA
 		
 		//Print performance of our drone for the given day
-		System.out.println("\nA drone route has been successfully found!");
-		System.out.println("# Moves: " + moves);
-		System.out.println("# Unread sensors: " + unreadSensors.size());
-		System.out.println("# Read sensors: " + sensorRoute.size());
+		//System.out.println("\nA drone route has been successfully found!");
+		//System.out.println("# Moves: " + moves);
+		//System.out.println("# Unread sensors: " + unreadSensors.size());
+		//System.out.println("# Read sensors: " + sensorRoute.size());
 		
 		
 		//Output our results to a 'aqmaps' and 'flightpath' file for the given date
-		writeOutputFiles();
+		//writeOutputFiles();
     }
 }
