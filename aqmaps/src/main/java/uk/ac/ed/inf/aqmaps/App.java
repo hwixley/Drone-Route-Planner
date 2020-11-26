@@ -4,6 +4,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.net.URI;
 import java.net.http.*;
 import java.net.http.HttpResponse.BodyHandlers;
@@ -13,6 +14,7 @@ import uk.ac.ed.inf.aqmaps.Objects.Building;
 import uk.ac.ed.inf.aqmaps.Objects.LineGraph;
 import uk.ac.ed.inf.aqmaps.Objects.Sensor;
 import uk.ac.ed.inf.aqmaps.Objects.Move;
+import uk.ac.ed.inf.aqmaps.Objects.Fragment;
 
 public class App 
 {
@@ -751,6 +753,46 @@ public class App
     
     
     //ROUTE OPTIMISATION METHODS
+    
+    //Custom 'Temperate' route optimisation algorithm
+    private static void temperate() {
+    	
+    	ArrayList<Double> avgDistances = new ArrayList<Double>();
+    	ArrayList<Fragment> bestFrags = new ArrayList<Fragment>();
+    	
+    	//Calculate average distance for each sensor
+    	for (int s = 0; s < sensors.size(); s++) {
+    		Sensor sens = sensors.get(s);
+    		Double avg = 0.0;
+    				
+    		for (int t = 0; t < sensors.size(); t++) {
+    			if (t != s) {
+    				avg += calcEdgeCost(sens.point,sensors.get(t).point);
+    			}
+    		}
+    		bestFrags.add(new Fragment(sens,avg));
+    		avgDistances.add(avg);
+    	}
+    	
+    	//Order fragments by AvgDistance (descending)
+    	for (int i = 0; i < sensors.size(); i++) {
+    		Double maxDist = Collections.max(avgDistances.subList(i, sensors.size()-1));
+    		int maxIndex = avgDistances.indexOf(maxDist);
+    		
+    		Fragment oldHead = bestFrags.get(i);
+    		bestFrags.set(i, bestFrags.get(maxIndex));
+    		bestFrags.set(maxIndex, oldHead);
+    	}
+    	
+    	//Calculate best transitions for each sensor
+    	for (int r = 0; r < sensors.size(); r++) {
+    		
+    	}
+    	
+    	
+    	
+    	
+    }
     
     //Greedy route optimisation algorithm
     private static void greedy() {
