@@ -320,6 +320,24 @@ public class App
 		return dist;
 	}
 	
+	//Returns the sum of Euclidean distances for paths which pass through no fly zones (distance to go around the no fly zones)
+    private static Double calcActualDist(Point origin, Point destination) {
+    	Point currPoint = new Point(origin);
+    	Double totDist = 0.0;
+
+    	while (true) {
+    		Double dist = calcDistance(currPoint, destination);
+    		totDist += pathLength;
+    		
+    		if (dist < 0.0005) {
+    			break;
+    		}
+    		
+    		currPoint = new Point(findPoint(currPoint, destination).dest);
+    	}
+    	return totDist;
+    }
+	
 	
 	//METHODS FOR CHECKING FOR VALID MOVES (within confinement area and outside of no-fly-zone buildings)
 	
@@ -474,7 +492,7 @@ public class App
     }
 	
 	
-	//GEOMETRICAL CALCULATOINS
+	//GEOMETRICAL CALCULATIONS
 	
     //Calculates distance between 2 points
     private static Double calcDistance(Point p1, Point p2) { 
@@ -995,25 +1013,6 @@ public class App
     
     
     //MOVE FINDING METHOD
-    
-    
-    private static Double calcActualDist(Point origin, Point destination) {
-    	Point currPoint = new Point(origin);
-    	Double totDist = 0.0;
-
-    	while (true) {
-    		Double dist = calcDistance(currPoint, destination);
-    		totDist += pathLength;
-    		
-    		if (dist < 0.0005) {
-    			break;
-    		}
-    		
-    		currPoint = new Point(findPoint(currPoint, destination).dest);
-    	}
-    	
-    	return totDist;
-    }
     
     //Method that finds valid moves for the drone to move along the optimised route
     private static void findMoves() {
