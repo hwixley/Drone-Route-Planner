@@ -139,7 +139,6 @@ public class App
     
     //Find next valid point to move to given the current and destination sensors
     private static Move findPoint(Point currPoint, Point nextPoint) {
-    	//System.out.println("finding point...");
 		Double angle = calcAngle(currPoint, nextPoint);
 		Double remainder = angle % 10;
 		Move move = new Move();
@@ -229,9 +228,6 @@ public class App
 						tempMove.angle = pcAngle;
 						tempMove.dest = newPC;
 						
-						//System.out.println(lastMove.angle);
-						//System.out.println(pcAngle);
-						//System.out.println(pfAngle);
 						//Check if the ceilinged angle point is valid
 						if (!isStuck(tempMove)) {
 							move.angle = pcAngle;
@@ -246,7 +242,6 @@ public class App
 				}
 			}
 		}
-		//System.out.println(move.angle);
 		lastMove = move;
 		return move;
     }
@@ -314,19 +309,11 @@ public class App
 		
 		//If the path between adjacent points is not valid (intersects a building) we increase the added cost 
 		if (!isValid(origin,dest)) {
-			//System.out.println(origin.lat);
-			//System.out.println(origin.lng);
-			//System.out.println(dest.lat);
-			//System.out.println(dest.lng);
+
 			if ((origin.lat - dest.lat == 0) || (origin.lng - dest.lng == 0)) {
 				dist = dist*2;
 			} else {
-				//System.out.println(origin.lat);
-				//System.out.println(origin.lng);
-				//System.out.println(dest.lat);
-				//System.out.println(dest.lng);
-				//System.out.println(origin.lat - dest.lat == 0);
-				dist = calcManhattanDist(origin,dest);//dist*2;
+				dist = calcActualDist(origin,dest);
 			}
 		}
 		
@@ -1009,10 +996,11 @@ public class App
     
     //MOVE FINDING METHOD
     
-    private static Double calcManhattanDist(Point origin, Point destination) {
+    
+    private static Double calcActualDist(Point origin, Point destination) {
     	Point currPoint = new Point(origin);
     	Double totDist = 0.0;
-    	//System.out.println("man start");
+
     	while (true) {
     		Double dist = calcDistance(currPoint, destination);
     		totDist += pathLength;
@@ -1021,11 +1009,8 @@ public class App
     			break;
     		}
     		
-    		//System.out.println("fp start");
     		currPoint = new Point(findPoint(currPoint, destination).dest);
-    		//System.out.println(dist);
     	}
-    	//System.out.println("man succ");
     	
     	return totDist;
     }
