@@ -796,7 +796,7 @@ public class App
     		bestFrags.add(new Fragment(sens,avg));
     		avgDistances.add(avg);
     	}
-    	System.out.println("avg succ");
+
     	//Order fragments by AvgDistance (descending)
     	for (int i = 0; i < sensors.size(); i++) {
     		
@@ -809,27 +809,13 @@ public class App
 	    		bestFrags.set(maxIndex, oldHead);
     		}
     	}
-    	System.out.println("order succ");
+
     	//Calculate best transitions for each sensor
     	for (int r = 0; r < sensors.size(); r++) {
     		Fragment frag = bestFrags.get(r);
-    		/*Double minDist = 10000.0;
-    		Sensor minSens = new Sensor();
-    		
-    		for (int t = 0; t < sensors.size(); t++) {
-    			if (r != t) {
-    				Double dist = calcEdgeCost(frag.sensor.point,bestFrags.get(t).sensor.point);
-    				
-    				if (dist < minDist) {
-    					minSens = bestFrags.get(t).sensor;
-    					minDist = dist;
-    				}
-    			}
-    		}*/
     		frag.bestDestSensor = closestSensor(frag.sensor);
     		bestFrags.set(r, frag);
     	}
-    	System.out.println("best trans succ");
     	
     	sensorRoute.add(bestFrags.get(0).sensor);
     	sensorRoute.add(bestFrags.get(0).bestDestSensor);
@@ -866,6 +852,7 @@ public class App
     			sensorRoute.add(closestSensor(lastSens));
     		}
     	}
+    	System.out.println("temperate done");
     }
     
     //Greedy route optimisation algorithm
@@ -1187,7 +1174,9 @@ public class App
         	        temperate();
         	        //greedy();
         	        swap();
+        	        System.out.println("2");
         	        twoOpt();
+        	        System.out.println("tt");
         	        //swap();
         	        
         			//DELETE: CONFINEMENT AREA GEOJSON
