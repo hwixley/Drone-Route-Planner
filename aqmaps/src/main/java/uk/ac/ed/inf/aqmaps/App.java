@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+
+//import sun.util.resources.cldr.ext.CurrencyNames_en_RW;
+
 import java.net.URI;
 import java.net.http.*;
 import java.net.http.HttpResponse.BodyHandlers;
@@ -136,7 +139,7 @@ public class App
     
     //Find next valid point to move to given the current and destination sensors
     private static Move findPoint(Point currPoint, Point nextPoint) {
-    	
+    	//System.out.println("finding point...");
 		Double angle = calcAngle(currPoint, nextPoint);
 		Double remainder = angle % 10;
 		Move move = new Move();
@@ -158,10 +161,10 @@ public class App
 			Double distF = calcDistance(nextPoint, newPF);
 			
 			//Point with ceilinged angle
-			if (newAngle == 360) {
+			if (newAngle == 360.0) {
 				newAngle = 10.0;
 			} else {
-				newAngle += 10;
+				newAngle += 10.0;
 			}
 			Point newPC = new Point(transformPoint(currPoint, newAngle));
 			Double distC = calcDistance(nextPoint, newPC);
@@ -189,21 +192,26 @@ public class App
 					Double pcAngle = newAngle;
 					Double pfAngle = angle - remainder;
 					
+					Double lastAngle = 1000.0;
+					if (!Move.isNull(lastMove)) {
+						lastAngle = lastMove.angle;
+					}
+					
 					//Iterate until valid floored angle point is found
-					while (!isValid(currPoint, newPF)) {
-						if (pfAngle == 360) {
+					while (!isValid(currPoint, newPF) && ((int)Math.abs(lastAngle - pfAngle) == 180)) {
+						if (pfAngle == 360.0) {
 							pfAngle = 10.0;
 						} else {
-							pfAngle += 10;
+							pfAngle += 10.0;
 						}
 						newPF = new Point(transformPoint(currPoint, pfAngle));
 					}
 					//Iterate until valid ceilinged angle point is found
-					while (!isValid(currPoint, newPC)) {
-						if (pcAngle == 0) {
+					while (!isValid(currPoint, newPC) && ((int)Math.abs(lastAngle - pcAngle) == 180)) {
+						if (pcAngle == 0.0) {
 							pcAngle = 350.0;
 						} else {
-							pcAngle -= 10;
+							pcAngle -= 10.0;
 						}
 						newPC = new Point(transformPoint(currPoint,pcAngle));
 					}
@@ -221,6 +229,9 @@ public class App
 						tempMove.angle = pcAngle;
 						tempMove.dest = newPC;
 						
+						//System.out.println(lastMove.angle);
+						//System.out.println(pcAngle);
+						//System.out.println(pfAngle);
 						//Check if the ceilinged angle point is valid
 						if (!isStuck(tempMove)) {
 							move.angle = pcAngle;
@@ -235,6 +246,7 @@ public class App
 				}
 			}
 		}
+		//System.out.println(move.angle);
 		lastMove = move;
 		return move;
     }
@@ -251,7 +263,7 @@ public class App
     	} else {
     		
     		//Returns true if the last and current moves are opposite (angle difference of 180 degrees)
-	    	if (Math.abs(lastMove.angle - current.angle) == 180) {
+	    	if ((int)Math.abs(lastMove.angle - current.angle) == 180) {
 	    		return true;
 	    	} else {
 	    		return false;
@@ -302,7 +314,20 @@ public class App
 		
 		//If the path between adjacent points is not valid (intersects a building) we increase the added cost 
 		if (!isValid(origin,dest)) {
-			dist = dist*2;
+			//System.out.println(origin.lat);
+			//System.out.println(origin.lng);
+			//System.out.println(dest.lat);
+			//System.out.println(dest.lng);
+			if ((origin.lat - dest.lat == 0) || (origin.lng - dest.lng == 0)) {
+				dist = dist*2;
+			} else {
+				//System.out.println(origin.lat);
+				//System.out.println(origin.lng);
+				//System.out.println(dest.lat);
+				//System.out.println(dest.lng);
+				//System.out.println(origin.lat - dest.lat == 0);
+				dist = calcManhattanDist(origin,dest);//dist*2;
+			}
 		}
 		
 		return dist;
@@ -947,7 +972,7 @@ public class App
 					Point jPoint = sensorRoute.get(j).point;
 					Point jPointP = sensorRoute.get(j+1).point;
 					 
-					Double newCost = oldCost - calcDistance(iPointP, iPoint) - calcDistance(jPoint, jPointP) + calcDistance(iPointP, jPoint) + calcDistance(iPoint, jPointP);
+					Double newCost = oldCost - calcEdgeCost(iPointP, iPoint) - calcEdgeCost(jPoint, jPointP) + calcEdgeCost(iPointP, jPoint) + calcEdgeCost(iPoint, jPointP);
 					
 					if (indexTwoOp <= 2000) {
 						if (newCost < oldCost) {
@@ -983,6 +1008,27 @@ public class App
     
     
     //MOVE FINDING METHOD
+    
+    private static Double calcManhattanDist(Point origin, Point destination) {
+    	Point currPoint = new Point(origin);
+    	Double totDist = 0.0;
+    	//System.out.println("man start");
+    	while (true) {
+    		Double dist = calcDistance(currPoint, destination);
+    		totDist += pathLength;
+    		
+    		if (dist < 0.0005) {
+    			break;
+    		}
+    		
+    		//System.out.println("fp start");
+    		currPoint = new Point(findPoint(currPoint, destination).dest);
+    		//System.out.println(dist);
+    	}
+    	//System.out.println("man succ");
+    	
+    	return totDist;
+    }
     
     //Method that finds valid moves for the drone to move along the optimised route
     private static void findMoves() {
