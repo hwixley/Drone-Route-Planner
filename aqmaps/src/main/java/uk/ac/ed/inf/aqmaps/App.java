@@ -852,7 +852,6 @@ public class App
     			sensorRoute.add(closestSensor(lastSens));
     		}
     	}
-    	System.out.println("temperate done");
     }
     
     //Greedy route optimisation algorithm
@@ -924,17 +923,19 @@ public class App
     //2-Opt heuristic route optimisation algorithm
     private static void twoOpt() {
 		Boolean better = true;
+		int indexTwoOp = 0;
 		
 		if (sensorRoute.isEmpty()) {
 			sensorRoute = new ArrayList<Sensor>(sensors);
 		}
 		
 		while (better) {
-			better = false;
-			 
+			better = false; 
+			
 			for (int j = 0; j < sensorRoute.size()-1; j++) {
 				for (int i = 0; i < j; i++) {
 					Double oldCost = calcRouteCost(sensorRoute);
+					indexTwoOp += 1;
 					 
 					Point iPoint = sensorRoute.get(i).point;
 					Point iPointP = new Point();
@@ -947,18 +948,20 @@ public class App
 					Point jPointP = sensorRoute.get(j+1).point;
 					 
 					Double newCost = oldCost - calcDistance(iPointP, iPoint) - calcDistance(jPoint, jPointP) + calcDistance(iPointP, jPoint) + calcDistance(iPoint, jPointP);
-					 
-					if (newCost < oldCost) {
-						ArrayList<Sensor> revSensors = new ArrayList<Sensor>();
-						 
-						for (int v = 0; v < j-i+1; v++) {
-							revSensors.add(sensorRoute.get(i+v));
+					
+					if (indexTwoOp <= 2000) {
+						if (newCost < oldCost) {
+							ArrayList<Sensor> revSensors = new ArrayList<Sensor>();
+							 
+							for (int v = 0; v < j-i+1; v++) {
+								revSensors.add(sensorRoute.get(i+v));
+							}
+							for (int z = 0; z < j-i+1; z++) {
+								sensorRoute.set(i+z, revSensors.get(j-i-z));
+							}
+							 
+							better = true;
 						}
-						for (int z = 0; z < j-i+1; z++) {
-							sensorRoute.set(i+z, revSensors.get(j-i-z));
-						}
-						 
-						better = true;
 					}
 				}
 		 	}
@@ -1174,9 +1177,7 @@ public class App
         	        temperate();
         	        //greedy();
         	        swap();
-        	        System.out.println("2");
         	        twoOpt();
-        	        System.out.println("tt");
         	        //swap();
         	        
         			//DELETE: CONFINEMENT AREA GEOJSON
