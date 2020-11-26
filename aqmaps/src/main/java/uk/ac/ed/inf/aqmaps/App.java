@@ -754,6 +754,29 @@ public class App
     
     //ROUTE OPTIMISATION METHODS
     
+    //Return closest sensor
+    private static Sensor closestSensor(Sensor sens) {
+    	Double minDist = 10000.0;
+    	int minIndex = -1;
+    	
+    	for (int s = 0; s < sensors.size(); s++) {
+    		Sensor next = sensors.get(s);
+    		
+    		if ((sensorRoute.indexOf(next) != -1) || (next.equals(sens))) {
+    			continue;
+    		} else {
+    			Double dist = calcEdgeCost(sens.point,next.point);
+    			
+    			if (dist < minDist) {
+    				minDist = dist;
+    				minIndex = s;
+    			}
+    		}
+    	}
+    	
+    	return sensors.get(minIndex);
+    }
+    
     //Custom 'Temperate' route optimisation algorithm
     private static void temperate() {
     	
@@ -773,25 +796,76 @@ public class App
     		bestFrags.add(new Fragment(sens,avg));
     		avgDistances.add(avg);
     	}
-    	
+    	System.out.println("avg succ");
     	//Order fragments by AvgDistance (descending)
     	for (int i = 0; i < sensors.size(); i++) {
-    		Double maxDist = Collections.max(avgDistances.subList(i, sensors.size()-1));
-    		int maxIndex = avgDistances.indexOf(maxDist);
     		
-    		Fragment oldHead = bestFrags.get(i);
-    		bestFrags.set(i, bestFrags.get(maxIndex));
-    		bestFrags.set(maxIndex, oldHead);
+    		if ( i < sensors.size()-1) {
+	    		Double maxDist = Collections.max(avgDistances.subList(i, sensors.size()-1));
+	    		int maxIndex = avgDistances.indexOf(maxDist);
+	    		
+	    		Fragment oldHead = bestFrags.get(i);
+	    		bestFrags.set(i, bestFrags.get(maxIndex));
+	    		bestFrags.set(maxIndex, oldHead);
+    		}
     	}
-    	
+    	System.out.println("order succ");
     	//Calculate best transitions for each sensor
     	for (int r = 0; r < sensors.size(); r++) {
+    		Fragment frag = bestFrags.get(r);
+    		/*Double minDist = 10000.0;
+    		Sensor minSens = new Sensor();
     		
+    		for (int t = 0; t < sensors.size(); t++) {
+    			if (r != t) {
+    				Double dist = calcEdgeCost(frag.sensor.point,bestFrags.get(t).sensor.point);
+    				
+    				if (dist < minDist) {
+    					minSens = bestFrags.get(t).sensor;
+    					minDist = dist;
+    				}
+    			}
+    		}*/
+    		frag.bestDestSensor = closestSensor(frag.sensor);
+    		bestFrags.set(r, frag);
     	}
+    	System.out.println("best trans succ");
     	
+    	sensorRoute.add(bestFrags.get(0).sensor);
+    	sensorRoute.add(bestFrags.get(0).bestDestSensor);
+    	bestFrags.remove(0);
     	
-    	
-    	
+    	//Calculate route
+    	while (sensorRoute.size() < 33) {
+    		Sensor lastSens = sensorRoute.get(sensorRoute.size()-1);
+    		ArrayList<Integer> redundancies = new ArrayList<Integer>();
+    		
+    		for (int b = 0; b < bestFrags.size(); b++) {
+    			Fragment frag = bestFrags.get(b);
+    			
+    			if (((frag.sensor.equals(lastSens)) && (sensorRoute.indexOf(frag.bestDestSensor) == -1)) || ((frag.bestDestSensor.equals(lastSens)) && (sensorRoute.indexOf(frag.sensor) == -1))) {
+    				if (frag.sensor.equals(lastSens)) {
+    					sensorRoute.add(frag.bestDestSensor);
+    				} else {
+    					sensorRoute.add(frag.sensor);
+    				}
+    				bestFrags.remove(b);
+    				break;
+    				
+    			} else if ((frag.sensor.equals(lastSens)) || (frag.bestDestSensor.equals(lastSens))) {
+    				redundancies.add(b);
+    			}
+    		}
+    		
+    		//Remove redundant edges 
+    		for (int r = 0; r < redundancies.size(); r++) {
+    			bestFrags.remove(redundancies.get(r));
+    		}
+    		
+    		if (lastSens.equals(sensorRoute.get(sensorRoute.size()-1))) {
+    			sensorRoute.add(closestSensor(lastSens));
+    		}
+    	}
     }
     
     //Greedy route optimisation algorithm
@@ -1110,10 +1184,11 @@ public class App
         	        
         	        //FIND OPTIMAL ROUTE (stored in 'sensorRoute' global variable)
         	        //findOptimalRoute();
+        	        temperate();
         	        //greedy();
-        	        //swap();
-        	        //twoOpt();
         	        swap();
+        	        twoOpt();
+        	        //swap();
         	        
         			//DELETE: CONFINEMENT AREA GEOJSON
         			//dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
@@ -1140,7 +1215,7 @@ public class App
         		}
         	}
         }
-        writeToFile("SMoves.txt",fileText);
+        writeToFile("CSTMoves.txt",fileText);
         //writeToFile("Dates.txt",dateText);
     	//Initialise WebServer
         //initWebserver();
