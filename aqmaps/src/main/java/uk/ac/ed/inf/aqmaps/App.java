@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 //import sun.util.resources.cldr.ext.CurrencyNames_en_RW;
 
@@ -807,6 +809,46 @@ public class App
     	return sensors.get(minIndex);
     }
     
+    //Return ordered list of closest sensors (ascending in distance)
+    private static ArrayList<Sensor> closestSensors(Sensor sens) {
+    	ArrayList<Double> distances = new ArrayList<Double>();
+    	ArrayList<Sensor> output = new ArrayList<Sensor>();
+    	
+    	for (int s = 0; s < sensors.size(); s++) {
+    		Sensor next = sensors.get(s);
+    		
+    		if (!next.equals(sens)) {
+    			Double dist = calcEdgeCost(sens.point, next.point);
+    			
+    			int startIndex = 0;
+    			int endIndex = distances.size();
+    			
+    			while(true) {
+    				if (distances.isEmpty()) {
+    					distances.add(dist);
+    					output.add(next);
+    					break;
+
+    				} else if (startIndex == endIndex) {
+    					break;
+    					
+    				} else if (dist < Collections.min(distances.subList(startIndex, endIndex))) {
+	    				distances.add(startIndex, dist);
+	    				output.add(startIndex, next);
+	    				break;
+	    				
+	    			} else if (dist > Collections.max(distances.subList(startIndex, endIndex))) {
+	    				distances.add(dist);
+	    				output.add(next);
+	    				break;
+	    			}
+	    			startIndex += 1;
+    			}
+    		}
+    	}
+    	return output;
+    }
+    
     //Custom 'Temperate' route optimisation algorithm
     private static void temperate() {
     	
@@ -839,12 +881,27 @@ public class App
 	    		bestFrags.set(maxIndex, oldHead);
     		}
     	}
-
+    	
+    	Map<Sensor, Integer> usedSensors = new HashMap<Sensor, Integer>();
+    	
     	//Calculate best transitions for each sensor
     	for (int r = 0; r < sensors.size(); r++) {
     		Fragment frag = bestFrags.get(r);
-    		frag.bestDestSensor = closestSensor(frag.sensor);
-    		bestFrags.set(r, frag);
+    		ArrayList<Sensor> closestSensors = closestSensors(frag.sensor);
+    		
+    		for (int k = 0; k < closestSensors.size(); k++) {
+    			int keyVal = 0;
+    			if (usedSensors.containsKey(closestSensors.get(k))) {
+    				keyVal = usedSensors.get(closestSensors.get(k));
+    			}
+    			
+    			if (keyVal < 2) {
+					frag.bestDestSensor = closestSensors.get(k);
+					bestFrags.set(r, frag);
+					usedSensors.put(closestSensors.get(k), keyVal+1);
+					break;
+    			}
+    		}
     	}
     	
     	sensorRoute.add(bestFrags.get(0).sensor);
@@ -895,6 +952,7 @@ public class App
 			} else {
 				currPoint = sensorRoute.get(s-1).point;
 			}
+			
 			Double minDist = 100.0;
 			int minSensor = -1;
 			 
@@ -1204,10 +1262,10 @@ public class App
         	        
         	        //FIND OPTIMAL ROUTE (stored in 'sensorRoute' global variable)
         	        //findOptimalRoute();
-        	        temperate();
+        	        //temperate();
         	        //greedy();
         	        swap();
-        	        twoOpt();
+        	        //twoOpt();
         	        //swap();
         	        
         			//DELETE: CONFINEMENT AREA GEOJSON
@@ -1235,7 +1293,7 @@ public class App
         		}
         	}
         }
-        writeToFile("CSTMoves.txt",fileText);
+        writeToFile("/../dataAnalysis/aqmapsSMoves.txt",fileText);
         //writeToFile("Dates.txt",dateText);
     	//Initialise WebServer
         //initWebserver();
