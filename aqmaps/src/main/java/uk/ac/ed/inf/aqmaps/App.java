@@ -199,22 +199,29 @@ public class App
 					}
 					
 					//Iterate until valid floored angle point is found
-					while (!isValid(currPoint, newPF) && ((int)Math.abs(lastAngle - pfAngle) == 180)) {
+					while (!isValid(currPoint, newPF)) {
 						if (pfAngle == 360.0) {
 							pfAngle = 10.0;
 						} else {
 							pfAngle += 10.0;
 						}
-						newPF = new Point(transformPoint(currPoint, pfAngle));
+
+						if ((int)Math.abs(lastAngle - pfAngle) != 180) {
+							newPF = new Point(transformPoint(currPoint, pfAngle));
+						}
 					}
+					
 					//Iterate until valid ceilinged angle point is found
-					while (!isValid(currPoint, newPC) && ((int)Math.abs(lastAngle - pcAngle) == 180)) {
+					while (!isValid(currPoint, newPC)) {
 						if (pcAngle == 0.0) {
 							pcAngle = 350.0;
 						} else {
 							pcAngle -= 10.0;
 						}
-						newPC = new Point(transformPoint(currPoint,pcAngle));
+
+						if ((int)Math.abs(lastAngle - pcAngle) != 180) {
+							newPC = new Point(transformPoint(currPoint,pcAngle));
+						}
 					}
 					distF = calcDistance(nextPoint, newPF);
 					distC = calcDistance(nextPoint, newPC);
@@ -223,7 +230,7 @@ public class App
 					tempMove.dest = newPF;
 					
 					//Check if the floored angle point is best and valid
-					if ((distF < distC) && !isStuck(tempMove) && isValid(currPoint, tempMove.dest)) {
+					if ((distF < distC) && !isStuck(tempMove)) {//&& isValid(currPoint, tempMove.dest)) {
 						move.angle = pfAngle;
 						move.dest = newPF;
 						
@@ -232,7 +239,7 @@ public class App
 						tempMove.dest = newPC;
 						
 						//Check if the ceilinged angle point is valid
-						if (!isStuck(tempMove) && isValid(currPoint, tempMove.dest)) {
+						if (!isStuck(tempMove)) {// && isValid(currPoint, tempMove.dest)) {
 							move.angle = pcAngle;
 							move.dest = newPC;
 							
@@ -244,7 +251,7 @@ public class App
 					}
 				}
 			}
-		}
+		}	
 		lastMove = move;
 		return move;
     }
@@ -347,6 +354,10 @@ public class App
 	//Returns true if point is valid (within appropriate areas)
 	private static Boolean isValid(Point origin, Point dest) {
 		
+		if ((origin.lat == 55.94313412995282) && (origin.lng == -3.186635445018413) && (dest.lat == 55.94336394328575) && (dest.lng == -3.1864426087355073)) {
+			System.out.println("the point...");
+		}
+		
 		if (checkConfinement(dest) && checkBuildings(origin, dest)) {
 			return true;
 		} else {
@@ -364,10 +375,6 @@ public class App
 		for (int i = 0; i < buildings.size(); i++) {
 			Building building = new Building(buildings.get(i));
 			
-			if ((p2.lat == 55.94261105452377) && (p2.lng == -3.1869964667356547) && (i == 1)) {
-				System.out.println("the point...");
-			}
-			
 			//Iterates through the bounds of a given building
 			for (int j=0; j < building.points.size(); j++) {
 				Point next = new Point();
@@ -381,14 +388,18 @@ public class App
 				//Define the function for the given bound of the building
 				LineGraph bound = new LineGraph(building.points.get(j), next);
 				
+				if ((p1.lat == 55.94313412995282) && (p1.lng == -3.186635445018413) && (p2.lat == 55.94336394328575) && (p2.lng == -3.1864426087355073) && (i==1)) {
+					System.out.println("the point...");
+				}
+				
 				//Checks if the path intersects the given bound (if so then returns false)
 				if (!checkBound(path,bound)) {
-					if ((p2.lat == 55.94261105452377) && (p2.lng == -3.1869964667356547) && (i == 1)) {
+					if ((p1.lat == 55.94313412995282) && (p1.lng == -3.186635445018413) && (p2.lat == 55.94336394328575) && (p2.lng == -3.1864426087355073) && (i==1)) {
 						System.out.println("not valid");
 					}
 					return false;
 				}
-				if ((p2.lat == 55.94261105452377) && (p2.lng == -3.1869964667356547) && (i == 1)) {
+				if ((p1.lat == 55.94313412995282) && (p1.lng == -3.186635445018413) && (p2.lat == 55.94336394328575) && (p2.lng == -3.1864426087355073) && (i==1)) {
 					System.out.println("valid");
 				}
 			}
