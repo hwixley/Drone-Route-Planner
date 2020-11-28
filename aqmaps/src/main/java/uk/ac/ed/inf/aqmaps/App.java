@@ -997,6 +997,7 @@ public class App
     //Swap heuristic route optimisation algorithm
     private static void swap() {
     	Boolean better = true;
+    	int indexSwap = 0;
     	
 		if (sensorRoute.isEmpty()) {
 			sensorRoute = new ArrayList<Sensor>(sensors);
@@ -1006,6 +1007,7 @@ public class App
 			better = false;
 			
 			for (int i = 0; i < sensorRoute.size(); i++) {
+				indexSwap += 1;
 				Double oldCost = calcRouteCost(sensorRoute);
 				
 				int indexI2 = i+1;
@@ -1019,12 +1021,17 @@ public class App
 				sensorRoute.set(i, newI);
 				
 				Double newCost = calcRouteCost(sensorRoute);
-				
+
 				if (newCost < oldCost) {
 					better = true;
 				} else {
 					sensorRoute.set(i, newI2);
 					sensorRoute.set(indexI2, newI);
+				}
+				
+				if (indexSwap > 1000) {
+					better = false;
+					break;
 				}
 			}
 		}
@@ -1059,7 +1066,7 @@ public class App
 					 
 					Double newCost = oldCost - calcEdgeCost(iPointP, iPoint) - calcEdgeCost(jPoint, jPointP) + calcEdgeCost(iPointP, jPoint) + calcEdgeCost(iPoint, jPointP);
 					
-					if (indexTwoOp <= 2000) {
+					if (indexTwoOp <= 1000) {
 						if (newCost < oldCost) {
 							ArrayList<Sensor> revSensors = new ArrayList<Sensor>();
 							 
@@ -1176,7 +1183,6 @@ public class App
 		
 		//Add the unread sensors as gray markers to the Geo-JSON map
 		if (unreadSensors.size() > 0) {
-			dataGeojson += ",";
 			for (int s = 0; s < unreadSensors.size(); s++) {
 				Sensor unreadSensor = new Sensor(unreadSensors.get(s));
 				
@@ -1253,8 +1259,8 @@ public class App
         startPoint = new Point(Double.parseDouble(args[3]), Double.parseDouble(args[4]));
 		randomSeed = checkIsNumber(args[5],"random seed");
         portNumber = String.valueOf(checkIsNumber(args[6],"port number"));
-        
-        /*ArrayList<Integer> monthDays = new ArrayList<Integer>(Arrays.asList(31,29,31,30,31,30,31,31,30,31,30,31));
+        /*
+        ArrayList<Integer> monthDays = new ArrayList<Integer>(Arrays.asList(31,29,31,30,31,30,31,31,30,31,30,31));
         
     	//Initialise WebServer
         initWebserver();
@@ -1284,10 +1290,10 @@ public class App
         	        
         	        //FIND OPTIMAL ROUTE (stored in 'sensorRoute' global variable)
         	        //findOptimalRoute();
-        	        //temperate();
+        	        temperate();
         	        //greedy();
         	        swap();
-        	        //twoOpt();
+        	        twoOpt();
         	        //swap();
         	        
         			//DELETE: CONFINEMENT AREA GEOJSON
@@ -1315,7 +1321,7 @@ public class App
         		}
         	}
         }
-        writeToFile("/../dataAnalysis/aqmapsSMoves.txt",fileText);*/
+        writeToFile("/../dataAnalysis/aqmapsCSTMoves.txt",fileText);/**/
         //writeToFile("Dates.txt",dateText);
         
     	//Initialise WebServer
