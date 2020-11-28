@@ -193,10 +193,10 @@ public class App
 					Double pcAngle = newAngle;
 					Double pfAngle = angle - remainder;
 					
-					Double lastAngle = 1000.0;
-					if (!Move.isNull(lastMove)) {
-						lastAngle = lastMove.angle;
-					}
+					//Double lastAngle = 1000.0;
+					//if (!Move.isNull(lastMove)) {
+						//lastAngle = lastMove.angle;
+					//}
 					
 					//Iterate until valid floored angle point is found
 					while (!isValid(currPoint, newPF)) {
@@ -206,9 +206,9 @@ public class App
 							pfAngle += 10.0;
 						}
 
-						if ((int)Math.abs(lastAngle - pfAngle) != 180) {
-							newPF = new Point(transformPoint(currPoint, pfAngle));
-						}
+						//if ((int)Math.abs(lastAngle - pfAngle) != 180) {
+						newPF = new Point(transformPoint(currPoint, pfAngle));
+						//}
 					}
 					
 					//Iterate until valid ceilinged angle point is found
@@ -219,9 +219,9 @@ public class App
 							pcAngle -= 10.0;
 						}
 
-						if ((int)Math.abs(lastAngle - pcAngle) != 180) {
-							newPC = new Point(transformPoint(currPoint,pcAngle));
-						}
+						//if ((int)Math.abs(lastAngle - pcAngle) != 180) {
+						newPC = new Point(transformPoint(currPoint,pcAngle));
+						//}
 					}
 					distF = calcDistance(nextPoint, newPF);
 					distC = calcDistance(nextPoint, newPC);
@@ -1321,8 +1321,8 @@ public class App
         		}
         	}
         }
-        writeToFile("/../dataAnalysis/aqmapsCSTMoves.txt",fileText);/**/
-        //writeToFile("Dates.txt",dateText);
+        writeToFile("/../dataAnalysis/aqmapsCSTMoves.txt",fileText);
+        //writeToFile("Dates.txt",dateText);*/
         
     	//Initialise WebServer
         initWebserver();
