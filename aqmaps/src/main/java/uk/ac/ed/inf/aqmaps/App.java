@@ -223,15 +223,16 @@ public class App
 					tempMove.dest = newPF;
 					
 					//Check if the floored angle point is best and valid
-					if ((distF < distC) && !isStuck(tempMove)) {
+					if ((distF < distC) && !isStuck(tempMove) && isValid(currPoint, tempMove.dest)) {
 						move.angle = pfAngle;
 						move.dest = newPF;
+						
 					} else {
 						tempMove.angle = pcAngle;
 						tempMove.dest = newPC;
 						
 						//Check if the ceilinged angle point is valid
-						if (!isStuck(tempMove)) {
+						if (!isStuck(tempMove) && isValid(currPoint, tempMove.dest)) {
 							move.angle = pcAngle;
 							move.dest = newPC;
 							
@@ -363,6 +364,10 @@ public class App
 		for (int i = 0; i < buildings.size(); i++) {
 			Building building = new Building(buildings.get(i));
 			
+			if ((p2.lat == 55.94261105452377) && (p2.lng == -3.1869964667356547) && (i == 1)) {
+				System.out.println("the point...");
+			}
+			
 			//Iterates through the bounds of a given building
 			for (int j=0; j < building.points.size(); j++) {
 				Point next = new Point();
@@ -378,7 +383,13 @@ public class App
 				
 				//Checks if the path intersects the given bound (if so then returns false)
 				if (!checkBound(path,bound)) {
+					if ((p2.lat == 55.94261105452377) && (p2.lng == -3.1869964667356547) && (i == 1)) {
+						System.out.println("not valid");
+					}
 					return false;
+				}
+				if ((p2.lat == 55.94261105452377) && (p2.lng == -3.1869964667356547) && (i == 1)) {
+					System.out.println("valid");
 				}
 			}
 				
@@ -1232,7 +1243,7 @@ public class App
 		randomSeed = checkIsNumber(args[5],"random seed");
         portNumber = String.valueOf(checkIsNumber(args[6],"port number"));
         
-        ArrayList<Integer> monthDays = new ArrayList<Integer>(Arrays.asList(31,29,31,30,31,30,31,31,30,31,30,31));
+        /*ArrayList<Integer> monthDays = new ArrayList<Integer>(Arrays.asList(31,29,31,30,31,30,31,31,30,31,30,31));
         
     	//Initialise WebServer
         initWebserver();
@@ -1293,44 +1304,45 @@ public class App
         		}
         	}
         }
-        writeToFile("/../dataAnalysis/aqmapsSMoves.txt",fileText);
+        writeToFile("/../dataAnalysis/aqmapsSMoves.txt",fileText);*/
         //writeToFile("Dates.txt",dateText);
+        
     	//Initialise WebServer
-        //initWebserver();
+        initWebserver();
 
     	
     	//GET THE SENSORS & AIR QUALITY DATA FOR THE GIVEN DATE
-        //getSensorData();
+        getSensorData();
         
         
         //GET THE NO-FLY-ZONE DATA
-        //getNoflyzoneData();
+        getNoflyzoneData();
 
         
         //FIND OPTIMAL ROUTE (stored in 'sensorRoute' global variable)
-        //findOptimalRoute();
+        findOptimalRoute();
         
         
 		//DELETE: CONFINEMENT AREA GEOJSON
-		//dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
-		//dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
-		//dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
+		dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
+		dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
+		dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
 		
 		
 		//FIND DRONE MOVEMENTS (sequence of points stored in 'route' global variable)
-		//findMoves();
+		findMoves();
 		
 		
 		//OUTPUT FILES AND PERFORMANCE DATA
 		
 		//Print performance of our drone for the given day
-		//System.out.println("\nA drone route has been successfully found!");
-		//System.out.println("# Moves: " + moves);
-		//System.out.println("# Unread sensors: " + unreadSensors.size());
-		//System.out.println("# Read sensors: " + sensorRoute.size());
+		System.out.println("\nA drone route has been successfully found!");
+		System.out.println("# Moves: " + moves);
+		System.out.println("# Unread sensors: " + unreadSensors.size());
+		System.out.println("# Read sensors: " + sensorRoute.size());
 		
 		
 		//Output our results to a 'aqmaps' and 'flightpath' file for the given date
-		//writeOutputFiles();
+		writeOutputFiles();
     }
 }
