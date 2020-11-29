@@ -49,6 +49,10 @@ public class Objects {
     		this.point = another.point;
     	}
     	
+    	public Sensor(Point point) {
+    		this.point = point;
+    	}
+    	
     	//Constructor with no arguments for default properties
 		public Sensor() {
 		}

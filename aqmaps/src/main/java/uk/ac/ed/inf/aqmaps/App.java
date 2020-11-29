@@ -225,7 +225,7 @@ public class App
     	} else {
     		
     		//Returns true if the last and current moves are opposite (angle difference of 180 degrees)
-	    	if (((int)Math.abs(lastMove.angle - current.angle) == 180)) {// && Point.isEqual(currSensorPoint, lastSensorPoint)) {
+	    	if (((int)Math.abs(lastMove.angle - current.angle) == 180)  && Point.isEqual(currSensorPoint, lastSensorPoint)) {
 	    		return true;
 	    	} else {
 	    		return false;
@@ -923,6 +923,8 @@ public class App
     //Greedy route optimisation algorithm
     private static void greedy() {
 		ArrayList<Sensor> unexploredSensors = new ArrayList<Sensor>(sensors);
+		Sensor startPointSensor = new Sensor(startPoint);
+		Sensor endPointSensor = new Sensor(startPoint);
 		 
 		for (int s = 0; s < sensors.size()+1; s++) {
 			Point currPoint;
@@ -1087,13 +1089,23 @@ public class App
 				errorMargin = 0.0003;
 			}
 			
+			Move move = findPoint(currPoint,nextSensor.point);
+			Point newP = move.dest;
+			Double angle = move.angle;
+			if (angle == 360.0) {
+				angle = 0.0;
+			}
+			
+			route.add(newP);
+			
+			
 			//Checks if current point is in range of next point
 			if (dist < 0.0005) {
-				Move move = findPoint(currPoint,nextSensor.point);
-				Point newP = move.dest;
-				Double angle = move.angle;
+				//Move move = findPoint(currPoint,nextSensor.point);
+				//Point newP = move.dest;
+				//Double angle = move.angle;
 				
-				route.add(newP);
+				//route.add(newP);
 				
 				//Adds location variable for paths which do not visit a sensor
 				String location = "null";
@@ -1123,11 +1135,11 @@ public class App
 				
 			//Checks if the current point is not in range of the next point
 			} else {
-				Move move = findPoint(currPoint,nextSensor.point);
-				Point newP = move.dest;
-				Double angle = move.angle;
+				//Move move = findPoint(currPoint,nextSensor.point);
+				//Point newP = move.dest;
+				//Double angle = move.angle;
 				
-				route.add(newP);
+				//route.add(newP);
 
 				//Writing to our flight path text file
 				flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + String.valueOf(angle.intValue()) + "," + newP.lng.toString() + "," + newP.lat.toString() + ",null\n";
@@ -1247,10 +1259,10 @@ public class App
         	        
         	        //FIND OPTIMAL ROUTE (stored in 'sensorRoute' global variable)
         	        //findOptimalRoute();
-        	        temperate();
+        	        //temperate();
         	        //greedy();
         	        swap();
-        	        twoOpt();
+        	        //twoOpt();
         	        //swap();
         	        
         			//DELETE: CONFINEMENT AREA GEOJSON
@@ -1278,8 +1290,8 @@ public class App
         		}
         	}
         }
-        writeToFile("/../dataAnalysis/aqmapsCSTMoves.txt",fileText);
-        //writeToFile("Dates.txt",dateText);*/
+        writeToFile("/../dataAnalysis/aqmapsSMoves.txt",fileText);*/
+        //writeToFile("Dates.txt",dateText);
         
     	//Initialise WebServer
         initWebserver();
