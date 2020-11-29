@@ -876,7 +876,7 @@ public class App
     	bestFrags.remove(0);
     	
     	//Calculate route
-    	while (sensorRoute.size() < 33) {
+    	while (sensorRoute.size() < 34) {
     		Sensor lastSens = sensorRoute.get(sensorRoute.size()-1);
     		ArrayList<Integer> redundancies = new ArrayList<Integer>();
     		
@@ -1070,10 +1070,11 @@ public class App
 		sensors.add(startPointSensor);
     	
     	//1) Use greedy algorithm to choose closest points
-    	greedy();
+    	//greedy();
+		temperate();
     	
     	//2) Use Swap heuristic algorithm to swap adjacent points around in the route to see if it produces a lower cost
-    	swap();
+    	//swap();
     	
 		//3) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
     	twoOpt();
@@ -1089,7 +1090,7 @@ public class App
     	
 		//Global ArrayList to store the sequential points in the route
 		route.add(startPoint);
-		
+
 		//Remove sensor which represents the start/end point
 		for (int s = 0; s < sensorRoute.size(); s++) {
 			if (sensorRoute.get(s).location == "start") {
@@ -1244,7 +1245,7 @@ public class App
         startPoint = new Point(Double.parseDouble(args[3]), Double.parseDouble(args[4]));
 		randomSeed = checkIsNumber(args[5],"random seed");
         portNumber = String.valueOf(checkIsNumber(args[6],"port number"));
-        
+        /*
         ArrayList<Integer> monthDays = new ArrayList<Integer>(Arrays.asList(31,29,31,30,31,30,31,31,30,31,30,31));
         
     	//Initialise WebServer
@@ -1309,7 +1310,7 @@ public class App
         		}
         	}
         }
-        writeToFile("/../dataAnalysis/aqmapsCSTMoves.txt",fileText);/*
+        writeToFile("/../dataAnalysis/aqmapsCSTMoves.txt",fileText);*/
         //writeToFile("Dates.txt",dateText);
         
     	//Initialise WebServer
@@ -1348,6 +1349,6 @@ public class App
 		
 		
 		//Output our results to a 'aqmaps' and 'flightpath' file for the given date
-		writeOutputFiles();*/
+		writeOutputFiles();
     }
 }

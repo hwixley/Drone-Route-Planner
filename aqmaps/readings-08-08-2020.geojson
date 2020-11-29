@@ -16,80 +16,92 @@
 			"geometry"	: {"type": "Polygon", "coordinates": [[[-3.184319, 55.946233], [-3.184319, 55.942617], [-3.192473, 55.942617], [-3.192473, 55.946233]]]},
 		"properties": {"fill-opacity": 0}},
 	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.188849, 55.943658]},
-			"properties": {"marker-size": "medium", "location": "labels.hotels.alert", "rgb-string": "#40ff00", "marker-color": "#40ff00", "marker-symbol": "lighthouse"}
-			},
-	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.189523, 55.943551]},
-			"properties": {"marker-size": "medium", "location": "cars.attend.hotels", "rgb-string": "#40ff00", "marker-color": "#40ff00", "marker-symbol": "lighthouse"}
-			},
-	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.189234, 55.943012]},
-			"properties": {"marker-size": "medium", "location": "region.passes.pencil", "rgb-string": "#80ff00", "marker-color": "#80ff00", "marker-symbol": "lighthouse"}
-			},
-	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.189908, 55.942904]},
-			"properties": {"marker-size": "medium", "location": "second.launch.miles", "rgb-string": "#00ff00", "marker-color": "#00ff00", "marker-symbol": "lighthouse"}
-			},
-	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.190727, 55.943092]},
-			"properties": {"marker-size": "medium", "location": "relate.chill.vest", "rgb-string": "#00ff00", "marker-color": "#00ff00", "marker-symbol": "lighthouse"}
-			},
-	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.190197, 55.943443]},
-			"properties": {"marker-size": "medium", "location": "arts.dish.scarcely", "rgb-string": "#40ff00", "marker-color": "#40ff00", "marker-symbol": "lighthouse"}
-			},
-	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.190294, 55.943712]},
-			"properties": {"marker-size": "medium", "location": "sculpture.shot.melon", "rgb-string": "#40ff00", "marker-color": "#40ff00", "marker-symbol": "lighthouse"}
-			},
-	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.190438, 55.943982]},
-			"properties": {"marker-size": "medium", "location": "pump.wheels.hulk", "rgb-string": "#000000", "marker-color": "#000000", "marker-symbol": "cross"}
-			},
-	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.191113, 55.943631]},
-			"properties": {"marker-size": "medium", "location": "loaf.cheer.slave", "rgb-string": "#00ff00", "marker-color": "#00ff00", "marker-symbol": "lighthouse"}
-			},
-	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.191113, 55.943901]},
-			"properties": {"marker-size": "medium", "location": "spicy.bunch.shady", "rgb-string": "#00ff00", "marker-color": "#00ff00", "marker-symbol": "lighthouse"}
-			},
-	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.191016, 55.944979]},
-			"properties": {"marker-size": "medium", "location": "shapes.sheep.nature", "rgb-string": "#ff8000", "marker-color": "#ff8000", "marker-symbol": "danger"}
-			},
-	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.191161, 55.945976]},
-			"properties": {"marker-size": "medium", "location": "simple.rust.audio", "rgb-string": "#ffc000", "marker-color": "#ffc000", "marker-symbol": "danger"}
-			},
-	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.18933, 55.945653]},
-			"properties": {"marker-size": "medium", "location": "museum.spicy.horns", "rgb-string": "#ff0000", "marker-color": "#ff0000", "marker-symbol": "danger"}
-			},
-	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.188897, 55.945707]},
-			"properties": {"marker-size": "medium", "location": "stops.else.chats", "rgb-string": "#000000", "marker-color": "#000000", "marker-symbol": "cross"}
+			"geometry"	: {"type": "Point", "coordinates": [-3.188704, 55.945168]},
+			"properties": {"marker-size": "medium", "location": "rooms.lamp.teach", "rgb-string": "#000000", "marker-color": "#000000", "marker-symbol": "cross"}
 			},
 	{"type": "Feature",
 			"geometry"	: {"type": "Point", "coordinates": [-3.188463, 55.945761]},
 			"properties": {"marker-size": "medium", "location": "bend.tubes.chops", "rgb-string": "#ff8000", "marker-color": "#ff8000", "marker-symbol": "danger"}
 			},
 	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.188704, 55.945168]},
-			"properties": {"marker-size": "medium", "location": "rooms.lamp.teach", "rgb-string": "#000000", "marker-color": "#000000", "marker-symbol": "cross"}
+			"geometry"	: {"type": "Point", "coordinates": [-3.188897, 55.945707]},
+			"properties": {"marker-size": "medium", "location": "stops.else.chats", "rgb-string": "#000000", "marker-color": "#000000", "marker-symbol": "cross"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.18933, 55.945653]},
+			"properties": {"marker-size": "medium", "location": "museum.spicy.horns", "rgb-string": "#ff0000", "marker-color": "#ff0000", "marker-symbol": "danger"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.191161, 55.945976]},
+			"properties": {"marker-size": "medium", "location": "simple.rust.audio", "rgb-string": "#ffc000", "marker-color": "#ffc000", "marker-symbol": "danger"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.191016, 55.944979]},
+			"properties": {"marker-size": "medium", "location": "shapes.sheep.nature", "rgb-string": "#ff8000", "marker-color": "#ff8000", "marker-symbol": "danger"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.191113, 55.943901]},
+			"properties": {"marker-size": "medium", "location": "spicy.bunch.shady", "rgb-string": "#00ff00", "marker-color": "#00ff00", "marker-symbol": "lighthouse"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.191113, 55.943631]},
+			"properties": {"marker-size": "medium", "location": "loaf.cheer.slave", "rgb-string": "#00ff00", "marker-color": "#00ff00", "marker-symbol": "lighthouse"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.190438, 55.943982]},
+			"properties": {"marker-size": "medium", "location": "pump.wheels.hulk", "rgb-string": "#000000", "marker-color": "#000000", "marker-symbol": "cross"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.190294, 55.943712]},
+			"properties": {"marker-size": "medium", "location": "sculpture.shot.melon", "rgb-string": "#40ff00", "marker-color": "#40ff00", "marker-symbol": "lighthouse"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.190197, 55.943443]},
+			"properties": {"marker-size": "medium", "location": "arts.dish.scarcely", "rgb-string": "#40ff00", "marker-color": "#40ff00", "marker-symbol": "lighthouse"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.190727, 55.943092]},
+			"properties": {"marker-size": "medium", "location": "relate.chill.vest", "rgb-string": "#00ff00", "marker-color": "#00ff00", "marker-symbol": "lighthouse"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.189908, 55.942904]},
+			"properties": {"marker-size": "medium", "location": "second.launch.miles", "rgb-string": "#00ff00", "marker-color": "#00ff00", "marker-symbol": "lighthouse"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.189234, 55.943012]},
+			"properties": {"marker-size": "medium", "location": "region.passes.pencil", "rgb-string": "#80ff00", "marker-color": "#80ff00", "marker-symbol": "lighthouse"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.189523, 55.943551]},
+			"properties": {"marker-size": "medium", "location": "cars.attend.hotels", "rgb-string": "#40ff00", "marker-color": "#40ff00", "marker-symbol": "lighthouse"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.188849, 55.943658]},
+			"properties": {"marker-size": "medium", "location": "labels.hotels.alert", "rgb-string": "#40ff00", "marker-color": "#40ff00", "marker-symbol": "lighthouse"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.187982, 55.943497]},
+			"properties": {"marker-size": "medium", "location": "scare.cubs.resort", "rgb-string": "#000000", "marker-color": "#000000", "marker-symbol": "cross"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.187693, 55.942769]},
+			"properties": {"marker-size": "medium", "location": "panic.squad.danger", "rgb-string": "#ffc000", "marker-color": "#ffc000", "marker-symbol": "danger"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.187018, 55.942877]},
+			"properties": {"marker-size": "medium", "location": "valve.elaborate.fortunate", "rgb-string": "#ff8000", "marker-color": "#ff8000", "marker-symbol": "danger"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.1875, 55.943874]},
+			"properties": {"marker-size": "medium", "location": "begins.spider.drips", "rgb-string": "#80ff00", "marker-color": "#80ff00", "marker-symbol": "lighthouse"}
+			},
+	{"type": "Feature",
+			"geometry"	: {"type": "Point", "coordinates": [-3.187645, 55.944143]},
+			"properties": {"marker-size": "medium", "location": "bound.ends.matter", "rgb-string": "#40ff00", "marker-color": "#40ff00", "marker-symbol": "lighthouse"}
 			},
 	{"type": "Feature",
 			"geometry"	: {"type": "Point", "coordinates": [-3.187307, 55.944494]},
 			"properties": {"marker-size": "medium", "location": "only.fairly.rift", "rgb-string": "#000000", "marker-color": "#000000", "marker-symbol": "cross"}
-			},
-	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.186392, 55.944656]},
-			"properties": {"marker-size": "medium", "location": "rated.fired.crowds", "rgb-string": "#ff4000", "marker-color": "#ff4000", "marker-symbol": "danger"}
-			},
-	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.18567, 55.944359]},
-			"properties": {"marker-size": "medium", "location": "atoms.vanish.foods", "rgb-string": "#ff8000", "marker-color": "#ff8000", "marker-symbol": "danger"}
 			},
 	{"type": "Feature",
 			"geometry"	: {"type": "Point", "coordinates": [-3.186729, 55.945168]},
@@ -128,29 +140,17 @@
 			"properties": {"marker-size": "medium", "location": "toned.deflection.bland", "rgb-string": "#ffc000", "marker-color": "#ffc000", "marker-symbol": "danger"}
 			},
 	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.187018, 55.942877]},
-			"properties": {"marker-size": "medium", "location": "valve.elaborate.fortunate", "rgb-string": "#ff8000", "marker-color": "#ff8000", "marker-symbol": "danger"}
+			"geometry"	: {"type": "Point", "coordinates": [-3.18567, 55.944359]},
+			"properties": {"marker-size": "medium", "location": "atoms.vanish.foods", "rgb-string": "#ff8000", "marker-color": "#ff8000", "marker-symbol": "danger"}
 			},
 	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.187693, 55.942769]},
-			"properties": {"marker-size": "medium", "location": "panic.squad.danger", "rgb-string": "#ffc000", "marker-color": "#ffc000", "marker-symbol": "danger"}
-			},
-	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.187982, 55.943497]},
-			"properties": {"marker-size": "medium", "location": "scare.cubs.resort", "rgb-string": "#000000", "marker-color": "#000000", "marker-symbol": "cross"}
-			},
-	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.1875, 55.943874]},
-			"properties": {"marker-size": "medium", "location": "begins.spider.drips", "rgb-string": "#80ff00", "marker-color": "#80ff00", "marker-symbol": "lighthouse"}
-			},
-	{"type": "Feature",
-			"geometry"	: {"type": "Point", "coordinates": [-3.187645, 55.944143]},
-			"properties": {"marker-size": "medium", "location": "bound.ends.matter", "rgb-string": "#40ff00", "marker-color": "#40ff00", "marker-symbol": "lighthouse"}
+			"geometry"	: {"type": "Point", "coordinates": [-3.186392, 55.944656]},
+			"properties": {"marker-size": "medium", "location": "rated.fired.crowds", "rgb-string": "#ff4000", "marker-color": "#ff4000", "marker-symbol": "danger"}
 			},
 	{"type": "Feature",
 			"geometry": {"type": "LineString",
 				"coordinates": [
-				[-3.188396, 55.944425],[-3.1883439055467, 55.944129557674096],[-3.1886258133329357, 55.944026951631095],[-3.1889077211191714, 55.943924345588094],[-3.1887577211191713, 55.94366453796696],[-3.189053163445075, 55.94361244351366],[-3.189348605770979, 55.943560349060355],[-3.189498605770979, 55.94330054143922],[-3.1892031634450753, 55.94324844698592],[-3.189498605770979, 55.94319635253262],[-3.1892031634450753, 55.943144258079315],[-3.189498605770979, 55.94309216362601],[-3.189794048096883, 55.94304006917271],[-3.190094048096883, 55.94304006917271],[-3.1903940480968833, 55.94304006917271],[-3.1906940480968835, 55.94304006917271],[-3.1905012118139777, 55.943269882505646],[-3.190205769488074, 55.94332197695895],[-3.190257863941374, 55.943617419284855],[-3.190407863941374, 55.94387722690599],[-3.190707863941374, 55.94387722690599],[-3.19093767727431, 55.94368439062308],[-3.1911305135572157, 55.94391420395602],[-3.1910784191039157, 55.94420964628193],[-3.1910263246506156, 55.94450508860783],[-3.1909742301973156, 55.94480053093374],[-3.1910263246506156, 55.94509597325965],[-3.1910784191039157, 55.945391415585554],[-3.1911305135572157, 55.94568685791146],[-3.1911826080105157, 55.94598230023737],[-3.1908826080105155, 55.94598230023737],[-3.1905826080105153, 55.94598230023737],[-3.190282608010515, 55.94598230023737],[-3.1900228003893796, 55.94583230023737],[-3.1897228003893794, 55.94583230023737],[-3.189422800389379, 55.94583230023737],[-3.189272800389379, 55.945572492616236],[-3.1889908926031434, 55.94567509865924],[-3.1886954502772396, 55.94572719311254],[-3.1884000079513357, 55.94577928756584],[-3.188550007951336, 55.94551947994471],[-3.188700007951336, 55.94525967232357],[-3.1884701946184, 55.94506683604067],[-3.1882403812854645, 55.94487399975776],[-3.188010567952529, 55.944681163474854],[-3.1877507603313933, 55.944531163474856],[-3.1874553180054894, 55.94458325792816],[-3.1871598756795856, 55.94463535238146],[-3.1868644333536817, 55.94468744683476],[-3.186568991027778, 55.944739541288065],[-3.186273548701874, 55.94479163574137],[-3.1860807124189683, 55.94456182240843],[-3.1858878761360625, 55.944332009075495],[-3.185658062803127, 55.9445248453584],[-3.1858878761360625, 55.94471768164131],[-3.186117689468998, 55.944910517924214],[-3.186347502801934, 55.94510335420712],[-3.1865773161348696, 55.945296190490026],[-3.186837123756005, 55.945446190490024],[-3.1865773161348696, 55.945296190490026],[-3.1867273161348697, 55.94555599811116],[-3.1864273161348695, 55.94555599811116],[-3.186529922177867, 55.9458379058974],[-3.1862480143916314, 55.9457352998544],[-3.1859480143916312, 55.9457352998544],[-3.1860001088449312, 55.946030742180305],[-3.1857403012237957, 55.94588074218031],[-3.18548049360266, 55.94573074218031],[-3.1851985858164245, 55.94562813613731],[-3.184938778195289, 55.94547813613731],[-3.184656870409053, 55.94537553009431],[-3.1845542643660556, 55.94509362230807],[-3.1847471006489614, 55.944863808975136],[-3.1846950061956614, 55.94456836664923],[-3.1846429117423614, 55.94427292432332],[-3.1846950061956614, 55.943977481997415],[-3.184924819528597, 55.94378464571451],[-3.185117655811503, 55.94355483238157],[-3.1853474691444386, 55.943361996098666],[-3.1855403054273443, 55.94313218276573],[-3.18582221321358, 55.94302957672273],[-3.1861222132135802, 55.94302957672273],[-3.1864222132135804, 55.94302957672273],[-3.186704120999816, 55.94292697067973],[-3.186986028786052, 55.94282436463673],[-3.1872814711119557, 55.94287645909003],[-3.1875769134378595, 55.94292855354333],[-3.1877697497207653, 55.94315836687627],[-3.1879197497207654, 55.9434181744974],[-3.1876243073948616, 55.943470268950705],[-3.187726913437859, 55.94375217673694],[-3.1874314711119554, 55.943804271190245],[-3.1875814711119554, 55.94406407881138],[-3.187863378898191, 55.94416668485438],[-3.188145286684427, 55.94426929089738]
+				[-3.188396, 55.944425],[-3.1884986060429976, 55.94470690778624],[-3.1886012120859952, 55.94498881557248],[-3.1887512120859953, 55.94524862319361],[-3.1886012120859952, 55.94550843081475],[-3.188451212085995, 55.94576823843588],[-3.188746654411899, 55.94571614398258],[-3.189042096737803, 55.94566404952928],[-3.189342096737803, 55.94566404952928],[-3.189642096737803, 55.94566404952928],[-3.1899420967378034, 55.94566404952928],[-3.1902420967378036, 55.94566404952928],[-3.190501904358939, 55.945814049529275],[-3.1908019043589393, 55.945814049529275],[-3.191031717691875, 55.94600688581218],[-3.190979623238575, 55.945711443486275],[-3.191031717691875, 55.94541600116037],[-3.190979623238575, 55.94512055883446],[-3.191031717691875, 55.944825116508554],[-3.191083812145175, 55.94452967418265],[-3.191135906598475, 55.94423423185674],[-3.191083812145175, 55.94393878953083],[-3.191135906598475, 55.943643347204926],[-3.1909060932655393, 55.94383618348783],[-3.1906106509396355, 55.943888277941134],[-3.1903287431533998, 55.943785671898134],[-3.190226137110402, 55.943503764111895],[-3.190418973393308, 55.94327395077896],[-3.1906118096762137, 55.94304413744602],[-3.1903118096762135, 55.94304413744602],[-3.1900118096762133, 55.94304413744602],[-3.189711809676213, 55.94304413744602],[-3.189411809676213, 55.94304413744602],[-3.189711809676213, 55.94304413744602],[-3.1896092036332155, 55.94332604523226],[-3.189506597590218, 55.9436079530185],[-3.1892065975902177, 55.9436079530185],[-3.188911155264314, 55.9436600474718],[-3.1886111552643137, 55.9436600474718],[-3.188329247478078, 55.9435574414288],[-3.188029247478078, 55.9435574414288],[-3.18792664143508, 55.94327553364256],[-3.1878240353920826, 55.942993625856325],[-3.1876740353920825, 55.94273381823519],[-3.187444222059147, 55.9429266545181],[-3.187148779733243, 55.942874560064794],[-3.187298779733243, 55.94313436768593],[-3.1874013857762407, 55.94341627547217],[-3.1875039918192383, 55.943698183258405],[-3.187606597862236, 55.943980091044644],[-3.1877092039052335, 55.94426199883088],[-3.1874272961189978, 55.94415939278788],[-3.187577296118998, 55.944419200409016],[-3.187295388332762, 55.944521806452016],[-3.1870134805465264, 55.94462441249502],[-3.1867315727602907, 55.94472701853802],[-3.186449664974055, 55.94482962458102],[-3.186642501256961, 55.945059437913955],[-3.1868353375398666, 55.94528925124689],[-3.1870281738227724, 55.94551906457983],[-3.186768366201637, 55.94536906457983],[-3.1865085585805013, 55.94521906457983],[-3.186611164623499, 55.94550097236607],[-3.186315722297595, 55.94544887791277],[-3.186367816750895, 55.945744320238674],[-3.1860723744249912, 55.945796414691976],[-3.1857769320990874, 55.94584850914528],[-3.1854950243128517, 55.94574590310228],[-3.185213116526616, 55.94564329705928],[-3.1849533089054805, 55.94549329705928],[-3.1846714011192447, 55.94539069101628],[-3.1845214011192446, 55.945130883395144],[-3.1847142374021504, 55.94490107006221],[-3.184907073685056, 55.94467125672927],[-3.1848044676420586, 55.944389348943034],[-3.184701861599061, 55.944107441156795],[-3.184649767145761, 55.94381199883089],[-3.1848795804786967, 55.94361916254798],[-3.1851093938116324, 55.943426326265076],[-3.185339207144568, 55.94323348998217],[-3.1855990147657036, 55.94308348998217],[-3.1856511092190036, 55.94337893230808],[-3.1857032036723036, 55.943674374633986],[-3.1856511092190036, 55.94396981695989],[-3.1857032036723036, 55.9442652592858],[-3.1858960399552094, 55.944495072618736],[-3.186088876238115, 55.94472488595167],[-3.186384318564019, 55.94467279149837],[-3.186679760889923, 55.94462069704507],[-3.1869752032158267, 55.944568602591765],[-3.1872706455417306, 55.94451650813846],[-3.1875660878676344, 55.94446441368516],[-3.1878615301935382, 55.94441231923186],[-3.188156972519442, 55.944360224778556]
 				]
 			},"properties":{
 		}
