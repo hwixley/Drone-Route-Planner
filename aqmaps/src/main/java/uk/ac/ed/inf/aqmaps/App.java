@@ -923,8 +923,6 @@ public class App
     //Greedy route optimisation algorithm
     private static void greedy() {
 		ArrayList<Sensor> unexploredSensors = new ArrayList<Sensor>(sensors);
-		Sensor startPointSensor = new Sensor(startPoint);
-		Sensor endPointSensor = new Sensor(startPoint);
 		 
 		for (int s = 0; s < sensors.size()+1; s++) {
 			Point currPoint;
@@ -1048,6 +1046,10 @@ public class App
     private static void findOptimalRoute() {
     	//Route stored in sensorRoute variable
     	
+		Sensor startPointSensor = new Sensor(startPoint);
+		startPointSensor.location = "start";
+		sensors.add(startPointSensor);
+    	
     	//1) Use greedy algorithm to choose closest points
     	greedy();
     	
@@ -1066,6 +1068,22 @@ public class App
 		//ArrayList to store the sequential points in the route
 		route.add(startPoint);
 		
+		//Remove sensor which represents the start/end point
+		for (int s = 0; s < sensorRoute.size(); s++) {
+			if (sensorRoute.get(s).location == "start") {
+
+				if (s == sensorRoute.size()-1) {
+					sensorRoute.remove(s);
+					break;
+				} else {
+					ArrayList<Sensor> tempSensorRoute = new ArrayList<Sensor>();
+					tempSensorRoute.addAll(sensorRoute.subList(s+1, sensorRoute.size()));
+					tempSensorRoute.addAll(sensorRoute.subList(0, s));
+					sensorRoute = tempSensorRoute;
+				}
+			}
+		}
+		
 		//ArrayList to store the sensors the drone still needs to visit and read
 		unreadSensors = new ArrayList<Sensor>(sensorRoute);
 		
@@ -1083,69 +1101,45 @@ public class App
 			Sensor nextSensor = new Sensor(unreadSensors.get(0));
 			Point currPoint = new Point(route.get(route.size()-1));
 			
-			Double dist = calcDistance(currPoint, nextSensor.point);
-			
+			//Changes the error margin if the last Sensor represents the end point
 			if (nextSensor.location == "end") {
 				errorMargin = 0.0003;
 			}
 			
+			//Variables to represent the given move
 			Move move = findPoint(currPoint,nextSensor.point);
-			Point newP = move.dest;
+			Point newPoint = move.dest;
 			Double angle = move.angle;
 			if (angle == 360.0) {
 				angle = 0.0;
 			}
 			
-			route.add(newP);
+			route.add(newPoint);
+				
+			//Adds location variable for paths which do not visit a sensor
+			String location = "null";
 			
-			
-			//Checks if current point is in range of next point
-			if (dist < 0.0005) {
-				//Move move = findPoint(currPoint,nextSensor.point);
-				//Point newP = move.dest;
-				//Double angle = move.angle;
+			//Checks if point is in range of next sensor
+			if (checkPoint(nextSensor.point, newPoint)) {
+				location = nextSensor.location;
+				unreadSensors.remove(0);
 				
-				//route.add(newP);
-				
-				//Adds location variable for paths which do not visit a sensor
-				String location = "null";
-				
-				//Checks if point is valid
-				if (checkPoint(nextSensor.point, newP)) {
-					location = nextSensor.location;
-					unreadSensors.remove(0);
-					
-					//Checks if it is the end point
-					if (location != "end") {
-						//Add Geo-JSON Point for each sensor
-						dataGeojson += markerGeojson + nextSensor.point.lng.toString() + ", " + nextSensor.point.lat.toString() + "]},\n";
-						dataGeojson += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + nextSensor.location  + "\", \"rgb-string\": \"" + readingColour(nextSensor.reading) + "\", ";
-						dataGeojson += "\"marker-color\": \"" + readingColour(nextSensor.reading) + "\", \"marker-symbol\": \"" + readingSymbol(nextSensor.reading) + "\"}\n\t\t\t},";
-					}
+				//Checks if it is the end point
+				if (location != "end") {
+					//Add Geo-JSON Point for each sensor
+					dataGeojson += markerGeojson + nextSensor.point.lng.toString() + ", " + nextSensor.point.lat.toString() + "]},\n";
+					dataGeojson += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + nextSensor.location  + "\", \"rgb-string\": \"" + readingColour(nextSensor.reading) + "\", ";
+					dataGeojson += "\"marker-color\": \"" + readingColour(nextSensor.reading) + "\", \"marker-symbol\": \"" + readingSymbol(nextSensor.reading) + "\"}\n\t\t\t},";
 				}
-				if (location == "end") {
-					location = "null";
-				}
-				
-				//Writing to our flight path text file
-				flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + String.valueOf(angle.intValue()) + "," + newP.lng.toString() + "," + newP.lat.toString() + "," + location + "\n";
-						
-				moves += 1;
-				
-				
-			//Checks if the current point is not in range of the next point
-			} else {
-				//Move move = findPoint(currPoint,nextSensor.point);
-				//Point newP = move.dest;
-				//Double angle = move.angle;
-				
-				//route.add(newP);
-
-				//Writing to our flight path text file
-				flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + String.valueOf(angle.intValue()) + "," + newP.lng.toString() + "," + newP.lat.toString() + ",null\n";
-						
-				moves += 1;
 			}
+			if (location == "end") {
+				location = "null";
+			}
+			
+			//Writing to our flight path text file
+			flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + String.valueOf(angle.intValue()) + "," + newPoint.lng.toString() + "," + newPoint.lat.toString() + "," + location + "\n";
+					
+			moves += 1;
 		}
 		
 		//ADD FINAL FEATURES TO OUR GEO-JSON TEXT VARIABLE 'dataGeojson'
@@ -1259,10 +1253,10 @@ public class App
         	        
         	        //FIND OPTIMAL ROUTE (stored in 'sensorRoute' global variable)
         	        //findOptimalRoute();
-        	        //temperate();
+        	        temperate();
         	        //greedy();
         	        swap();
-        	        //twoOpt();
+        	        twoOpt();
         	        //swap();
         	        
         			//DELETE: CONFINEMENT AREA GEOJSON
@@ -1290,7 +1284,7 @@ public class App
         		}
         	}
         }
-        writeToFile("/../dataAnalysis/aqmapsSMoves.txt",fileText);*/
+        writeToFile("/../dataAnalysis/aqmapsCSTMoves.txt",fileText);*/
         //writeToFile("Dates.txt",dateText);
         
     	//Initialise WebServer
