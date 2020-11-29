@@ -24,6 +24,14 @@ public class Objects {
     	//Constructor with no arguments for default properties
     	public Point() {
     	}
+    	
+    	public static Boolean isEqual(Point pointA, Point pointB) {
+    		if (pointA.lat == pointB.lat && pointA.lng == pointB.lng) {
+    			return true;
+    		} else {
+    			return false;
+    		}
+    	}
     }
     
     //OBJECT: custom Sensor object (inherits Point object features)
@@ -106,6 +114,11 @@ public class Objects {
     		this.origin = move.origin;
     		this.dest = move.dest;
     		this.angle = move.angle;
+    	}
+    	
+    	public Move(Double angle, Point dest) {
+    		this.angle = angle;
+    		this.dest = dest;
     	}
     	
     	//Constructor with all variable arguments

@@ -63,6 +63,7 @@ public class App
     
     //findPoint method temporary variable
     private static Move lastMove = new Move();
+    private static Point lastSensorPoint = new Point();
     
     //Variable to store the optimized sensor route
 	private static ArrayList<Sensor> sensorRoute = new ArrayList<Sensor>();
@@ -149,110 +150,66 @@ public class App
 		//This Move variable is used to determine if the given move is the opposite as last (prevents infinite loops)
 		Move tempMove = new Move(move);
     	
-		//Valid angle
-		if ((remainder == 0) && isValid(currPoint, transformPoint(currPoint, angle))) {
-			move.angle = angle;
-			move.dest = transformPoint(currPoint, angle);
-
-		} else { //Try floor and ceiling angles
-			Double newAngle = angle - remainder;
-			
-			//Point with floored angle
-			Point newPF = new Point(transformPoint(currPoint, newAngle));
-			Double distF = calcDistance(nextPoint, newPF);
-			
-			//Point with ceilinged angle
-			if (newAngle == 360.0) {
-				newAngle = 10.0;
+		//Try floor and ceiling angles
+		Double floorAngle = angle - remainder;
+		Double ceilAngle = floorAngle + 10;
+		
+		if (floorAngle == 360.0) {
+			ceilAngle = 10.0;
+		}
+		
+		Point floorPoint = new Point(transformPoint(currPoint,floorAngle));
+		Point ceilPoint = new Point(transformPoint(currPoint,ceilAngle));
+		
+		//Iterate until valid floored angle point is found
+		while (!isValid(currPoint, floorPoint)) {
+			if (floorAngle == 360.0) {
+				floorAngle = 10.0;
 			} else {
-				newAngle += 10.0;
+				floorAngle += 10.0;
 			}
-			Point newPC = new Point(transformPoint(currPoint, newAngle));
-			Double distC = calcDistance(nextPoint, newPC);
-			
-			//Temporary Move variable initialisation
-			tempMove.angle = angle - remainder;
-			tempMove.dest = newPF;
-			
-			//Check if the floored angle point is best and valid
-			if ((distF < distC) && isValid(currPoint,newPF) && !isStuck(tempMove)) {
-				move.angle = angle - remainder;
-				move.dest = newPF;
-			
+
+			floorPoint = new Point(transformPoint(currPoint, floorAngle));
+		}
+		
+		//Iterate until valid ceilinged angle point is found
+		while (!isValid(currPoint, ceilPoint)) {
+			if (ceilAngle == 0.0) {
+				ceilAngle = 350.0;
 			} else {
-				tempMove.angle = newAngle;
-				tempMove.dest = newPC;
-				
-				//Check if the ceilinged angle point is valid
-				if (isValid(currPoint,newPC) && !isStuck(tempMove)) {
-					move.angle = newAngle;
-					move.dest = newPC;
-				
-				//Choose next best valid angle point
-				} else {
-					Double pcAngle = newAngle;
-					Double pfAngle = angle - remainder;
-					
-					//Double lastAngle = 1000.0;
-					//if (!Move.isNull(lastMove)) {
-						//lastAngle = lastMove.angle;
-					//}
-					
-					//Iterate until valid floored angle point is found
-					while (!isValid(currPoint, newPF)) {
-						if (pfAngle == 360.0) {
-							pfAngle = 10.0;
-						} else {
-							pfAngle += 10.0;
-						}
-
-						//if ((int)Math.abs(lastAngle - pfAngle) != 180) {
-						newPF = new Point(transformPoint(currPoint, pfAngle));
-						//}
-					}
-					
-					//Iterate until valid ceilinged angle point is found
-					while (!isValid(currPoint, newPC)) {
-						if (pcAngle == 0.0) {
-							pcAngle = 350.0;
-						} else {
-							pcAngle -= 10.0;
-						}
-
-						//if ((int)Math.abs(lastAngle - pcAngle) != 180) {
-						newPC = new Point(transformPoint(currPoint,pcAngle));
-						//}
-					}
-					distF = calcDistance(nextPoint, newPF);
-					distC = calcDistance(nextPoint, newPC);
-					
-					tempMove.angle = pfAngle;
-					tempMove.dest = newPF;
-					
-					//Check if the floored angle point is best and valid
-					if ((distF < distC) && !isStuck(tempMove)) {//&& isValid(currPoint, tempMove.dest)) {
-						move.angle = pfAngle;
-						move.dest = newPF;
-						
-					} else {
-						tempMove.angle = pcAngle;
-						tempMove.dest = newPC;
-						
-						//Check if the ceilinged angle point is valid
-						if (!isStuck(tempMove)) {// && isValid(currPoint, tempMove.dest)) {
-							move.angle = pcAngle;
-							move.dest = newPC;
-							
-						//Else use the floored angle point
-						} else {
-							move.angle = pfAngle;
-							move.dest = newPF;
-						}
-					}
-				}
+				ceilAngle -= 10.0;
 			}
-		}	
+
+			ceilPoint = new Point(transformPoint(currPoint,ceilAngle));
+		}
+		
+		Double floorDist = calcDistance(nextPoint, floorPoint);
+		Double ceilDist = calcDistance(nextPoint, ceilPoint);
+		
+		tempMove = new Move(floorAngle, floorPoint);
+		
+		//Check if the floored angle point is best and valid
+		if ((floorDist < ceilDist) && !isStuck(tempMove,nextPoint)) {
+			move.angle = floorAngle;
+			move.dest = floorPoint;
+			
+		} else {
+			tempMove = new Move(ceilAngle,ceilPoint);
+			
+			//Check if the ceilinged angle point is valid
+			if (!isStuck(tempMove, nextPoint)) {
+				move.angle = ceilAngle;
+				move.dest = ceilPoint;
+				
+			//Else use the floored angle point
+			} else {
+				move.angle = floorAngle;
+				move.dest = floorPoint;
+			}
+		}
+		
 		lastMove = move;
+		lastSensorPoint = new Point(nextPoint);
 		return move;
     }
     
@@ -260,7 +217,7 @@ public class App
     //METHOD THAT CHECKS FOR REDUNDANT MOVES (indicates algorithm is stuck)
     
     //Checks if algorithm is stuck (checks if last and current moves are opposite)
-    private static Boolean isStuck(Move current) {
+    private static Boolean isStuck(Move current, Point currSensorPoint) {
     	
     	//Returns false if no move has been made yet
     	if (Move.isNull(lastMove)) {
@@ -268,7 +225,7 @@ public class App
     	} else {
     		
     		//Returns true if the last and current moves are opposite (angle difference of 180 degrees)
-	    	if ((int)Math.abs(lastMove.angle - current.angle) == 180) {
+	    	if (((int)Math.abs(lastMove.angle - current.angle) == 180)) {// && Point.isEqual(currSensorPoint, lastSensorPoint)) {
 	    		return true;
 	    	} else {
 	    		return false;
