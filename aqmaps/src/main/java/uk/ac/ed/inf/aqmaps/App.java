@@ -1015,10 +1015,14 @@ public class App
 			
 			//Iterates through the sensors in the route
 			for (int j = 0; j < sensorRoute.size()-1; j++) {
+				//Iterates through the sensors in the route preceding sensor j
 				for (int i = 0; i < j; i++) {
+					
+					//Cost before route is changed
 					Double oldCost = calcRouteCost(sensorRoute);
 					indexTwoOp += 1;
-					 
+					
+					//Initialisation of points to be swapped in the route
 					Point iPoint = sensorRoute.get(i).point;
 					Point iPointP = new Point();
 					if (i == 0) {
@@ -1028,16 +1032,23 @@ public class App
 					}
 					Point jPoint = sensorRoute.get(j).point;
 					Point jPointP = sensorRoute.get(j+1).point;
-					 
+					
+					//Cost after route is changed
 					Double newCost = oldCost - calcEdgeCost(iPointP, iPoint) - calcEdgeCost(jPoint, jPointP) + calcEdgeCost(iPointP, jPoint) + calcEdgeCost(iPoint, jPointP);
 					
+					//Checks for infinite loops
 					if (indexTwoOp <= 1000) {
+						//Checks if new route is better than the old route
 						if (newCost < oldCost) {
+							//If so, then the order of sensors in the route from i to j are reversed
+							
 							ArrayList<Sensor> revSensors = new ArrayList<Sensor>();
 							 
+							//Stores the reversed ordering of sensors
 							for (int v = 0; v < j-i+1; v++) {
 								revSensors.add(sensorRoute.get(i+v));
 							}
+							//Updates the sensor route
 							for (int z = 0; z < j-i+1; z++) {
 								sensorRoute.set(i+z, revSensors.get(j-i-z));
 							}
@@ -1050,9 +1061,8 @@ public class App
 		}
     }
     
-    //Method for finding the optimal route
+    //Method for finding the optimal route (route is stored in the global 'sensorRoute' variable)
     private static void findOptimalRoute() {
-    	//Route stored in 'sensorRoute' variable
     	
     	//Adds the start point as a sensor so it can be accounted for in the route optimisation
 		Sensor startPointSensor = new Sensor(startPoint);
@@ -1062,9 +1072,10 @@ public class App
     	//1) Use greedy algorithm to choose closest points
     	greedy();
     	
+    	//2) Use Swap heuristic algorithm to swap adjacent points around in the route to see if it produces a lower cost
     	swap();
     	
-		//2) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
+		//3) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
     	twoOpt();
     }
     
@@ -1074,7 +1085,9 @@ public class App
     //Method that finds valid moves for the drone to move along the optimised route
     private static void findMoves() {
     	
-		//ArrayList to store the sequential points in the route
+    	//1) Setup the route to be mapped and necessary variables
+    	
+		//Global ArrayList to store the sequential points in the route
 		route.add(startPoint);
 		
 		//Remove sensor which represents the start/end point
@@ -1103,7 +1116,7 @@ public class App
 		unreadSensors.add(finishPoint);
 		
 
-		//FIND MOVES FOR CHOSEN ROUTE
+		//2) Find the moves for the chosen route
 		
 		//Continues to find points in our route while we have available moves and unread sensors
 		while ((unreadSensors.size() > 0) && (moves < 150)) {
@@ -1151,7 +1164,7 @@ public class App
 			moves += 1;
 		}
 		
-		//ADD FINAL FEATURES TO OUR GEO-JSON TEXT VARIABLE 'dataGeojson'
+		//3) Add final features to our Geo-JSON string variable 'dataGeojson'
 		
 		//Add the unread sensors as gray markers to the Geo-JSON map
 		if (unreadSensors.size() > 0) {
