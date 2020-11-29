@@ -265,6 +265,7 @@ public class App
 			route.add(unreadSens.get(0));
 			unreadSens.remove(0);
     	}
+    	//Adds last edge from the first and final sensor
     	cost += calcEdgeCost(route.get(route.size()-1).point,route.get(0).point);
     	
     	return cost;
@@ -308,12 +309,8 @@ public class App
 	
 	//METHODS FOR CHECKING FOR VALID MOVES (within confinement area and outside of no-fly-zone buildings)
 	
-	//Returns true if point is valid (within appropriate areas)
+	//Returns true if point is valid (within confinement and outside no-fly-zones)
 	private static Boolean isValid(Point origin, Point dest) {
-		
-		if ((origin.lat == 55.94313412995282) && (origin.lng == -3.186635445018413) && (dest.lat == 55.94336394328575) && (dest.lng == -3.1864426087355073)) {
-			System.out.println("the point...");
-		}
 		
 		if (checkConfinement(dest) && checkBuildings(origin, dest)) {
 			return true;
@@ -345,19 +342,9 @@ public class App
 				//Define the function for the given bound of the building
 				LineGraph bound = new LineGraph(building.points.get(j), next);
 				
-				if ((p1.lat == 55.94313412995282) && (p1.lng == -3.186635445018413) && (p2.lat == 55.94336394328575) && (p2.lng == -3.1864426087355073) && (i==1)) {
-					System.out.println("the point...");
-				}
-				
 				//Checks if the path intersects the given bound (if so then returns false)
 				if (!checkBound(path,bound)) {
-					if ((p1.lat == 55.94313412995282) && (p1.lng == -3.186635445018413) && (p2.lat == 55.94336394328575) && (p2.lng == -3.1864426087355073) && (i==1)) {
-						System.out.println("not valid");
-					}
 					return false;
-				}
-				if ((p1.lat == 55.94313412995282) && (p1.lng == -3.186635445018413) && (p2.lat == 55.94336394328575) && (p2.lng == -3.1864426087355073) && (i==1)) {
-					System.out.println("valid");
 				}
 			}
 				
@@ -629,6 +616,7 @@ public class App
         return totalSensors;
     }
     
+    //Parses the .json file from a given What3Words tile into a Point (representing the centre of this tile)
     private static Point parseJsonW3Wtile(String fileContents) {
     	
     	//Output variable
@@ -895,6 +883,7 @@ public class App
     		for (int b = 0; b < bestFrags.size(); b++) {
     			Fragment frag = bestFrags.get(b);
     			
+    			//Loops through fragments until it finds one which contains the last point in our route
     			if (((frag.sensor.equals(lastSens)) && (sensorRoute.indexOf(frag.bestDestSensor) == -1)) || ((frag.bestDestSensor.equals(lastSens)) && (sensorRoute.indexOf(frag.sensor) == -1))) {
     				if (frag.sensor.equals(lastSens)) {
     					sensorRoute.add(frag.bestDestSensor);
@@ -903,7 +892,8 @@ public class App
     				}
     				bestFrags.remove(b);
     				break;
-    				
+    			
+    			//Stores fragment redundancies so they can be deleted after the loop (prevents repeated & redundant computations)
     			} else if ((frag.sensor.equals(lastSens)) || (frag.bestDestSensor.equals(lastSens))) {
     				redundancies.add(b);
     			}
@@ -924,6 +914,7 @@ public class App
     private static void greedy() {
 		ArrayList<Sensor> unexploredSensors = new ArrayList<Sensor>(sensors);
 		 
+		//Iterates through all the sensors
 		for (int s = 0; s < sensors.size()+1; s++) {
 			Point currPoint;
 			if (s == 0) {
@@ -934,7 +925,8 @@ public class App
 			
 			Double minDist = 100.0;
 			int minSensor = -1;
-			 
+			
+			//Finds the closest unexplored sensor to sensor s
 			for (int u = 0; u < unexploredSensors.size(); u++) {
 				Sensor nextSensor = unexploredSensors.get(u);
 				 
@@ -944,6 +936,7 @@ public class App
 				}
 				 
 			}
+			//Adds the closest sensor to the sensor route
 			if (unexploredSensors.size() > 0) {
 		    	sensorRoute.add(unexploredSensors.get(minSensor));
 		    	unexploredSensors.remove(minSensor);
@@ -954,17 +947,24 @@ public class App
     //Swap heuristic route optimisation algorithm
     private static void swap() {
     	Boolean better = true;
+    	
+    	//Variable to prevent infinite loops
     	int indexSwap = 0;
     	
+    	//Initialises the sensorRoute variable if it is empty
 		if (sensorRoute.isEmpty()) {
 			sensorRoute = new ArrayList<Sensor>(sensors);
 		}
 		
+		//Iterate as long as the route continues to be improved
 		while (better) {
 			better = false;
 			
+			//Iterates through the sensors in the route
 			for (int i = 0; i < sensorRoute.size(); i++) {
 				indexSwap += 1;
+				
+				//Route cost before adjacent sensors in the route were swapped
 				Double oldCost = calcRouteCost(sensorRoute);
 				
 				int indexI2 = i+1;
@@ -977,8 +977,10 @@ public class App
 				sensorRoute.set(indexI2, newI2);
 				sensorRoute.set(i, newI);
 				
+				//Route cost after adjacent sensors in the route were swapped
 				Double newCost = calcRouteCost(sensorRoute);
-
+				
+				//Checks if route was better after swapping sensors
 				if (newCost < oldCost) {
 					better = true;
 				} else {
@@ -986,6 +988,7 @@ public class App
 					sensorRoute.set(indexI2, newI);
 				}
 				
+				//If caught in an infinite loop we break the while loop
 				if (indexSwap > 1000) {
 					better = false;
 					break;
@@ -997,15 +1000,20 @@ public class App
     //2-Opt heuristic route optimisation algorithm
     private static void twoOpt() {
 		Boolean better = true;
+		
+		//Variable to prevent infinite loops
 		int indexTwoOp = 0;
 		
+		//Initialises the sensorRoute variable if it is empty
 		if (sensorRoute.isEmpty()) {
 			sensorRoute = new ArrayList<Sensor>(sensors);
 		}
 		
+		//Iterate as long as the route continues to be improved
 		while (better) {
 			better = false; 
 			
+			//Iterates through the sensors in the route
 			for (int j = 0; j < sensorRoute.size()-1; j++) {
 				for (int i = 0; i < j; i++) {
 					Double oldCost = calcRouteCost(sensorRoute);
@@ -1044,8 +1052,9 @@ public class App
     
     //Method for finding the optimal route
     private static void findOptimalRoute() {
-    	//Route stored in sensorRoute variable
+    	//Route stored in 'sensorRoute' variable
     	
+    	//Adds the start point as a sensor so it can be accounted for in the route optimisation
 		Sensor startPointSensor = new Sensor(startPoint);
 		startPointSensor.location = "start";
 		sensors.add(startPointSensor);
