@@ -1222,7 +1222,7 @@ public class App
         startPoint = new Point(Double.parseDouble(args[3]), Double.parseDouble(args[4]));
 		randomSeed = checkIsNumber(args[5],"random seed");
         portNumber = String.valueOf(checkIsNumber(args[6],"port number"));
-        /*
+        
         ArrayList<Integer> monthDays = new ArrayList<Integer>(Arrays.asList(31,29,31,30,31,30,31,31,30,31,30,31));
         
     	//Initialise WebServer
@@ -1251,13 +1251,16 @@ public class App
         	        getSensorData();
 
         	        
+        			Sensor startPointSensor = new Sensor(startPoint);
+        			startPointSensor.location = "start";
+        			sensors.add(startPointSensor);
+        	        
         	        //FIND OPTIMAL ROUTE (stored in 'sensorRoute' global variable)
         	        //findOptimalRoute();
         	        temperate();
         	        //greedy();
         	        swap();
         	        twoOpt();
-        	        //swap();
         	        
         			//DELETE: CONFINEMENT AREA GEOJSON
         			//dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
@@ -1284,7 +1287,7 @@ public class App
         		}
         	}
         }
-        writeToFile("/../dataAnalysis/aqmapsCSTMoves.txt",fileText);*/
+        writeToFile("/../dataAnalysis/aqmapsCSTMoves.txt",fileText);/*
         //writeToFile("Dates.txt",dateText);
         
     	//Initialise WebServer
@@ -1323,6 +1326,6 @@ public class App
 		
 		
 		//Output our results to a 'aqmaps' and 'flightpath' file for the given date
-		writeOutputFiles();
+		writeOutputFiles();*/
     }
 }
