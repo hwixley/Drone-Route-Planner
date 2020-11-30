@@ -8,8 +8,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-//import sun.util.resources.cldr.ext.CurrencyNames_en_RW;
-
 import java.net.URI;
 import java.net.http.*;
 import java.net.http.HttpResponse.BodyHandlers;
@@ -914,7 +912,8 @@ public class App
     }
     
     //Greedy route optimisation algorithm
-    private static void greedy() {
+    @SuppressWarnings("unused")
+	private static void greedy() {
 		ArrayList<Sensor> unexploredSensors = new ArrayList<Sensor>(sensors);
 		 
 		//Iterates through all the sensors
@@ -948,7 +947,8 @@ public class App
     }
     
     //Swap heuristic route optimisation algorithm
-    private static void swap() {
+    @SuppressWarnings("unused")
+	private static void swap() {
     	Boolean better = true;
     	
     	//Variable to prevent infinite loops
