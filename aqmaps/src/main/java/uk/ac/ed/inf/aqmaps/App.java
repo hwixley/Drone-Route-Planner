@@ -154,8 +154,8 @@ public class App
 		Double floorAngle = angle - remainder;
 		Double ceilAngle = floorAngle + 10;
 		
-		if (floorAngle == 360.0) {
-			ceilAngle = 10.0;
+		if (floorAngle == 350.0) {
+			ceilAngle = 0.0;
 		}
 		
 		Point floorPoint = new Point(transformPoint(currPoint,floorAngle));
@@ -163,8 +163,8 @@ public class App
 		
 		//Iterate until valid floored angle point is found
 		while (!isValid(currPoint, floorPoint)) {
-			if (floorAngle == 360.0) {
-				floorAngle = 10.0;
+			if (floorAngle == 350.0) {
+				floorAngle = 0.0;
 			} else {
 				floorAngle += 10.0;
 			}
@@ -876,7 +876,7 @@ public class App
     	bestFrags.remove(0);
     	
     	//Calculate route
-    	while (sensorRoute.size() < 34) {
+    	while (sensorRoute.size() < sensors.size()) {
     		Sensor lastSens = sensorRoute.get(sensorRoute.size()-1);
     		ArrayList<Integer> redundancies = new ArrayList<Integer>();
     		
@@ -1133,9 +1133,6 @@ public class App
 			Move move = findPoint(currPoint,nextSensor.point);
 			Point newPoint = move.dest;
 			Double angle = move.angle;
-			if (angle == 360.0) {
-				angle = 0.0;
-			}
 			
 			route.add(newPoint);
 				
