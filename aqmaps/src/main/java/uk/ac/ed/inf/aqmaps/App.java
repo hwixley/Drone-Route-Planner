@@ -51,26 +51,23 @@ public class App
     
     //Global WebServer variables
     private static String wsURL;
-    private static final HttpClient client = HttpClient.newHttpClient();;
-    
-    //Global WebServer file strings
-    //private static String mapsFile;
-    //private static String noflyzoneFile;
+    private static final HttpClient client = HttpClient.newHttpClient();
     
     //Global output file strings
-    private static String dataGeojson = "";
+    private static String dataGeojson = "{\"type\": \"FeatureCollection\",\n\t\"features\"\t: [";
     private static String flightpathTxt = "";
     
     //findPoint method temporary variable
     private static Move lastMove = new Move();
     private static Point lastSensorPoint = new Point();
     
-    //Variable to store the optimized sensor route
+    //Variable to store the optimised sensor route
 	private static ArrayList<Sensor> sensorRoute = new ArrayList<Sensor>();
     
 	//Geo-JSON Feature syntax
-	private static final String markerGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Point\", \"coordinates\": [";
-	private static final String lineGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\": {\"type\": \"LineString\",\n\t\t\t\t\"coordinates\": [";
+	private static final String endFeatureCollectionGeojson = "\n\t\t\t\t]\n\t\t\t},\"properties\":{\n\t\t}\n\t}\n\t\t\n\t]\n}";
+	private static final String startMarkerGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Point\", \"coordinates\": [";
+	private static final String startLineStringGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\": {\"type\": \"LineString\",\n\t\t\t\t\"coordinates\": [\n\t\t\t\t";
 	
 	//Move finding variables
 	private static int moves = 0;
@@ -85,7 +82,7 @@ public class App
 	//INPUT ARGUMENT VALIDATION METHODS
 	
 	//Checks the date is valid and fixes any formatting issues (repairs single digit inputs)
-	private static void checkDate(String day, String month, String year) {
+	private static void checkDateIsValid(String day, String month, String year) {
 		int dayVal = checkIsNumber(day,"day");
 		int monthVal = checkIsNumber(month,"month");
 		int yearVal = checkIsNumber(year,"year");
@@ -163,7 +160,7 @@ public class App
 		Point ceilPoint = new Point(transformPoint(currPoint,ceilAngle));
 		
 		//Iterate until valid floored angle point is found
-		while (!isValid(currPoint, floorPoint)) {
+		while (!isPathValid(currPoint, floorPoint)) {
 			if (floorAngle == 350.0) {
 				floorAngle = 0.0;
 			} else {
@@ -174,7 +171,7 @@ public class App
 		}
 		
 		//Iterate until valid ceilinged angle point is found
-		while (!isValid(currPoint, ceilPoint)) {
+		while (!isPathValid(currPoint, ceilPoint)) {
 			if (ceilAngle == 0.0) {
 				ceilAngle = 350.0;
 			} else {
@@ -190,7 +187,7 @@ public class App
 		tempMove = new Move(floorAngle, floorPoint);
 		
 		//Check if the floored angle point is best and valid
-		if ((floorDist < ceilDist) && !isStuck(tempMove,nextPoint)) {
+		if ((floorDist < ceilDist) && !isMoveRedundant(tempMove,nextPoint)) {
 			move.angle = floorAngle;
 			move.dest = floorPoint;
 			
@@ -198,7 +195,7 @@ public class App
 			tempMove = new Move(ceilAngle,ceilPoint);
 			
 			//Check if the ceilinged angle point is valid
-			if (!isStuck(tempMove, nextPoint)) {
+			if (!isMoveRedundant(tempMove, nextPoint)) {
 				move.angle = ceilAngle;
 				move.dest = ceilPoint;
 				
@@ -217,8 +214,8 @@ public class App
     
     //METHOD THAT CHECKS FOR REDUNDANT MOVES (indicates algorithm is stuck)
     
-    //Checks if algorithm is stuck (checks if last and current moves are opposite)
-    private static Boolean isStuck(Move current, Point currSensorPoint) {
+    //Checks if algorithm is stuck (checks if last and current moves are opposite) returns true if so
+    private static Boolean isMoveRedundant(Move current, Point currSensorPoint) {
     	
     	//Returns false if no move has been made yet
     	if (Move.isNull(lastMove)) {
@@ -238,7 +235,7 @@ public class App
     //METHOD THAT CHECKS IF A POINT IS WITHIN RANGE OF THE DESTINATION SENSOR
     
     //Checks if valid point (within the range of a sensor)
-    private static Boolean checkPoint(Point destination, Point actual) {
+    private static Boolean isPointInRange(Point destination, Point actual) {
     	
     	if (calcDistance(destination, actual) < errorMargin) {
     		return true;
@@ -277,7 +274,7 @@ public class App
 		Double dist = calcDistance(origin,dest);
 		
 		//If the path between adjacent points is not valid (intersects a building) we increase the added cost 
-		if (!isValid(origin,dest)) {
+		if (!isPathValid(origin,dest)) {
 			
 			//Check for edge case (prevents infinite loops)
 			if ((origin.lat - dest.lat == 0) || (origin.lng - dest.lng == 0)) {
@@ -315,7 +312,7 @@ public class App
 	//METHODS FOR CHECKING FOR VALID MOVES (within confinement area and outside of no-fly-zone buildings)
 	
 	//Returns true if point is valid (within confinement and outside no-fly-zones)
-	private static Boolean isValid(Point origin, Point dest) {
+	private static Boolean isPathValid(Point origin, Point dest) {
 		
 		if (checkConfinement(dest) && checkBuildings(origin, dest)) {
 			return true;
@@ -422,7 +419,7 @@ public class App
 	//AIR-QUALITY CLASSIFICATION METHODS
 	
     //Returns the appropriate colour for a given air quality reading
-	private static String readingColour(Double reading) {
+	private static String getReadingColour(Double reading) {
 		String colour = "#000000";
 		
 		//Classify the given 'reading' by returning it's appropriate rgb-string
@@ -450,7 +447,7 @@ public class App
     }
     
    //Returns the appropriate symbol for a given air quality reading
-	private static String readingSymbol(Double reading) {
+	private static String getReadingSymbol(Double reading) {
     	String symbol = "cross";
     	
     	if (reading == Double.NaN) {
@@ -467,7 +464,7 @@ public class App
 	
 	//GEOMETRICAL CALCULATIONS
 	
-    //Calculates distance between 2 points
+    //Calculates Euclidean distance between 2 points
     private static Double calcDistance(Point p1, Point p2) { 
     	Double lats = Math.pow(p1.lat - p2.lat,2);
     	Double lngs = Math.pow(p1.lng - p2.lng, 2);
@@ -1093,6 +1090,45 @@ public class App
     }
     
     
+    //WRITING GEOJSON FEATURES
+    
+    //Method that returns the Geo-JSON Point code for a sensor marker
+    private static String getGeojsonMarker(Sensor sens, Boolean beenVisited) {
+    	String markerOutput = "";
+    	markerOutput += startMarkerGeojson + sens.point.lng.toString() + ", " + sens.point.lat.toString() + "]},\n";
+    	
+    	if (beenVisited) {
+			markerOutput += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + sens.location  + "\", \"rgb-string\": \"" + getReadingColour(sens.reading) + "\", \"marker-color\": \"" + getReadingColour(sens.reading) + "\", \"marker-symbol\": \"" + getReadingSymbol(sens.reading) + "\"}\n\t\t\t},";
+    	
+    	} else {
+			markerOutput += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + sens.location  + "\", \"rgb-string\": \"#aaaaaa\", \"marker-color\": \"#aaaaaa\"}\n\t\t\t},";
+    	}
+		return markerOutput;
+    }
+    
+    //Method that returns the Geo-JSON LineString code for the drone route
+    private static String getGeojsonRoute(ArrayList<Point> points) {
+    	String lineOutput = "";
+    	
+    	//Add the route as a single LineString Geo-JSON feature
+		lineOutput += startLineStringGeojson;
+		
+		//Iterates through the points in our route
+		for (int r = 0; r < points.size(); r++) {
+			Point point = route.get(r);
+			
+			//Add a comma to appropriately separate points
+			String comma = ",";
+			if (r == route.size()-1) {
+				comma = "";
+			}
+			
+			lineOutput += "[" + point.lng.toString() + ", " + point.lat.toString() + "]" + comma;
+		}
+		return lineOutput;
+    }
+    
+    
     //MOVE FINDING METHOD
     
     //Method that finds valid moves for the drone to move along the optimised route
@@ -1152,16 +1188,14 @@ public class App
 			String location = "null";
 			
 			//Checks if point is in range of next sensor
-			if (checkPoint(nextSensor.point, newPoint)) {
+			if (isPointInRange(nextSensor.point, newPoint)) {
 				location = nextSensor.location;
 				unreadSensors.remove(0);
 				
-				//Checks if it is the end point
+				//Checks it is not the end point
 				if (location != "end") {
-					//Add Geo-JSON Point for each sensor
-					dataGeojson += markerGeojson + nextSensor.point.lng.toString() + ", " + nextSensor.point.lat.toString() + "]},\n";
-					dataGeojson += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + nextSensor.location  + "\", \"rgb-string\": \"" + readingColour(nextSensor.reading) + "\", ";
-					dataGeojson += "\"marker-color\": \"" + readingColour(nextSensor.reading) + "\", \"marker-symbol\": \"" + readingSymbol(nextSensor.reading) + "\"}\n\t\t\t},";
+					//Adds Geo-JSON Point for the visited sensor
+					dataGeojson += getGeojsonMarker(nextSensor, true);
 				}
 			}
 			if (location == "end") {
@@ -1181,30 +1215,19 @@ public class App
 			for (int s = 0; s < unreadSensors.size(); s++) {
 				Sensor unreadSensor = new Sensor(unreadSensors.get(s));
 				
+				//Checks it is not the end point
 				if (unreadSensor.location != "end") {
-					//Add Geo-JSON Point for each sensor
-					dataGeojson += markerGeojson + unreadSensor.point.lng.toString() + ", " + unreadSensor.point.lat.toString() + "]},\n";
-					dataGeojson += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + unreadSensor.location  + "\", \"rgb-string\": \"#aaaaaa\", ";
-					dataGeojson += "\"marker-color\": \"#aaaaaa\"}\n\t\t\t},";
+					//Adds Geo-JSON Point for the unvisited sensor
+					dataGeojson += getGeojsonMarker(unreadSensor, false);
 				}
 			}
 		}
 		
 		//Add the route as a single LineString Geo-JSON feature
-		dataGeojson += lineGeojson + "\n\t\t\t\t";
-		for (int r = 0; r < route.size(); r++) {
-			Point point = route.get(r);
-			
-			//Add a comma to appropriately separate points
-			String comma = ",";
-			if (r == route.size()-1) {
-				comma = "";
-			}
-			
-			dataGeojson += "[" + point.lng.toString() + ", " + point.lat.toString() + "]" + comma;
-		}
+		dataGeojson += getGeojsonRoute(route);
+		
 		//Add the closing brackets to the Geo-JSON LineString Feature and FeatureCollection
-		dataGeojson += "\n\t\t\t\t]\n\t\t\t},\"properties\":{\n\t\t}\n\t}\n\t\t\n\t]\n}";
+		dataGeojson += endFeatureCollectionGeojson;
     }
     
     
@@ -1249,7 +1272,7 @@ public class App
         dateDD = args[0];
         dateMM = args[1];
         dateYY = args[2];
-        checkDate(dateDD,dateMM,dateYY); //Checks date inputs are valid and repairs any single digit inputs
+        checkDateIsValid(dateDD,dateMM,dateYY); //Checks date inputs are valid and repairs any single digit inputs
         
         startPoint = new Point(Double.parseDouble(args[3]), Double.parseDouble(args[4]));
 		randomSeed = checkIsNumber(args[5],"random seed");
