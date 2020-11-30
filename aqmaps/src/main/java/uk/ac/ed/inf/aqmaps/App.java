@@ -54,8 +54,8 @@ public class App
     private static final HttpClient client = HttpClient.newHttpClient();;
     
     //Global WebServer file strings
-    private static String mapsFile;
-    private static String noflyzoneFile;
+    //private static String mapsFile;
+    //private static String noflyzoneFile;
     
     //Global output file strings
     private static String dataGeojson = "";
@@ -120,7 +120,8 @@ public class App
 	
 	//Checks if the given date input argument is an integer 
 	private static Integer checkIsNumber(String date, String name) {
-
+		
+		//Try to convert the input into a number
 		try {
 			int val = Integer.parseInt(date);
 			
@@ -277,7 +278,8 @@ public class App
 		
 		//If the path between adjacent points is not valid (intersects a building) we increase the added cost 
 		if (!isValid(origin,dest)) {
-
+			
+			//Check for edge case (prevents infinite loops)
 			if ((origin.lat - dest.lat == 0) || (origin.lng - dest.lng == 0)) {
 				dist = dist*2;
 			} else {
@@ -293,14 +295,17 @@ public class App
     	Point currPoint = new Point(origin);
     	Double totDist = 0.0;
 
+    	//Iterates through moves until drone arrives at the sensor in order to calculate real distance
     	while (true) {
     		Double dist = calcDistance(currPoint, destination);
     		totDist += pathLength;
     		
-    		if (dist < 0.0005) {
+    		//Checks if drone is in proximity of the specified sensor
+    		if (dist < pathLength+errorMargin) {
     			break;
     		}
     		
+    		//Find the next move
     		currPoint = new Point(findPoint(currPoint, destination).dest);
     	}
     	return totDist;
@@ -676,7 +681,7 @@ public class App
     private static void getSensorData() {
     	
     	//1) Retrieve maps file from the WebServer (stored in 'mapsFile' global variable)
-    	mapsFile = getWebServerFile("maps/" + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json");
+    	String mapsFile = getWebServerFile("maps/" + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json");
         
         //2) Parse this maps file into a list of Sensor objects (stored in 'sensors' global variable)
         sensors = parseJsonSensors(mapsFile);
@@ -689,15 +694,16 @@ public class App
     //RETRIEVING THE NO-FLY-ZONE DATA METHODS
     
     //Parses the no-fly-zones file as Building objects
-    private static void parseNoflyzoneBuildings() {
+    private static ArrayList<Building> parseNoflyzoneBuildings(String fileContents) {
     	
 		dataGeojson = "{\"type\": \"FeatureCollection\",\n\t\"features\"\t: [";
+		ArrayList<Building> outputBuildings = new ArrayList<Building>();
 		
 		//Variables for iteration
 		Building building = new Building();
 		Point polyPoint = new Point();
 		Boolean buildingComplete = false;
-        String[]noflyzoneLines = noflyzoneFile.split(System.getProperty("line.separator"));
+        String[]noflyzoneLines = fileContents.split(System.getProperty("line.separator"));
         
         //Iterate through the '/buildings/no-fly-zones.geojson' file
         for(String line : noflyzoneLines) {
@@ -723,7 +729,7 @@ public class App
 			
 			//Check if line contains a closing square bracket (indicates end of a given polygon)
 			} else if ((line.indexOf("]") != -1) && (line.indexOf("],") == -1) && !buildingComplete) {
-				buildings.add(new Building(building));
+				outputBuildings.add(new Building(building));
 				buildingComplete = true;
 				
 				//DELETE: BUILDING GEOJSON
@@ -738,29 +744,32 @@ public class App
 				dataGeojson += "\"properties\": {\"fill-opacity\": 0.5, \"fill\": \"#ff0000\"}},";
 			}
 		}
+        return outputBuildings;
     }
     
     //Get the no-fly-zone Geo-JSON data (stored in global 'buildings' variable)
     private static void getNoflyzoneData() {
     	
         //1) Retrieve files from the WebServer (stored in the 'noflyzoneFile' global variable)
-    	noflyzoneFile = getWebServerFile("buildings/no-fly-zones.geojson");
+    	String noflyzoneFile = getWebServerFile("buildings/no-fly-zones.geojson");
         
         //2) Parse these files into appropriate java Building objects (stored in 'buildings' global variable)
-        parseNoflyzoneBuildings();
+        buildings = parseNoflyzoneBuildings(noflyzoneFile);
     }
     
     
     //ROUTE OPTIMISATION METHODS
     
-    //Return closest sensor
-    private static Sensor closestSensor(Sensor sens) {
+    //Returns closest sensor in the global 'sensors' ArrayList variable
+    private static Sensor getClosestSensor(Sensor sens) {
     	Double minDist = 10000.0;
     	int minIndex = -1;
     	
+    	//Iterates through all the sensors
     	for (int s = 0; s < sensors.size(); s++) {
     		Sensor next = sensors.get(s);
     		
+    		//Ensures we are not using repeated sensors
     		if ((sensorRoute.indexOf(next) != -1) || (next.equals(sens))) {
     			continue;
     		} else {
@@ -777,19 +786,22 @@ public class App
     }
     
     //Return ordered list of closest sensors (ascending in distance)
-    private static ArrayList<Sensor> closestSensors(Sensor sens) {
+    private static ArrayList<Sensor> getClosestSensors(Sensor sens) {
     	ArrayList<Double> distances = new ArrayList<Double>();
     	ArrayList<Sensor> output = new ArrayList<Sensor>();
     	
+    	//Iterates through all the sensors
     	for (int s = 0; s < sensors.size(); s++) {
     		Sensor next = sensors.get(s);
     		
+    		//Ensures we are not comparing the input sensor with itself
     		if (!next.equals(sens)) {
     			Double dist = calcEdgeCost(sens.point, next.point);
     			
     			int startIndex = 0;
     			int endIndex = distances.size();
     			
+    			//Iterates until the list is sorted (ascending order of distances)
     			while(true) {
     				if (distances.isEmpty()) {
     					distances.add(dist);
@@ -854,7 +866,7 @@ public class App
     	//Calculate best transitions for each sensor
     	for (int r = 0; r < sensors.size(); r++) {
     		Fragment frag = bestFrags.get(r);
-    		ArrayList<Sensor> closestSensors = closestSensors(frag.sensor);
+    		ArrayList<Sensor> closestSensors = getClosestSensors(frag.sensor);
     		
     		for (int k = 0; k < closestSensors.size(); k++) {
     			int keyVal = 0;
@@ -905,7 +917,7 @@ public class App
     		}
     		
     		if (lastSens.equals(sensorRoute.get(sensorRoute.size()-1))) {
-    			sensorRoute.add(closestSensor(lastSens));
+    			sensorRoute.add(getClosestSensor(lastSens));
     		}
     	}
     }
