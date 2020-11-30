@@ -144,10 +144,6 @@ public class App
 		Move move = new Move();
 		move.origin = currPoint;
 		
-		//Move variables for each angle option
-		Move floorMove = new Move();
-		Move ceilMove = new Move();
-		
 		//Try floor and ceiling angles
 		Double floorAngle = angle - (angle % 10);
 		Double ceilAngle = floorAngle + 10;
@@ -159,11 +155,8 @@ public class App
 		Point floorPoint = new Point(transformPoint(currPoint,floorAngle));
 		Point ceilPoint = new Point(transformPoint(currPoint,ceilAngle));
 		
-		floorMove = new Move(floorAngle, floorPoint);
-		ceilMove = new Move(ceilAngle, ceilPoint);
-		
 		//Iterate until valid floored angle point is found
-		while (!isPathValid(currPoint, floorPoint) ) {//|| isMoveRedundant(floorMove, nextPoint)) {
+		while (!isPathValid(currPoint, floorPoint) ) {
 			if (floorAngle == 0.0) {
 				floorAngle = 350.0;
 			} else {
@@ -171,11 +164,10 @@ public class App
 			}
 
 			floorPoint = new Point(transformPoint(currPoint, floorAngle));
-			floorMove = new Move(floorAngle, floorPoint);
 		}
 		
 		//Iterate until valid ceilinged angle point is found
-		while (!isPathValid(currPoint, ceilPoint) ) {//|| isMoveRedundant(ceilMove, nextPoint)) {
+		while (!isPathValid(currPoint, ceilPoint) ) {
 			if (ceilAngle == 350.0) {
 				ceilAngle = 0.0;
 			} else {
@@ -183,11 +175,15 @@ public class App
 			}
 
 			ceilPoint = new Point(transformPoint(currPoint,ceilAngle));
-			ceilMove = new Move(ceilAngle,ceilPoint);
 		}
 		
+		//Calculate distances from the next sensor
 		Double floorDist = calcDistance(nextPoint, floorPoint);
 		Double ceilDist = calcDistance(nextPoint, ceilPoint);
+		
+		//Move variables for each angle option
+		Move floorMove = new Move(floorAngle, floorPoint);
+		Move ceilMove = new Move(ceilAngle, ceilPoint);
 		
 		//Check if the floored angle point is best and valid
 		if ((floorDist < ceilDist) && (!isMoveRedundant(floorMove,nextPoint))) {
