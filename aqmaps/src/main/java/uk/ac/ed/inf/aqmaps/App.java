@@ -24,7 +24,7 @@ import uk.ac.ed.inf.aqmaps.Objects.Fragment;
 public class App 
 {
 	//VARIABLES
-	
+
 	
 	//Confinement area coordinates
     private static final double maxLat = 55.946233; 
@@ -139,17 +139,17 @@ public class App
 	//FIND NEXT POINT METHOD 
     
     //Find next valid point to move to given the current and destination sensors
-    private static Move findPoint(Point currPoint, Point nextPoint) {
+    private static Move findNextMove(Point currPoint, Point nextPoint) {
 		Double angle = calcAngle(currPoint, nextPoint);
-		Double remainder = angle % 10;
 		Move move = new Move();
 		move.origin = currPoint;
 		
-		//This Move variable is used to determine if the given move is the opposite as last (prevents infinite loops)
-		Move tempMove = new Move(move);
-    	
+		//Move variables for each angle option
+		Move floorMove = new Move();
+		Move ceilMove = new Move();
+		
 		//Try floor and ceiling angles
-		Double floorAngle = angle - remainder;
+		Double floorAngle = angle - (angle % 10);
 		Double ceilAngle = floorAngle + 10;
 		
 		if (floorAngle == 350.0) {
@@ -159,53 +159,51 @@ public class App
 		Point floorPoint = new Point(transformPoint(currPoint,floorAngle));
 		Point ceilPoint = new Point(transformPoint(currPoint,ceilAngle));
 		
+		floorMove = new Move(floorAngle, floorPoint);
+		ceilMove = new Move(ceilAngle, ceilPoint);
+		
 		//Iterate until valid floored angle point is found
-		while (!isPathValid(currPoint, floorPoint)) {
-			if (floorAngle == 350.0) {
-				floorAngle = 0.0;
+		while (!isPathValid(currPoint, floorPoint) ) {//|| isMoveRedundant(floorMove, nextPoint)) {
+			if (floorAngle == 0.0) {
+				floorAngle = 350.0;
 			} else {
-				floorAngle += 10.0;
+				floorAngle -= 10.0;
 			}
 
 			floorPoint = new Point(transformPoint(currPoint, floorAngle));
+			floorMove = new Move(floorAngle, floorPoint);
 		}
 		
 		//Iterate until valid ceilinged angle point is found
-		while (!isPathValid(currPoint, ceilPoint)) {
-			if (ceilAngle == 0.0) {
-				ceilAngle = 350.0;
+		while (!isPathValid(currPoint, ceilPoint) ) {//|| isMoveRedundant(ceilMove, nextPoint)) {
+			if (ceilAngle == 350.0) {
+				ceilAngle = 0.0;
 			} else {
-				ceilAngle -= 10.0;
+				ceilAngle += 10.0;
 			}
 
 			ceilPoint = new Point(transformPoint(currPoint,ceilAngle));
+			ceilMove = new Move(ceilAngle,ceilPoint);
 		}
 		
 		Double floorDist = calcDistance(nextPoint, floorPoint);
 		Double ceilDist = calcDistance(nextPoint, ceilPoint);
 		
-		tempMove = new Move(floorAngle, floorPoint);
-		
 		//Check if the floored angle point is best and valid
-		if ((floorDist < ceilDist) && !isMoveRedundant(tempMove,nextPoint)) {
+		if ((floorDist < ceilDist) && (!isMoveRedundant(floorMove,nextPoint))) {
 			move.angle = floorAngle;
 			move.dest = floorPoint;
-			
-		} else {
-			tempMove = new Move(ceilAngle,ceilPoint);
-			
-			//Check if the ceilinged angle point is valid
-			if (!isMoveRedundant(tempMove, nextPoint)) {
-				move.angle = ceilAngle;
-				move.dest = ceilPoint;
-				
-			//Else use the floored angle point
-			} else {
-				move.angle = floorAngle;
-				move.dest = floorPoint;
-			}
-		}
 		
+		//Otherwise check if the ceilinged angle point is valid
+		} else if (!isMoveRedundant(ceilMove,nextPoint)) {
+			move.angle = ceilAngle;
+			move.dest = ceilPoint;
+			
+		//Otherwise use the floored angle point
+		} else {
+			move.angle = floorAngle;
+			move.dest = floorPoint;
+		}
 		lastMove = move;
 		lastSensorPoint = new Point(nextPoint);
 		return move;
@@ -223,7 +221,7 @@ public class App
     	} else {
     		
     		//Returns true if the last and current moves are opposite (angle difference of 180 degrees)
-	    	if (((int)Math.abs(lastMove.angle - current.angle) == 180)  && Point.isEqual(currSensorPoint, lastSensorPoint)) {
+	    	if (((int)Math.abs(lastMove.angle - current.angle) == 180) && Point.isEqual(currSensorPoint, lastSensorPoint)) {
 	    		return true;
 	    	} else {
 	    		return false;
@@ -276,7 +274,7 @@ public class App
 		//If the path between adjacent points is not valid (intersects a building) we increase the added cost 
 		if (!isPathValid(origin,dest)) {
 			
-			//Check for edge case (prevents infinite loops)
+			//Checks for edge case to prevent infinite loops
 			if ((origin.lat - dest.lat == 0) || (origin.lng - dest.lng == 0)) {
 				dist = dist*2;
 			} else {
@@ -291,7 +289,7 @@ public class App
     private static Double calcActualDist(Point origin, Point destination) {
     	Point currPoint = new Point(origin);
     	Double totDist = 0.0;
-
+    	
     	//Iterates through moves until drone arrives at the sensor in order to calculate real distance
     	while (true) {
     		Double dist = calcDistance(currPoint, destination);
@@ -303,7 +301,7 @@ public class App
     		}
     		
     		//Find the next move
-    		currPoint = new Point(findPoint(currPoint, destination).dest);
+    		currPoint = new Point(findNextMove(currPoint, destination).dest);
     	}
     	return totDist;
     }
@@ -909,8 +907,9 @@ public class App
     		
     		//Remove redundant edges 
     		for (int r = 0; r < redundancies.size(); r++) {
-    			bestFrags.remove(redundancies.get(r));
+    			bestFrags.remove(redundancies.get(r).intValue()-r);
     		}
+    		redundancies.clear();
     		
     		if (lastSens.equals(sensorRoute.get(sensorRoute.size()-1))) {
     			sensorRoute.add(getClosestSensor(lastSens));
@@ -1176,7 +1175,7 @@ public class App
 			}
 			
 			//Variables to represent the given move
-			Move move = findPoint(currPoint,nextSensor.point);
+			Move move = findNextMove(currPoint,nextSensor.point);
 			Point newPoint = move.dest;
 			Double angle = move.angle;
 			
@@ -1276,6 +1275,72 @@ public class App
 		randomSeed = checkIsNumber(args[5],"random seed");
         portNumber = String.valueOf(checkIsNumber(args[6],"port number"));
         
+        ArrayList<Integer> monthDays = new ArrayList<Integer>(Arrays.asList(31,29,31,30,31,30,31,31,30,31,30,31));
+
+		//Initialise WebServer
+		initWebserver();
+		
+		//GET THE NO-FLY-ZONE DATA
+		getNoflyzoneData();
+		
+		String fileText ="";
+		String dateText = "";
+		
+		for (int y = 0; y < 2; y++) {
+			if (y==1) {
+				monthDays.set(1,28);
+			}
+			for (int m = 0; m < 12; m++) {
+				for (int d = 0; d < monthDays.get(m); d++) {
+					dateDD = String.valueOf(d+1);
+					dateMM = String.valueOf(m+1);
+					dateYY = String.valueOf(2020+y);
+					checkDateIsValid(String.valueOf(d+1),String.valueOf(m+1),String.valueOf(2020+y));
+					
+					
+					//GET THE SENSORS & AIR QUALITY DATA FOR THE GIVEN DATE
+					getSensorData();
+					
+					
+					Sensor startPointSensor = new Sensor(startPoint);
+					startPointSensor.location = "start";
+					sensors.add(startPointSensor);
+					
+					//FIND OPTIMAL ROUTE (stored in 'sensorRoute' global variable)
+					//findOptimalRoute();
+					temperate();
+					//greedy();
+					swap();
+					twoOpt();
+					
+					//DELETE: CONFINEMENT AREA GEOJSON
+					//dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
+					//dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
+					//dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
+					
+					
+					//FIND DRONE MOVEMENTS (sequence of points stored in 'route' global variable)
+					findMoves();
+					
+					System.out.println(dateDD + "/" + dateMM + "/" + dateYY + ": " + String.valueOf(moves));
+					fileText += String.valueOf(moves) + "\n";
+					dateText += dateDD + "/" + dateMM + "/" + dateYY + "\n";
+					
+					route.clear();
+					sensorRoute.clear();
+					unreadSensors.clear();
+					sensors.clear();
+					lastMove = new Move();
+					moves = 0;
+					errorMargin = 0.0002;
+					dataGeojson="";
+					flightpathTxt="";
+				}
+			}
+		}
+		writeToFile("/../dataAnalysis/aqmapsCSTMoves.txt",fileText);/*
+		
+        
     	//Initialise WebServer
         initWebserver();
 
@@ -1308,11 +1373,11 @@ public class App
 		System.out.println("\nA drone route has been successfully found!");
 		System.out.println("# Moves: " + moves);
 		System.out.println("# Unread sensors: " + unreadSensors.size());
-		System.out.println("# Read sensors: " + sensorRoute.size());
+		System.out.println("# Read sensors: " + (sensors.size()-unreadSensors.size()-1));
 		
 		
 		//Output our results to a 'aqmaps' and 'flightpath' file for the given date
-		writeOutputFiles();
+		writeOutputFiles();*/
     }
 }
 
