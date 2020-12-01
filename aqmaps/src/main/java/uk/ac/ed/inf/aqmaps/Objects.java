@@ -25,6 +25,7 @@ public class Objects {
     	public Point() {
     	}
     	
+    	//Method that checks whether 2 points are equivalent (returns true if they are)
     	public static Boolean isEqual(Point pointA, Point pointB) {
     		if (pointA.lat - pointB.lat == 0 && pointA.lng - pointB.lng == 0) {
     			return true;
@@ -49,6 +50,7 @@ public class Objects {
     		this.point = another.point;
     	}
     	
+    	//Constructor for single Point argument
     	public Sensor(Point point) {
     		this.point = point;
     	}
@@ -120,6 +122,7 @@ public class Objects {
     		this.angle = move.angle;
     	}
     	
+    	//Constructor with angle and destination Point variables
     	public Move(Double angle, Point dest) {
     		this.angle = angle;
     		this.dest = dest;
@@ -142,6 +145,7 @@ public class Objects {
     	}
     }
     
+    //OBJECT: custom Fragment() object for the 'temperate()' algorithm
     public static class Fragment {
     	Sensor sensor;
     	Double avgDist;

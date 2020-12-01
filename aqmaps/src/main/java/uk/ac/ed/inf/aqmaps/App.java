@@ -298,7 +298,7 @@ public class App
 	
 	//METHODS FOR CHECKING FOR VALID MOVES (within confinement area and outside of no-fly-zone buildings)
 	
-	//Returns true if point is valid (within confinement and outside no-fly-zones)
+	//Returns true if path is valid (within confinement and outside no-fly-zones)
 	private static Boolean isPathValid(Point origin, Point dest) {
 		
 		if (checkConfinement(dest) && checkBuildings(origin, dest)) {
@@ -714,18 +714,6 @@ public class App
 			} else if ((line.indexOf("]") != -1) && (line.indexOf("],") == -1) && !buildingComplete) {
 				outputBuildings.add(new Building(building));
 				buildingComplete = true;
-				
-				/*
-				//DELETE: BUILDING GEOJSON
-				dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
-				
-				for (int p = 0; p < building.points.size(); p++) {
-					Point pointP = building.points.get(p);
-					
-					dataGeojson += "[" + pointP.lng + ", " + pointP.lat + "],";
-				}
-				dataGeojson += "[" + building.points.get(0).lng + ", " + building.points.get(0).lat + "]]]},\n\t\t";
-				dataGeojson += "\"properties\": {\"fill-opacity\": 0.5, \"fill\": \"#ff0000\"}},";*/
 			}
 		}
         return outputBuildings;
@@ -1071,16 +1059,13 @@ public class App
 		//**NOTE: The numbered algorithms below can be swapped out for others if needed/wanted.
 		
 		//ALL ALGORITHM OPTIONS:
-		//Initial route setting algorithms: temperate(), greedy()
-		//Refinement algorithms: twoOpt(), swap()
+		//Initial route setting algorithms:  temperate(), greedy()
+		//Route refinement algorithms:  twoOpt(), swap()
 		
-    	//1) Use temperate algorithm to choose points
-		//temperate();
+    	//1) Use greedy algorithm to choose closest points
     	greedy();
-    	//2) Use Swap heuristic algorithm to swap adjacent points around in the route to see if it produces a lower cost
-    	//swap();
     	
-		//3) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
+		//2) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
     	twoOpt();
     }
     
@@ -1092,6 +1077,7 @@ public class App
     	String markerOutput = "";
     	markerOutput += startMarkerGeojson + sens.point.lng.toString() + ", " + sens.point.lat.toString() + "]},\n";
     	
+    	//Checks if this Sensor has been visited (so we can give it a colour and symbol)
     	if (beenVisited) {
 			markerOutput += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + sens.location  + "\", \"rgb-string\": \"" + getReadingColour(sens.reading) + "\", \"marker-color\": \"" + getReadingColour(sens.reading) + "\", \"marker-symbol\": \"" + getReadingSymbol(sens.reading) + "\"}\n\t\t\t},";
     	
@@ -1274,26 +1260,20 @@ public class App
         portNumber = String.valueOf(checkIsNumber(args[6],"port number"));
 
         
-    	//Initialise WebServer
+    	//INITIALISE WEB SERVER (URL stored in global String 'wsURL')
         initWebserver();
 
     	
-    	//GET THE SENSORS & AIR QUALITY DATA FOR THE GIVEN DATE
+    	//GET THE SENSORS & AIR QUALITY DATA FOR THE GIVEN DATE (all sensors stored in global ArrayList of Sensor objects called 'sensors')
         getSensorData();
         
         
-        //GET THE NO-FLY-ZONE DATA
+        //GET THE NO-FLY-ZONE DATA (all no-fly zones stored in global ArrayList of Building objects called 'buildings')
         getNoflyzoneData();
 
         
-        //FIND OPTIMAL ROUTE (stored in 'sensorRoute' global variable)
+        //FIND OPTIMAL ROUTE (route stored in 'sensorRoute' global variable)
         findOptimalRoute();
-        
-        
-		//DELETE: CONFINEMENT AREA GEOJSON
-		/*dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
-		dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
-		dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";*/
 		
 		
 		//FIND DRONE MOVEMENTS (sequence of points stored in 'route' global variable)
@@ -1313,71 +1293,3 @@ public class App
 		writeOutputFiles();
     }
 }
-
-/* TESTING CODE
-ArrayList<Integer> monthDays = new ArrayList<Integer>(Arrays.asList(31,29,31,30,31,30,31,31,30,31,30,31));
-
-//Initialise WebServer
-initWebserver();
-
-//GET THE NO-FLY-ZONE DATA
-getNoflyzoneData();
-
-String fileText ="";
-String dateText = "";
-
-for (int y = 0; y < 2; y++) {
-	if (y==1) {
-		monthDays.set(1,28);
-	}
-	for (int m = 0; m < 12; m++) {
-		for (int d = 0; d < monthDays.get(m); d++) {
-			
-			dateDD = String.valueOf(d+1);
-			dateMM = String.valueOf(m+1);
-			dateYY = String.valueOf(2020+y);
-			checkDateIsValid(String.valueOf(d+1),String.valueOf(m+1),String.valueOf(2020+y));
-			
-			
-	    	//GET THE SENSORS & AIR QUALITY DATA FOR THE GIVEN DATE
-	        getSensorData();
-
-	        
-			Sensor startPointSensor = new Sensor(startPoint);
-			startPointSensor.location = "start";
-			sensors.add(startPointSensor);
-	        
-	        //FIND OPTIMAL ROUTE (stored in 'sensorRoute' global variable)
-	        //findOptimalRoute();
-	        temperate();
-	        //greedy();
-	        //swap();
-	        //twoOpt();
-	        
-			//DELETE: CONFINEMENT AREA GEOJSON
-			//dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
-			//dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
-			//dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
-			
-			
-			//FIND DRONE MOVEMENTS (sequence of points stored in 'route' global variable)
-			findMoves();
-			
-			System.out.println(dateDD + "/" + dateMM + "/" + dateYY + ": " + String.valueOf(moves));
-			fileText += String.valueOf(moves) + "\n";
-			dateText += dateDD + "/" + dateMM + "/" + dateYY + "\n";
-			
-			route.clear();
-			sensorRoute.clear();
-			unreadSensors.clear();
-			sensors.clear();
-			lastMove = new Move();
-			moves = 0;
-			errorMargin = 0.0002;
-			dataGeojson="";
-			flightpathTxt="";
-		}
-	}
-}
-writeToFile("/../dataAnalysis/aqmapsCMoves.txt",fileText);*/
-//writeToFile("Dates.txt",dateText);

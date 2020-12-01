@@ -1,0 +1,16 @@
+		//DELETE: CONFINEMENT AREA GEOJSON
+		/*dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
+		dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
+		dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";*/
+
+				/*
+				//DELETE: BUILDING GEOJSON
+				dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
+				
+				for (int p = 0; p < building.points.size(); p++) {
+					Point pointP = building.points.get(p);
+					
+					dataGeojson += "[" + pointP.lng + ", " + pointP.lat + "],";
+				}
+				dataGeojson += "[" + building.points.get(0).lng + ", " + building.points.get(0).lat + "]]]},\n\t\t";
+				dataGeojson += "\"properties\": {\"fill-opacity\": 0.5, \"fill\": \"#ff0000\"}},";*/
