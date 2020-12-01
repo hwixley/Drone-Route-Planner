@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="uk.ac.ed.inf.aqmaps.AppTest" time="0.019" tests="1" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="uk.ac.ed.inf.aqmaps.AppTest" time="0.015" tests="1" errors="0" skipped="0" failures="0">
   <properties>
     <property name="sun.desktop" value="gnome"/>
     <property name="awt.toolkit" value="sun.awt.X11.XToolkit"/>
@@ -16,7 +16,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="GB"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/jdk-11.0.8/lib"/>
-    <property name="sun.java.command" value="/home/hwixley/Documents/Year3/ILP/cwk2/aqmaps/target/surefire/surefirebooter7909758324994714940.jar /home/hwixley/Documents/Year3/ILP/cwk2/aqmaps/target/surefire 2020-12-01T16-29-00_337-jvmRun1 surefire6584420518453362026tmp surefire_02566577656433841025tmp"/>
+    <property name="sun.java.command" value="/home/hwixley/Documents/Year3/ILP/cwk2/aqmaps/target/surefire/surefirebooter11408555074450364868.jar /home/hwixley/Documents/Year3/ILP/cwk2/aqmaps/target/surefire 2020-12-01T17-06-47_399-jvmRun1 surefire2553655598709921241tmp surefire_012738183335644468099tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/home/hwixley/Documents/Year3/ILP/cwk2/aqmaps/target/test-classes:/home/hwixley/Documents/Year3/ILP/cwk2/aqmaps/target/classes:/home/hwixley/.m2/repository/com/mapbox/mapboxsdk/mapbox-sdk-geojson/5.5.0/mapbox-sdk-geojson-5.5.0.jar:/home/hwixley/.m2/repository/com/google/code/gson/gson/2.8.6/gson-2.8.6.jar:/home/hwixley/.m2/repository/junit/junit/4.9/junit-4.9.jar:/home/hwixley/.m2/repository/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -32,7 +32,7 @@
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment"/>
-    <property name="surefire.real.class.path" value="/home/hwixley/Documents/Year3/ILP/cwk2/aqmaps/target/surefire/surefirebooter7909758324994714940.jar"/>
+    <property name="surefire.real.class.path" value="/home/hwixley/Documents/Year3/ILP/cwk2/aqmaps/target/surefire/surefirebooter11408555074450364868.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="11.0.8+10-LTS"/>
     <property name="user.name" value="hwixley"/>
