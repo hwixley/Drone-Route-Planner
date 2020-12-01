@@ -16,7 +16,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="GB"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/jdk-11.0.8/lib"/>
-    <property name="sun.java.command" value="/home/hwixley/Documents/Year3/ILP/cwk2/aqmaps/target/surefire/surefirebooter16306721345085903949.jar /home/hwixley/Documents/Year3/ILP/cwk2/aqmaps/target/surefire 2020-09-30T12-56-52_705-jvmRun1 surefire12347833633625296857tmp surefire_03120219600313472944tmp"/>
+    <property name="sun.java.command" value="/home/hwixley/Documents/Year3/ILP/cwk2/aqmaps/target/surefire/surefirebooter7909758324994714940.jar /home/hwixley/Documents/Year3/ILP/cwk2/aqmaps/target/surefire 2020-12-01T16-29-00_337-jvmRun1 surefire6584420518453362026tmp surefire_02566577656433841025tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/home/hwixley/Documents/Year3/ILP/cwk2/aqmaps/target/test-classes:/home/hwixley/Documents/Year3/ILP/cwk2/aqmaps/target/classes:/home/hwixley/.m2/repository/com/mapbox/mapboxsdk/mapbox-sdk-geojson/5.5.0/mapbox-sdk-geojson-5.5.0.jar:/home/hwixley/.m2/repository/com/google/code/gson/gson/2.8.6/gson-2.8.6.jar:/home/hwixley/.m2/repository/junit/junit/4.9/junit-4.9.jar:/home/hwixley/.m2/repository/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -32,7 +32,7 @@
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment"/>
-    <property name="surefire.real.class.path" value="/home/hwixley/Documents/Year3/ILP/cwk2/aqmaps/target/surefire/surefirebooter16306721345085903949.jar"/>
+    <property name="surefire.real.class.path" value="/home/hwixley/Documents/Year3/ILP/cwk2/aqmaps/target/surefire/surefirebooter7909758324994714940.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="11.0.8+10-LTS"/>
     <property name="user.name" value="hwixley"/>
@@ -58,5 +58,5 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="55.0"/>
   </properties>
-  <testcase name="shouldAnswerWithTrue" classname="uk.ac.ed.inf.aqmaps.AppTest" time="0"/>
+  <testcase name="shouldAnswerWithTrue" classname="uk.ac.ed.inf.aqmaps.AppTest" time="0.001"/>
 </testsuite>
