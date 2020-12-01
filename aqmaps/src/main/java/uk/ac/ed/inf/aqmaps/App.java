@@ -715,6 +715,7 @@ public class App
 				outputBuildings.add(new Building(building));
 				buildingComplete = true;
 				
+				/*
 				//DELETE: BUILDING GEOJSON
 				dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
 				
@@ -724,7 +725,7 @@ public class App
 					dataGeojson += "[" + pointP.lng + ", " + pointP.lat + "],";
 				}
 				dataGeojson += "[" + building.points.get(0).lng + ", " + building.points.get(0).lat + "]]]},\n\t\t";
-				dataGeojson += "\"properties\": {\"fill-opacity\": 0.5, \"fill\": \"#ff0000\"}},";
+				dataGeojson += "\"properties\": {\"fill-opacity\": 0.5, \"fill\": \"#ff0000\"}},";*/
 			}
 		}
         return outputBuildings;
@@ -812,7 +813,8 @@ public class App
     }
     
     //Custom 'Temperate' route optimisation algorithm
-    private static void temperate() {
+    @SuppressWarnings("unused")
+	private static void temperate() {
     	
     	ArrayList<Double> avgDistances = new ArrayList<Double>();
     	ArrayList<Fragment> bestFrags = new ArrayList<Fragment>();
@@ -907,8 +909,7 @@ public class App
     }
     
     //Greedy route optimisation algorithm
-    @SuppressWarnings("unused")
-	private static void greedy() {
+    private static void greedy() {
 		ArrayList<Sensor> unexploredSensors = new ArrayList<Sensor>(sensors);
 		 
 		//Iterates through all the sensors
@@ -1290,9 +1291,9 @@ public class App
         
         
 		//DELETE: CONFINEMENT AREA GEOJSON
-		dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
+		/*dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
 		dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
-		dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
+		dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";*/
 		
 		
 		//FIND DRONE MOVEMENTS (sequence of points stored in 'route' global variable)
