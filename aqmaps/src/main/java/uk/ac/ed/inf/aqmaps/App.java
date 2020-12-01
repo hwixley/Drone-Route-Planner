@@ -23,7 +23,7 @@ public class App
 {
 	//VARIABLES
 
-	
+
 	//Confinement area coordinates
     private static final double maxLat = 55.946233; 
     private static final double minLat = 55.942617;
@@ -154,7 +154,7 @@ public class App
 		Point ceilPoint = new Point(transformPoint(currPoint,ceilAngle));
 		
 		//Iterate until valid floored angle point is found
-		while (!isPathValid(currPoint, floorPoint) ) {
+		while (!isPathValid(currPoint, floorPoint)) {
 			if (floorAngle == 0.0) {
 				floorAngle = 350.0;
 			} else {
@@ -165,7 +165,7 @@ public class App
 		}
 		
 		//Iterate until valid ceilinged angle point is found
-		while (!isPathValid(currPoint, ceilPoint) ) {
+		while (!isPathValid(currPoint, ceilPoint)) {
 			if (ceilAngle == 350.0) {
 				ceilAngle = 0.0;
 			} else {
@@ -174,7 +174,7 @@ public class App
 
 			ceilPoint = new Point(transformPoint(currPoint,ceilAngle));
 		}
-		
+
 		//Calculate distances from the next sensor
 		Double floorDist = calcDistance(nextPoint, floorPoint);
 		Double ceilDist = calcDistance(nextPoint, ceilPoint);
@@ -198,6 +198,7 @@ public class App
 			move.angle = floorAngle;
 			move.dest = floorPoint;
 		}
+		
 		lastMove = move;
 		lastSensorPoint = new Point(nextPoint);
 		return move;
@@ -267,13 +268,7 @@ public class App
 		
 		//If the path between adjacent points is not valid (intersects a building) we increase the added cost 
 		if (!isPathValid(origin,dest)) {
-			
-			//Checks for edge case to prevent infinite loops
-			if ((origin.lat - dest.lat == 0) || (origin.lng - dest.lng == 0)) {
-				dist = dist*2;
-			} else {
-				dist = calcActualDist(origin,dest);
-			}
+			dist = calcActualDist(origin,dest);
 		}
 		
 		return dist;
@@ -1071,10 +1066,16 @@ public class App
 		Sensor startPointSensor = new Sensor(startPoint);
 		startPointSensor.location = "start";
 		sensors.add(startPointSensor);
-    	
+		
+		//**NOTE: The numbered algorithms below can be swapped out for others if needed/wanted.
+		
+		//ALL ALGORITHM OPTIONS:
+		//Initial route setting algorithms: temperate(), greedy()
+		//Refinement algorithms: twoOpt(), swap()
+		
     	//1) Use temperate algorithm to choose points
-		temperate();
-    	
+		//temperate();
+    	greedy();
     	//2) Use Swap heuristic algorithm to swap adjacent points around in the route to see if it produces a lower cost
     	//swap();
     	
@@ -1270,7 +1271,7 @@ public class App
         startPoint = new Point(Double.parseDouble(args[3]), Double.parseDouble(args[4]));
 		randomSeed = checkIsNumber(args[5],"random seed");
         portNumber = String.valueOf(checkIsNumber(args[6],"port number"));
-        
+
         
     	//Initialise WebServer
         initWebserver();

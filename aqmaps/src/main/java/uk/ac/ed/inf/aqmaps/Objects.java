@@ -26,7 +26,7 @@ public class Objects {
     	}
     	
     	public static Boolean isEqual(Point pointA, Point pointB) {
-    		if (pointA.lat == pointB.lat && pointA.lng == pointB.lng) {
+    		if (pointA.lat - pointB.lat == 0 && pointA.lng - pointB.lng == 0) {
     			return true;
     		} else {
     			return false;
