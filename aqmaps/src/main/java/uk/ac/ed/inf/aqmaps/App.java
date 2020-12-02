@@ -1324,7 +1324,7 @@ public class App
       	        
       	        //FIND OPTIMAL ROUTE (stored in 'sensorRoute' global variable)
       	        //findOptimalRoute();
-      	        //temperate();
+      	        temperate();
       	        //greedy();
       	        swap();
       	        twoOpt();
@@ -1356,7 +1356,7 @@ public class App
       	}
       }
       System.out.println(totMoves/731);
-      writeToFile("/../dataAnalysis/aqmapsSTMoves.txt",fileText);
+      writeToFile("/../dataAnalysis/aqmapsCSTMoves.txt",fileText);
         
         /*
     	//INITIALISE WEB SERVER (URL stored in global String 'wsURL')
