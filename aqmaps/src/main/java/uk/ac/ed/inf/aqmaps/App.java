@@ -348,49 +348,69 @@ public class App
 		Double netGrad = path.gradient - bound.gradient;
 		Double netYint = bound.yint - path.yint;
 		//Variables to define the bounds of latitude and longitude values for the given building boundary
-		Double max_lat = bound.p1.lat;
-		Double min_lat = bound.p1.lat;
-		Double max_lng = bound.p1.lng;
-		Double min_lng = bound.p1.lng;
+		Double maxBoundLat = bound.p1.lat;
+		Double minBoundLat = bound.p2.lat;
+		Double maxBoundLng = bound.p1.lng;
+		Double minBoundLng = bound.p2.lng;
 		
 		//Initialise bound variables appropriately
 		if (bound.p2.lat > bound.p1.lat) {
-			max_lat = bound.p2.lat;
-		} else {
-			min_lat = bound.p2.lat;
+			maxBoundLat = bound.p2.lat;
+			minBoundLat = bound.p1.lat;
 		}
 		if (bound.p2.lng > bound.p1.lng) {
-			max_lng = bound.p2.lng;
-		} else {
-			min_lng = bound.p2.lng;
+			maxBoundLng = bound.p2.lng;
+			minBoundLng = bound.p1.lng;
 		}
+		
+		//Variables to define the bounds of latitude and longitude values for the given building boundary
+		Double maxPathLat = path.p1.lat;
+		Double minPathLat = path.p2.lat;
+		Double maxPathLng = path.p1.lng;
+		Double minPathLng = path.p2.lng;
+		
+		//Initialise bound variables appropriately
+		if (path.p2.lat > path.p1.lat) {
+			maxPathLat = path.p2.lat;
+			minPathLat = path.p1.lat;
+		}
+		if (path.p2.lng > path.p1.lng) {
+			maxPathLng = path.p2.lng;
+			minPathLng = path.p1.lng;
+		}
+		
 		
 		//Checks if the path is a vertical line (given when angle = 90/180)
 		if ((path.gradient == Double.NEGATIVE_INFINITY) || (path.gradient == Double.POSITIVE_INFINITY)) {
 			
 			//Checks if the longitude of the path is within the bounds of the given building boundary (meaning an intersection)
-			if ((path.p1.lng <= max_lng) && (path.p1.lng >= min_lng)) {
-				return true;
-			} else {
+			if ((path.p1.lng <= maxBoundLng) && (path.p1.lng >= minBoundLng) && (minBoundLat <= maxPathLat) && (maxBoundLat >= minPathLat)) {
 				return false;
 			}
-		} else {
 			
-			//Checks that the net gradient is not zero (this means no intersection)
-			if (netGrad != 0) {
-				Double icLng = netYint/netGrad;
-				Double icLat = path.gradient*icLng + path.yint;
-				
-				//Checks whether the point of intersection is within the bounds of the given building boundary (meaning an intersection)
-				if (((icLng <= max_lng) && (icLng >= min_lng)) || ((icLat <= max_lat) && (icLat >= min_lat))) {
-					return false;
-				} else {
-					return true;
-				}
-			} else {
-				return true;
+		//Checks if the bound is a vertical line
+		} else if ((bound.gradient == Double.NEGATIVE_INFINITY) || (bound.gradient == Double.POSITIVE_INFINITY)) {
+			
+			if ((bound.p1.lng <= maxPathLng) && (bound.p1.lng >= minPathLng) && (minPathLat <= maxBoundLat) && (maxPathLat >= minBoundLat)) {
+				return false;
 			}
+			
+		//Checks that the net gradient is not zero (meaning these lines are not parallel, thus an intersection)
+		} else if (netGrad != 0) {
+			Double icLng = netYint/netGrad;
+			Double icLat = path.gradient*icLng + path.yint;
+			
+			//Checks whether the point of intersection is within the bounds of the given building boundary (meaning an intersection)
+			if (((icLng <= maxBoundLng) && (icLng >= minBoundLng) && (icLng <= maxPathLng) && (icLng >= minPathLng)) || ((icLat <= maxBoundLat) && (icLat >= minBoundLat) && (icLat <= maxPathLat) && (icLat >= minPathLat))) {
+				return false;
+			}
+		
+		//Checks if these lines are the same
+		} else if ((netYint == 0.0) && (minBoundLat <= maxPathLat) && (maxBoundLat >= minPathLat)) {
+			return false;
 		}
+		
+		return true;
 	}
 	
 	//Returns true if point is in confinement area
@@ -714,6 +734,16 @@ public class App
 			} else if ((line.indexOf("]") != -1) && (line.indexOf("],") == -1) && !buildingComplete) {
 				outputBuildings.add(new Building(building));
 				buildingComplete = true;
+				
+				dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
+				
+				for (int p = 0; p < building.points.size(); p++) {
+					Point pointP = building.points.get(p);
+					
+					dataGeojson += "[" + pointP.lng + ", " + pointP.lat + "],";
+				}
+				dataGeojson += "[" + building.points.get(0).lng + ", " + building.points.get(0).lat + "]]]},\n\t\t";
+				dataGeojson += "\"properties\": {\"fill-opacity\": 0.5, \"fill\": \"#ff0000\"}},";
 			}
 		}
         return outputBuildings;
@@ -1258,8 +1288,77 @@ public class App
         startPoint = new Point(Double.parseDouble(args[3]), Double.parseDouble(args[4]));
 		randomSeed = checkIsNumber(args[5],"random seed");
         portNumber = String.valueOf(checkIsNumber(args[6],"port number"));
-
         
+        ArrayList<Integer> monthDays = new ArrayList<Integer>(Arrays.asList(31,29,31,30,31,30,31,31,30,31,30,31));
+
+      //Initialise WebServer
+      initWebserver();
+
+      //GET THE NO-FLY-ZONE DATA
+      getNoflyzoneData();
+      
+      String fileText ="";
+      String dateText = "";
+      int totMoves = 0;
+
+      for (int y = 0; y < 2; y++) {
+      	if (y==1) {
+      		monthDays.set(1,28);
+      	}
+      	for (int m = 0; m < 12; m++) {
+      		for (int d = 0; d < monthDays.get(m); d++) {
+      			
+      			dateDD = String.valueOf(d+1);
+      			dateMM = String.valueOf(m+1);
+      			dateYY = String.valueOf(2020+y);
+      			checkDateIsValid(String.valueOf(d+1),String.valueOf(m+1),String.valueOf(2020+y));
+      			
+      			
+      	    	//GET THE SENSORS & AIR QUALITY DATA FOR THE GIVEN DATE
+      	        getSensorData();
+
+      	        
+      			Sensor startPointSensor = new Sensor(startPoint);
+      			startPointSensor.location = "start";
+      			sensors.add(startPointSensor);
+      	        
+      	        //FIND OPTIMAL ROUTE (stored in 'sensorRoute' global variable)
+      	        //findOptimalRoute();
+      	        //temperate();
+      	        //greedy();
+      	        swap();
+      	        twoOpt();
+      	        
+      			//DELETE: CONFINEMENT AREA GEOJSON
+      			//dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
+      			//dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
+      			//dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
+      			
+      			
+      			//FIND DRONE MOVEMENTS (sequence of points stored in 'route' global variable)
+      			findMoves();
+      			
+      			System.out.println(dateDD + "/" + dateMM + "/" + dateYY + ": " + String.valueOf(moves));
+      			fileText += String.valueOf(moves) + "\n";
+      			dateText += dateDD + "/" + dateMM + "/" + dateYY + "\n";
+      			
+      			totMoves += moves;
+      			route.clear();
+      			sensorRoute.clear();
+      			unreadSensors.clear();
+      			sensors.clear();
+      			lastMove = new Move();
+      			moves = 0;
+      			errorMargin = 0.0002;
+      			dataGeojson="";
+      			flightpathTxt="";
+      		}
+      	}
+      }
+      System.out.println(totMoves/731);
+      writeToFile("/../dataAnalysis/aqmapsSTMoves.txt",fileText);
+        
+        /*
     	//INITIALISE WEB SERVER (URL stored in global String 'wsURL')
         initWebserver();
 
@@ -1274,6 +1373,10 @@ public class App
         
         //FIND OPTIMAL ROUTE (route stored in 'sensorRoute' global variable)
         findOptimalRoute();
+        
+        dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
+		dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
+		dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
 		
 		
 		//FIND DRONE MOVEMENTS (sequence of points stored in 'route' global variable)
@@ -1290,6 +1393,6 @@ public class App
 		
 		
 		//Output our results to a 'aqmaps' and 'flightpath' file for the given date
-		writeOutputFiles();
+		writeOutputFiles();*/
     }
 }
