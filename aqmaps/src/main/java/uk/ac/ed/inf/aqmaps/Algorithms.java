@@ -6,8 +6,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Algorithms {
-	
-	//INITIAL ROUTE SETTING ALGORITHMS
+
+	/**
+	 * INITIAL ROUTE SETTING ALGORITHMS:
+	 * 
+	 * greedy() and temperate()
+	 * @return: Returns a list of sensors that represents the order the
+     * 			sensors for the given day will be visited by the drone.
+	 */
 	
     //Greedy route optimisation algorithm
     public static ArrayList<Sensor> greedy() {
@@ -145,11 +151,22 @@ public class Algorithms {
     
     
     
-    //NAIVE ROUTE REFINEMENT ALGORITHMS
+    /**
+     * NAIVE ROUTE REFINEMENT ALGORITHMS:
+     * 
+     * twoOpt(@param sensorRoute) and Swap(@param sensorRoute)
+     * @param sensorRoute: 	This is a list of sensors that will be swapped
+     * 						around by these refinement algorithms. This is
+     * 						useful for refining initial routes made by
+     * 						greedy() or temperate()
+     * 						If empty, this will be populated with the global
+     * 						variable App.sensors
+     * @return: Returns a list of sensors that represents the order the
+     * 			sensors for the given day will be visited by the drone.
+     */
     
     //2-Opt heuristic route optimisation algorithm
     public static ArrayList<Sensor> twoOpt(ArrayList<Sensor> sensorRoute) {
-    	//ArrayList<Sensor> outputSensorRoute = new ArrayList<Sensor>(sensorRou);
 		Boolean better = true;
 		
 		//Variable to prevent infinite loops
@@ -270,9 +287,17 @@ public class Algorithms {
     
     
     
-    //CUSTOM TEMPERATE HELPER METHODS
+    /**
+     * TEMPERATE HELPER METHODS:
+     * 
+     * getClosestSensor( @param sens, @param sensorRoute)
+     * Returns the closest sensor to 'sens' from 'sensorRoute'
+     * 
+     * getClosestSensors( @param sens )
+     * Returns a ordered list of the closest sensors to 'sens' (ascending in distance)
+     */
     
-    //Returns closest sensor in the global 'sensors' ArrayList variable
+    //Returns closest sensor to 'sens'
     private static Sensor getClosestSensor(Sensor sens, ArrayList<Sensor> sensorRoute) {
     	Double minDist = 10000.0;
     	int minIndex = -1;
