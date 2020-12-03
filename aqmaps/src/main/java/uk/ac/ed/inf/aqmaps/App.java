@@ -679,13 +679,8 @@ public class App
 			
 			//Check if line contains name property
 			if (line.indexOf("name") != -1) {
-				//building.name = line.substring(line.indexOf(":") + 3, line.length() - 2);
 				buildingComplete = false;
 				buildingVertices = new ArrayList<Point>();
-			
-			//Check if line contains fill property
-			} else if (line.indexOf("fill") != -1) {
-				//building.fill = line.substring(line.indexOf(":") + 3, line.length() - 1);
 			
 			//Check if line contains longitude
 			} else if (line.indexOf(lngPrefix.get(0)) != -1) {
