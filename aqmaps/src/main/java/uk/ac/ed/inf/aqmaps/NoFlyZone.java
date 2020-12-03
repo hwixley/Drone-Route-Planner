@@ -11,6 +11,9 @@ public class NoFlyZone {
 	//Variable to store the vertices of the given no-fly zone
 	private ArrayList<Point> points = new ArrayList<Point>();
 	
+	
+	//CONSTRUCTORS
+	
 	//Constructor created to clone custom objects effectively
 	public NoFlyZone(NoFlyZone another) {
 		this.points = another.points;
@@ -20,14 +23,14 @@ public class NoFlyZone {
 	public NoFlyZone() {
 	}
 	
-	//GETTERS
 	
+	//GETTER
 	public ArrayList<Point> getPoints() {
 		return points;
 	}
 	
-	//SETTERS
 	
+	//SETTER
 	public void setPoints(ArrayList<Point> points) {
 		this.points = points;
 	}

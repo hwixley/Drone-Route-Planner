@@ -2,7 +2,12 @@ package uk.ac.ed.inf.aqmaps;
 
 import java.util.ArrayList;
 
+/**
+ * Custom class used to store all file reading/parsing methods
+ */
+
 public class FileReading {
+	
 	
     //RETRIEVING THE SENSOR AND AIR-QUALITY DATA METHODS
 	
@@ -117,6 +122,7 @@ public class FileReading {
         }
         return inputSensors;
     }
+    
     
     
     //RETRIEVING THE NO-FLY-ZONE DATA METHODS

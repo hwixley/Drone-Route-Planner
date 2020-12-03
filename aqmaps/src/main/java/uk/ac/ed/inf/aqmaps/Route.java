@@ -1,25 +1,33 @@
 package uk.ac.ed.inf.aqmaps;
 
+/**
+ * Custom class used to represent a given drone route
+ */
+
 import java.util.ArrayList;
 
 public class Route {
 	
+	//Route variables
 	private ArrayList<Sensor> sensorRoute = new ArrayList<Sensor>();
 	private ArrayList<Point> pointRoute = new ArrayList<Point>();
 	private ArrayList<Sensor> unreadSensors = new ArrayList<Sensor>();
 	private int moves = 0;
 	
-    //Global output file strings
+    //Strings to store the output file data
     private String dataGeojson = "{\"type\": \"FeatureCollection\",\n\t\"features\"\t: [";
     private String flightpathTxt = "";
 	
+    
 	//CONSTRUCTOR
 	public Route(ArrayList<Sensor> sensorRoute) {
 		this.sensorRoute = sensorRoute;
 		findMoves();
 	}
 	
+	
     //MOVE FINDING METHOD
+	
     //Method that finds valid moves for the drone to move along the optimised route
     public void findMoves() {
     	
@@ -67,7 +75,7 @@ public class Route {
 			}
 			
 			//Variables to represent the given move
-			Move move = MoveCalculations.findNextMove(currPoint,nextSensor.getPoint());
+			Move move = MoveCalcs.findNextMove(currPoint,nextSensor.getPoint());
 			Point newPoint = move.getDest();
 			Double angle = move.getAngle();
 			
@@ -77,7 +85,7 @@ public class Route {
 			String location = "null";
 			
 			//Checks if point is in range of next sensor
-			if (MoveCalculations.isPointInRange(nextSensor.getPoint(), newPoint)) {
+			if (MoveCalcs.isPointInRange(nextSensor.getPoint(), newPoint)) {
 				location = nextSensor.getLocation();
 				unreadSensors.remove(0);
 				
@@ -119,6 +127,9 @@ public class Route {
 		dataGeojson += FileWriting.getGeojsonFeatureCollectionSuffix();
     }
     
+    
+    //FILE OUTPUTTING METHOD
+    
     //Output our 'aqmaps' (.geojson) and 'flightpath' (.txt) files
     public void writeOutputFiles() {
     	
@@ -128,6 +139,7 @@ public class Route {
     	//2) Output our 'flightpath' text file
     	FileWriting.writeToFile("/flightpath-" + App.dateDD + "-" + App.dateMM + "-" + App.dateYY +".txt", flightpathTxt);
     }
+    
     
     //GETTERS
     

@@ -4,6 +4,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * Custom class used to store all file writing methods
+ */
+
 public class FileWriting {
 	
 	//Geo-JSON Feature syntax
@@ -55,7 +59,7 @@ public class FileWriting {
     	return endFeatureCollectionGeojson;
     }
     
-    //WRITING FILES:
+    //WRITING TO FILES:
     
     //Write to a file given the specified path and contents
     public static void writeToFile(String filePath, String fileContents) {

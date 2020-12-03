@@ -1,9 +1,16 @@
 package uk.ac.ed.inf.aqmaps;
 
+/**
+ * Custom class used to represent a geographical coordinate
+ */
+
 public class Point {
 	
 	private Double lng;
 	private Double lat;
+	
+	
+	//CONSTRUCTORS
 	
 	public Point(Point another) {
 		this.lat = another.lat;
@@ -15,9 +22,9 @@ public class Point {
 		this.lng = lng;
 	}
 	
-	//Constructor with no arguments for default properties
 	public Point() {
 	}
+	
 	
 	//METHODS
 	
@@ -40,6 +47,7 @@ public class Point {
 		}
 	}
 	
+	
 	//GETTERS
 	
 	public Double getLat() {
@@ -49,6 +57,7 @@ public class Point {
 	public Double getLng() {
 		return lng;
 	}
+	
 	
 	//SETTERS
 	

@@ -1,5 +1,12 @@
 package uk.ac.ed.inf.aqmaps;
 
+/**
+ * Custom class used to represent a straight line function
+ * 
+ * By using coordinate geometry we can use this in order to 
+ * see if a given drone path crosses a no-fly zone boundary.
+ */
+
 public class LineGraph {
 	
 	private Double gradient;
@@ -7,7 +14,7 @@ public class LineGraph {
 	private Point p1;
 	private Point p2;
 	
-	//Constructor with input
+	//Constructor with point inputs
 	public LineGraph(Point p1, Point p2) {
 		this.gradient = (p1.getLat() - p2.getLat())/(p1.getLng() - p2.getLng());
 		this.yint = -gradient*p1.getLng() + p1.getLat();
@@ -15,7 +22,7 @@ public class LineGraph {
 		this.p2 = p2;
 	}
 	
-	//Constructor with angle input
+	//Constructor with angle and point input
 	public LineGraph(Double angle, Point origin) {
 		this.gradient = Math.tan(angle);
 		this.yint = -gradient*origin.getLng() + origin.getLat();
@@ -43,6 +50,4 @@ public class LineGraph {
 	public Point getPoint2() {
 		return p2;
 	}
-	
-	//SETTERS
 }

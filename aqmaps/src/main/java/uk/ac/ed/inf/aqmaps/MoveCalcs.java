@@ -2,17 +2,22 @@ package uk.ac.ed.inf.aqmaps;
 
 import java.util.ArrayList;
 
-public class MoveCalculations {
+/**
+ * Custom class used to store all single move calculation methods.
+ */
+
+public class MoveCalcs {
 	
     //findNextMove method temporary variables
     private static Move lastMove = new Move();
     private static Point lastSensorPoint = new Point();
 	
+    
 	//FIND NEXT POINT METHOD 
     
     //Find next valid point to move to given the current and destination sensors
     public static Move findNextMove(Point currPoint, Point nextPoint) {
-		Double angle = GeometricalCalculations.calcAngle(currPoint, nextPoint);
+		Double angle = GeometricalCalcs.calcAngle(currPoint, nextPoint);
 		Move move = new Move();
 		move.setOrigin(currPoint);
 		
@@ -24,8 +29,8 @@ public class MoveCalculations {
 			ceilAngle = 0.0;
 		}
 		
-		Point floorPoint = new Point(GeometricalCalculations.transformPoint(currPoint,floorAngle));
-		Point ceilPoint = new Point(GeometricalCalculations.transformPoint(currPoint,ceilAngle));
+		Point floorPoint = new Point(GeometricalCalcs.transformPoint(currPoint,floorAngle));
+		Point ceilPoint = new Point(GeometricalCalcs.transformPoint(currPoint,ceilAngle));
 		
 		//Iterate until valid floored angle point is found
 		while (!isPathValid(currPoint, floorPoint)) {
@@ -35,7 +40,7 @@ public class MoveCalculations {
 				floorAngle -= 10.0;
 			}
 
-			floorPoint = new Point(GeometricalCalculations.transformPoint(currPoint, floorAngle));
+			floorPoint = new Point(GeometricalCalcs.transformPoint(currPoint, floorAngle));
 		}
 		
 		//Iterate until valid ceilinged angle point is found
@@ -46,12 +51,12 @@ public class MoveCalculations {
 				ceilAngle += 10.0;
 			}
 
-			ceilPoint = new Point(GeometricalCalculations.transformPoint(currPoint,ceilAngle));
+			ceilPoint = new Point(GeometricalCalcs.transformPoint(currPoint,ceilAngle));
 		}
 
 		//Calculate distances from the next sensor
-		Double floorDist = GeometricalCalculations.calcDistance(nextPoint, floorPoint);
-		Double ceilDist = GeometricalCalculations.calcDistance(nextPoint, ceilPoint);
+		Double floorDist = GeometricalCalcs.calcDistance(nextPoint, floorPoint);
+		Double ceilDist = GeometricalCalcs.calcDistance(nextPoint, ceilPoint);
 		
 		//Move variables for each angle option
 		Move floorMove = new Move(floorAngle, floorPoint);
@@ -78,6 +83,7 @@ public class MoveCalculations {
 		return move;
     }
     
+    
     //METHOD THAT CHECKS FOR REDUNDANT MOVES (indicates algorithm is stuck)
     
     //Checks if algorithm is stuck (checks if last and current moves are opposite) returns true if so
@@ -97,12 +103,13 @@ public class MoveCalculations {
     	}
     }
     
+    
     //METHOD THAT CHECKS IF A POINT IS WITHIN RANGE OF THE DESTINATION SENSOR
     
     //Checks if valid point (within the range of a sensor)
     public static Boolean isPointInRange(Point destination, Point actual) {
     	
-    	if (GeometricalCalculations.calcDistance(destination, actual) < App.errorMargin) {
+    	if (GeometricalCalcs.calcDistance(destination, actual) < App.errorMargin) {
     		return true;
     	} else {
     		return false;
@@ -136,7 +143,7 @@ public class MoveCalculations {
 	
 	//Returns the estimated distance between two points
 	public static Double calcEdgeCost(Point origin, Point dest) {
-		Double dist = GeometricalCalculations.calcDistance(origin,dest);
+		Double dist = GeometricalCalcs.calcDistance(origin,dest);
 		
 		//If the path between adjacent points is not valid (intersects a building) we increase the added cost 
 		if (!isPathValid(origin,dest)) {
@@ -153,7 +160,7 @@ public class MoveCalculations {
     	
     	//Iterates through moves until drone arrives at the sensor in order to calculate real distance
     	while (true) {
-    		Double dist = GeometricalCalculations.calcDistance(currPoint, destination);
+    		Double dist = GeometricalCalcs.calcDistance(currPoint, destination);
     		totDist += App.pathLength;
     		
     		//Checks if drone is in proximity of the specified sensor

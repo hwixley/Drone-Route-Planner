@@ -1,5 +1,10 @@
 package uk.ac.ed.inf.aqmaps;
 
+/**
+ * Custom class used to represent a drone move between
+ * two points.
+ */
+
 public class Move {
 	
 	private Point origin;

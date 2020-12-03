@@ -1,6 +1,11 @@
 package uk.ac.ed.inf.aqmaps;
 
-public class GeometricalCalculations {
+/**
+ * Class used to store all geometrical calculation methods
+ */
+
+public class GeometricalCalcs {
+	
 	
 	//METHODS
 	

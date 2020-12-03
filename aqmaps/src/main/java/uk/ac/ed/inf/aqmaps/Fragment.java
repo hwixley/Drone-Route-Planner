@@ -1,7 +1,11 @@
 package uk.ac.ed.inf.aqmaps;
 
+/**
+ * Custom class for the temperate() algorithm
+ */
+
 public class Fragment {
-	
+		
 	Sensor sensor;
 	Double avgDist;
 	Sensor bestDestSensor;

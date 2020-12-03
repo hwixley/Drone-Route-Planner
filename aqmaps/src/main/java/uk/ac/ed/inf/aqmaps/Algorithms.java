@@ -36,8 +36,8 @@ public class Algorithms {
 			for (int u = 0; u < unexploredSensors.size(); u++) {
 				Sensor nextSensor = unexploredSensors.get(u);
 				 
-				if (MoveCalculations.calcEdgeCost(nextSensor.getPoint(), currPoint) < minDist) {
-					minDist = MoveCalculations.calcEdgeCost(nextSensor.getPoint(), currPoint);
+				if (MoveCalcs.calcEdgeCost(nextSensor.getPoint(), currPoint) < minDist) {
+					minDist = MoveCalcs.calcEdgeCost(nextSensor.getPoint(), currPoint);
 					minSensor = u;
 				}
 				 
@@ -66,7 +66,7 @@ public class Algorithms {
     				
     		for (int t = 0; t < App.sensors.size(); t++) {
     			if (t != s) {
-    				avg += MoveCalculations.calcEdgeCost(sens.getPoint(),App.sensors.get(t).getPoint());
+    				avg += MoveCalcs.calcEdgeCost(sens.getPoint(),App.sensors.get(t).getPoint());
     			}
     		}
     		bestFrags.add(new Fragment(sens,avg));
@@ -187,7 +187,7 @@ public class Algorithms {
 				for (int i = 0; i < j; i++) {
 					
 					//Cost before route is changed
-					Double oldCost = MoveCalculations.calcRouteCost(sensorRoute);
+					Double oldCost = MoveCalcs.calcRouteCost(sensorRoute);
 					indexTwoOp += 1;
 					
 					//Initialisation of points to be swapped in the route
@@ -202,7 +202,7 @@ public class Algorithms {
 					Point jPointP = sensorRoute.get(j+1).getPoint();
 					
 					//Cost after route is changed
-					Double newCost = oldCost - MoveCalculations.calcEdgeCost(iPointP, iPoint) - MoveCalculations.calcEdgeCost(jPoint, jPointP) + MoveCalculations.calcEdgeCost(iPointP, jPoint) + MoveCalculations.calcEdgeCost(iPoint, jPointP);
+					Double newCost = oldCost - MoveCalcs.calcEdgeCost(iPointP, iPoint) - MoveCalcs.calcEdgeCost(jPoint, jPointP) + MoveCalcs.calcEdgeCost(iPointP, jPoint) + MoveCalcs.calcEdgeCost(iPoint, jPointP);
 					
 					//Checks for infinite loops
 					if (indexTwoOp <= 1000) {
@@ -252,7 +252,7 @@ public class Algorithms {
 				indexSwap += 1;
 				
 				//Route cost before adjacent sensors in the route were swapped
-				Double oldCost = MoveCalculations.calcRouteCost(sensorRoute);
+				Double oldCost = MoveCalcs.calcRouteCost(sensorRoute);
 				
 				int indexI2 = i+1;
 				if (i+1 == sensorRoute.size()) {
@@ -265,7 +265,7 @@ public class Algorithms {
 				sensorRoute.set(i, newI);
 				
 				//Route cost after adjacent sensors in the route were swapped
-				Double newCost = MoveCalculations.calcRouteCost(sensorRoute);
+				Double newCost = MoveCalcs.calcRouteCost(sensorRoute);
 				
 				//Checks if route was better after swapping sensors
 				if (newCost < oldCost) {
@@ -317,7 +317,7 @@ public class Algorithms {
     		if ((sensorRoute.indexOf(next) != -1) || (next.equals(sens))) {
     			continue;
     		} else {
-    			Double dist = MoveCalculations.calcEdgeCost(sens.getPoint(),next.getPoint());
+    			Double dist = MoveCalcs.calcEdgeCost(sens.getPoint(),next.getPoint());
     			
     			if (dist < minDist) {
     				minDist = dist;
@@ -340,7 +340,7 @@ public class Algorithms {
     		
     		//Ensures we are not comparing the input sensor with itself
     		if (!next.equals(sens)) {
-    			Double dist = MoveCalculations.calcEdgeCost(sens.getPoint(), next.getPoint());
+    			Double dist = MoveCalcs.calcEdgeCost(sens.getPoint(), next.getPoint());
     			
     			int startIndex = 0;
     			int endIndex = distances.size();
