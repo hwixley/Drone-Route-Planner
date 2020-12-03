@@ -154,7 +154,7 @@ public class Algorithms {
     /**
      * NAIVE ROUTE REFINEMENT ALGORITHMS:
      * 
-     * twoOpt(@param sensorRoute) and Swap(@param sensorRoute)
+     * twoOpt( @param sensorRoute ) and Swap( @param sensorRoute )
      * @param sensorRoute: 	This is a list of sensors that will be swapped
      * 						around by these refinement algorithms. This is
      * 						useful for refining initial routes made by
@@ -291,10 +291,17 @@ public class Algorithms {
      * TEMPERATE HELPER METHODS:
      * 
      * getClosestSensor( @param sens, @param sensorRoute)
-     * Returns the closest sensor to 'sens' from 'sensorRoute'
+     * @sens:			The sensor we must find the closest sensor for
+     * @sensorRoute:	List of sensors that cannot be returned as the closest 
+     * 					sensor. This is so we do not have redundant sensors in 
+     * 					our route.
+     * @return:	Returns the closest sensor to @param sens that is not in the 
+     * 			@param sensorRoute ArrayList (excluding itself of course)
      * 
      * getClosestSensors( @param sens )
-     * Returns a ordered list of the closest sensors to 'sens' (ascending in distance)
+     * @sens:	The sensor we must find the closest sensors for
+     * @return:	Returns an ordered list of the closest sensors to @param sens
+     * 			(ascending in distance)
      */
     
     //Returns closest sensor to 'sens'
