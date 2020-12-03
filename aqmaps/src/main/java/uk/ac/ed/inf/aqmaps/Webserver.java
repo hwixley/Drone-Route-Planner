@@ -6,16 +6,20 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
 
+/**
+ * Custom class used to store all web server methods
+ */
+
 public class Webserver {
 	
-	private static String wsURL;
+	private static String wsURL = "http://localhost:";
     private static final HttpClient client = HttpClient.newHttpClient();
 	
     //Initialise WebServer
     public static void initWebserver() {
     	
     	//Set up the HTTP Request, and URL variables
-    	wsURL = "http://localhost:" + App.portNumber + "/";
+    	wsURL += App.portNumber + "/";
     	var request = HttpRequest.newBuilder().uri(URI.create(wsURL)).build();
     	
     	//Try connect to the WebServer at this URL

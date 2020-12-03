@@ -1,5 +1,9 @@
 package uk.ac.ed.inf.aqmaps;
 
+/**
+ * A custom class used to represent an air-quality sensor
+ */
+
 public class Sensor {
 	
 	private String location;
