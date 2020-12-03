@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 public class App 
 {
-	//VARIABLES
+	//GLOBAL CONSTANTS
 
 	//Confinement area coordinates
     public static final double maxLat = 55.946233; 
@@ -18,11 +18,14 @@ public class App
     public static double errorMargin = 0.0002; //Not left as final to cater for the 0.0003 error margin when returning to startPoint
     public static final double pathLength = 0.0003;
     
-    //Global variables
+    
+    //GLOBAL VARIABLES
+    
+    //NoFlyZone and Sensor ArrayLists to store the parsed WebServer file data
     public static ArrayList<Building> buildings = new ArrayList<Building>();
     public static ArrayList<Sensor> sensors = new ArrayList<Sensor>();
     
-    //Global argument variables
+    //Input argument variables
     public static String dateDD;
     public static String dateMM;
     public static String dateYY;
@@ -30,14 +33,14 @@ public class App
     @SuppressWarnings("unused")
 	private static int randomSeed;
     public static String portNumber;
-
+    
+    
+    //PRIVATE ROUTE OPTIMISATION VARIABLE
+    
     //Variable to store the optimised sensor route
 	private static ArrayList<Sensor> sensorRoute = new ArrayList<Sensor>();
 
 
-	
-    //METHODS
-	
 	
 	//INPUT ARGUMENT VALIDATION METHODS
 	
@@ -95,6 +98,7 @@ public class App
 		return -1;
 	}
     
+	
 	//GET SENSOR DATA
 	
     //Retrieves the Sensor and air-quality data from the WebServer for the given date
@@ -110,6 +114,7 @@ public class App
         App.sensors = FileReading.getSensorCoords(App.sensors);
     }
 
+    
     //GET NO-FLY ZONE DATA
     
     //Get the no-fly-zone Geo-JSON data (stored in global 'buildings' variable)
@@ -121,6 +126,7 @@ public class App
         //2) Parse these files into appropriate java Building objects (stored in 'buildings' global variable)
         buildings = FileReading.parseNoflyzoneBuildings(noflyzoneFile);
     }
+    
     
     //FIND OPTIMAL ROUTE BETWEEN SENSORS
     
@@ -144,6 +150,7 @@ public class App
 		//2) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
     	App.sensorRoute = Algorithms.twoOpt(App.sensorRoute);
     }    
+    
     
     
     public static void main( String[] args ) throws IOException
