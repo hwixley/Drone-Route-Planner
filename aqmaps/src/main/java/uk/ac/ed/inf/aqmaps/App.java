@@ -16,7 +16,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 //import uk.ac.ed.inf.aqmaps.Objects.Building;
 //import uk.ac.ed.inf.aqmaps.Objects.LineGraph;
 //import uk.ac.ed.inf.aqmaps.Objects.Sensor;
-import uk.ac.ed.inf.aqmaps.Objects.Move;
+//import uk.ac.ed.inf.aqmaps.Objects.Move;
 import uk.ac.ed.inf.aqmaps.Objects.Fragment;
 
 public class App 
@@ -25,10 +25,10 @@ public class App
 
 
 	//Confinement area coordinates
-    private static final double maxLat = 55.946233; 
-    private static final double minLat = 55.942617;
-    private static final double maxLng = -3.184319;
-    private static final double minLng = -3.192473;
+    public static final double maxLat = 55.946233; 
+    public static final double minLat = 55.942617;
+    public static final double maxLng = -3.184319;
+    public static final double minLng = -3.192473;
     
     //Constants
     private static double errorMargin = 0.0002; //Not left as final to cater for the 0.0003 error margin when returning to startPoint
@@ -140,7 +140,7 @@ public class App
     private static Move findNextMove(Point currPoint, Point nextPoint) {
 		Double angle = calcAngle(currPoint, nextPoint);
 		Move move = new Move();
-		move.origin = currPoint;
+		move.setOrigin(currPoint);
 		
 		//Try floor and ceiling angles
 		Double floorAngle = angle - (angle % 10);
@@ -185,18 +185,18 @@ public class App
 		
 		//Check if the floored angle point is best and valid
 		if ((floorDist < ceilDist) && (!isMoveRedundant(floorMove,nextPoint))) {
-			move.angle = floorAngle;
-			move.dest = floorPoint;
+			move.setAngle(floorAngle);
+			move.setDest(floorPoint);
 		
 		//Otherwise check if the ceilinged angle point is valid
 		} else if (!isMoveRedundant(ceilMove,nextPoint)) {
-			move.angle = ceilAngle;
-			move.dest = ceilPoint;
+			move.setAngle(ceilAngle);
+			move.setDest(ceilPoint);
 			
 		//Otherwise use the floored angle point
 		} else {
-			move.angle = floorAngle;
-			move.dest = floorPoint;
+			move.setAngle(floorAngle);
+			move.setDest(floorPoint);
 		}
 		
 		lastMove = move;
@@ -211,12 +211,12 @@ public class App
     private static Boolean isMoveRedundant(Move current, Point currSensorPoint) {
     	
     	//Returns false if no move has been made yet
-    	if (Move.isNull(lastMove)) {
+    	if (lastMove.isNull()) {
     		return false;
     	} else {
     		
     		//Returns true if the last and current moves are opposite (angle difference of 180 degrees)
-	    	if (((int)Math.abs(lastMove.angle - current.angle) == 180) && currSensorPoint.isEqual(lastSensorPoint)) {
+	    	if (((int)Math.abs(lastMove.getAngle() - current.getAngle()) == 180) && currSensorPoint.isEqual(lastSensorPoint)) {
 	    		return true;
 	    	} else {
 	    		return false;
@@ -290,7 +290,7 @@ public class App
     		}
     		
     		//Find the next move
-    		currPoint = new Point(findNextMove(currPoint, destination).dest);
+    		currPoint = new Point(findNextMove(currPoint, destination).getDest());
     	}
     	return totDist;
     }
@@ -301,7 +301,7 @@ public class App
 	//Returns true if path is valid (within confinement and outside no-fly-zones)
 	private static Boolean isPathValid(Point origin, Point dest) {
 		
-		if (checkConfinement(dest) && checkBuildings(origin, dest)) {
+		if (dest.checkConfinement() && checkBuildings(origin, dest)) {
 			return true;
 		} else {
 			return false;
@@ -413,14 +413,7 @@ public class App
 		return true;
 	}
 	
-	//Returns true if point is in confinement area
-	private static Boolean checkConfinement(Point p) {
-		if ((p.getLat() < maxLat) && (p.getLat() > minLat) && (p.getLng() < maxLng) && (p.getLng() > minLng)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+
 	
 	
 	//GEOMETRICAL CALCULATIONS
@@ -1150,8 +1143,8 @@ public class App
 			
 			//Variables to represent the given move
 			Move move = findNextMove(currPoint,nextSensor.getPoint());
-			Point newPoint = move.dest;
-			Double angle = move.angle;
+			Point newPoint = move.getDest();
+			Double angle = move.getAngle();
 			
 			route.add(newPoint);
 				

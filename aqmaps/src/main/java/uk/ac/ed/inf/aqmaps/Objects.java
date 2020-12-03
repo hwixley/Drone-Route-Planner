@@ -107,7 +107,7 @@ public class Objects {
     }*/
     
     //OBJECT: custom Move object
-    public static class Move {
+    /*public static class Move {
     	Point origin;
     	Point dest;
     	Double angle;
@@ -144,7 +144,7 @@ public class Objects {
     			return false;
     		}
     	}
-    }
+    }*/
     
     //OBJECT: custom Fragment() object for the 'temperate()' algorithm
     public static class Fragment {

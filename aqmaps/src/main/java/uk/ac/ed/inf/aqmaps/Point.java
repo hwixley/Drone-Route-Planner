@@ -19,6 +19,8 @@ public class Point {
 	public Point() {
 	}
 	
+	//METHODS
+	
 	//Method that checks whether 2 points are equivalent (returns true if they are)
 	public Boolean isEqual(Point pointA) {
 		
@@ -29,6 +31,17 @@ public class Point {
 		}
 	}
 	
+	//Returns true if point is in confinement area
+	public Boolean checkConfinement() {
+		if ((lat < App.maxLat) && (lat > App.minLat) && (lng < App.maxLng) && (lng > App.minLng)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	//GETTERS
+	
 	public Double getLat() {
 		return lat;
 	}
@@ -36,6 +49,8 @@ public class Point {
 	public Double getLng() {
 		return lng;
 	}
+	
+	//SETTERS
 	
 	public void setLat(Double lat) {
 		this.lat = lat;
