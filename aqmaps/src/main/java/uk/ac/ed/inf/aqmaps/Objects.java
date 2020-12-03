@@ -147,7 +147,7 @@ public class Objects {
     }*/
     
     //OBJECT: custom Fragment() object for the 'temperate()' algorithm
-    public static class Fragment {
+    /*public static class Fragment {
     	Sensor sensor;
     	Double avgDist;
     	Sensor bestDestSensor;
@@ -159,5 +159,5 @@ public class Objects {
     		this.sensor = sensor;
     		this.avgDist = avgDist;
     	}
-    }
+    }*/
 }

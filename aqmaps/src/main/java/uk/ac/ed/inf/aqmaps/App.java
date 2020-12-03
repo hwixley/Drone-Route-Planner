@@ -12,13 +12,6 @@ import java.net.URI;
 import java.net.http.*;
 import java.net.http.HttpResponse.BodyHandlers;
 
-//import uk.ac.ed.inf.aqmaps.Objects.Point;
-//import uk.ac.ed.inf.aqmaps.Objects.Building;
-//import uk.ac.ed.inf.aqmaps.Objects.LineGraph;
-//import uk.ac.ed.inf.aqmaps.Objects.Sensor;
-//import uk.ac.ed.inf.aqmaps.Objects.Move;
-import uk.ac.ed.inf.aqmaps.Objects.Fragment;
-
 public class App 
 {
 	//VARIABLES
@@ -412,8 +405,6 @@ public class App
 		
 		return true;
 	}
-	
-
 	
 	
 	//GEOMETRICAL CALCULATIONS
