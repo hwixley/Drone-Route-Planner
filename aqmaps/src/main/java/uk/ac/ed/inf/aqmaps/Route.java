@@ -15,6 +15,7 @@ public class Route {
 	
 	//CONSTRUCTOR
 	public Route(ArrayList<Sensor> sensorRoute) {
+		dataGeojson += App.buildData;
 		this.sensorRoute = sensorRoute;
 		findMoves();
 	}
@@ -137,5 +138,9 @@ public class Route {
     
     public int getNumberOfReadSensors() {
     	return sensorRoute.size() - unreadSensors.size();
+    }
+    
+    public void addData(String data) {
+    	dataGeojson += data;
     }
 }
