@@ -6,15 +6,35 @@ package uk.ac.ed.inf.aqmaps;
 
 public class Fragment {
 		
-	Sensor sensor;
-	Double avgDist;
-	Sensor bestDestSensor;
+	private Sensor sensor;
+	private Double avgDist;
+	private Sensor bestDestSensor;
 	
+	//CONSTRUCTORS
 	public Fragment() {
 	}
 	
 	public Fragment(Sensor sensor, Double avgDist) {
 		this.sensor = sensor;
 		this.avgDist = avgDist;
+	}
+	
+	
+	//GETTERS
+	public Sensor getSensor() {
+		return sensor;
+	}
+	
+	public Double getAvgDist() {
+		return avgDist;
+	}
+	
+	public Sensor getBestDestSensor() {
+		return bestDestSensor;
+	}
+	
+	//SETTERS
+	public void setBestDestSensor(Sensor bestDestSensor) {
+		this.bestDestSensor = bestDestSensor;
 	}
 }

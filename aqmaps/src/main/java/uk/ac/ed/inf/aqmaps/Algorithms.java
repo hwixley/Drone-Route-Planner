@@ -91,7 +91,7 @@ public class Algorithms {
     	//Calculate best transitions for each sensor
     	for (int r = 0; r < App.sensors.size(); r++) {
     		Fragment frag = bestFrags.get(r);
-    		ArrayList<Sensor> closestSensors = getClosestSensors(frag.sensor);
+    		ArrayList<Sensor> closestSensors = getClosestSensors(frag.getSensor());
     		
     		for (int k = 0; k < closestSensors.size(); k++) {
     			int keyVal = 0;
@@ -100,7 +100,7 @@ public class Algorithms {
     			}
     			
     			if (keyVal < 2) {
-					frag.bestDestSensor = closestSensors.get(k);
+					frag.setBestDestSensor(closestSensors.get(k));
 					bestFrags.set(r, frag);
 					usedSensors.put(closestSensors.get(k), keyVal+1);
 					break;
@@ -108,8 +108,8 @@ public class Algorithms {
     		}
     	}
     	
-    	sensorRoute.add(bestFrags.get(0).sensor);
-    	sensorRoute.add(bestFrags.get(0).bestDestSensor);
+    	sensorRoute.add(bestFrags.get(0).getSensor());
+    	sensorRoute.add(bestFrags.get(0).getBestDestSensor());
     	bestFrags.remove(0);
     	
     	//Calculate route
@@ -121,17 +121,17 @@ public class Algorithms {
     			Fragment frag = bestFrags.get(b);
     			
     			//Loops through fragments until it finds one which contains the last point in our route
-    			if (((frag.sensor.equals(lastSens)) && (sensorRoute.indexOf(frag.bestDestSensor) == -1)) || ((frag.bestDestSensor.equals(lastSens)) && (sensorRoute.indexOf(frag.sensor) == -1))) {
-    				if (frag.sensor.equals(lastSens)) {
-    					sensorRoute.add(frag.bestDestSensor);
+    			if (((frag.getSensor().equals(lastSens)) && (sensorRoute.indexOf(frag.getBestDestSensor()) == -1)) || ((frag.getBestDestSensor().equals(lastSens)) && (sensorRoute.indexOf(frag.getSensor()) == -1))) {
+    				if (frag.getSensor().equals(lastSens)) {
+    					sensorRoute.add(frag.getBestDestSensor());
     				} else {
-    					sensorRoute.add(frag.sensor);
+    					sensorRoute.add(frag.getSensor());
     				}
     				bestFrags.remove(b);
     				break;
     			
     			//Stores fragment redundancies so they can be deleted after the loop (prevents repeated & redundant computations)
-    			} else if ((frag.sensor.equals(lastSens)) || (frag.bestDestSensor.equals(lastSens))) {
+    			} else if ((frag.getSensor().equals(lastSens)) || (frag.getBestDestSensor().equals(lastSens))) {
     				redundancies.add(b);
     			}
     		}
