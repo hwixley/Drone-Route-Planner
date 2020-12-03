@@ -1,5 +1,7 @@
 package uk.ac.ed.inf.aqmaps;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class FileWriting {
@@ -51,5 +53,25 @@ public class FileWriting {
     
     public static String getGeojsonFeatureCollectionSuffix() {
     	return endFeatureCollectionGeojson;
+    }
+    
+    //WRITING FILES:
+    
+    //Write to a file given the specified path and contents
+    public static void writeToFile(String filePath, String fileContents) {
+    	
+        //Try write the code in the 'fileContents' String variable to the file path 'filPath'
+        try {
+        	FileWriter writer = new FileWriter(System.getProperty("user.dir") + filePath);
+        	writer.write(fileContents);
+        	writer.close();
+        	//Success writing to file
+        	System.out.println("\nFile for " + App.dateDD + "-" + App.dateMM + "-" + App.dateYY + " outputted successfully.\nFile path:   " + System.getProperty("user.dir") + filePath);
+        	
+        //Failure writing to file
+        } catch (IOException e) {
+        	System.out.println("FILE OUTPUT ERROR: unable to write to the file for " + App.dateDD +"-" + App.dateMM + "-" + App.dateYY + ". Attempted file path: " + System.getProperty("user.dir") + filePath);
+        	System.exit(0);
+        }
     }
 }
