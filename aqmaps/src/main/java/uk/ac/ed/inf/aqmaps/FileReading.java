@@ -124,7 +124,7 @@ public class FileReading {
     //Parses the no-fly-zones file as Building objects
     public static ArrayList<NoFlyZone> parseNoFlyZones(String fileContents) {
     	
-		ArrayList<NoFlyZone> outputBuildings = new ArrayList<NoFlyZone>();
+		ArrayList<NoFlyZone> outputZones = new ArrayList<NoFlyZone>();
 		
 		//Variables for iteration
 		NoFlyZone zone = new NoFlyZone();
@@ -172,10 +172,10 @@ public class FileReading {
 			
 			//Check if line contains a closing square bracket (indicates end of a given polygon)
 			} else if ((line.indexOf("]") != -1) && (line.indexOf("],") == -1) && !zoneComplete) {
-				outputBuildings.add(new NoFlyZone(zone));
+				outputZones.add(new NoFlyZone(zone));
 				zoneComplete = true;
 			}
 		}
-        return outputBuildings;
+        return outputZones;
     }
 }
