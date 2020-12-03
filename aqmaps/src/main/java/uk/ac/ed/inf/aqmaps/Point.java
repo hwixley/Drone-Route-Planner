@@ -1,7 +1,7 @@
 package uk.ac.ed.inf.aqmaps;
 
 /**
- * Custom class used to represent a geographical coordinate
+ * Custom class used to represent geographical coordinates
  */
 
 public class Point {
