@@ -173,7 +173,7 @@ public class MoveCalculations {
 	//Returns true if path is valid (within confinement and outside no-fly-zones)
 	private static Boolean isPathValid(Point origin, Point dest) {
 		
-		if (dest.checkConfinement() && checkBuildings(origin, dest)) {
+		if (dest.checkConfinement() && checkNoFlyZones(origin, dest)) {
 			return true;
 		} else {
 			return false;
@@ -181,27 +181,27 @@ public class MoveCalculations {
 	}
 	
 	//Returns true if path between p1 and p2 does not pass through any buildings
-	private static Boolean checkBuildings(Point p1, Point p2) {
+	private static Boolean checkNoFlyZones(Point p1, Point p2) {
 		
 		//Define the function for our given path
 		LineGraph path = new LineGraph(p1,p2);
 		
 		//Iterates through the no-fly-zone buildings
-		for (int i = 0; i < App.buildings.size(); i++) {
-			Building building = new Building(App.buildings.get(i));
+		for (int i = 0; i < App.noFlyZones.size(); i++) {
+			NoFlyZone zone = new NoFlyZone(App.noFlyZones.get(i));
 			
 			//Iterates through the bounds of a given building
-			for (int j=0; j < building.getPoints().size(); j++) {
+			for (int j=0; j < zone.getPoints().size(); j++) {
 				Point next = new Point();
 				
 				//Initialises value of next point
-				if (j == building.getPoints().size()-1) {
-					next = building.getPoints().get(0);
+				if (j == zone.getPoints().size()-1) {
+					next = zone.getPoints().get(0);
 				} else {
-					next = building.getPoints().get(j+1);
+					next = zone.getPoints().get(j+1);
 				}
 				//Define the function for the given bound of the building
-				LineGraph bound = new LineGraph(building.getPoints().get(j), next);
+				LineGraph bound = new LineGraph(zone.getPoints().get(j), next);
 				
 				//Checks if the path intersects the given bound (if so then returns false)
 				if (!checkBound(path,bound)) {

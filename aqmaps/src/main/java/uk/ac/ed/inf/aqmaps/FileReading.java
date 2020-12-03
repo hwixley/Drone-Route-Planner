@@ -122,15 +122,15 @@ public class FileReading {
     //RETRIEVING THE NO-FLY-ZONE DATA METHODS
     
     //Parses the no-fly-zones file as Building objects
-    public static ArrayList<Building> parseNoflyzoneBuildings(String fileContents) {
+    public static ArrayList<NoFlyZone> parseNoFlyZones(String fileContents) {
     	
-		ArrayList<Building> outputBuildings = new ArrayList<Building>();
+		ArrayList<NoFlyZone> outputBuildings = new ArrayList<NoFlyZone>();
 		
 		//Variables for iteration
-		Building building = new Building();
+		NoFlyZone zone = new NoFlyZone();
 		Point polyPoint = new Point();
-		Boolean buildingComplete = false;
-		ArrayList<Point> buildingVertices = new ArrayList<Point>();
+		Boolean zoneComplete = false;
+		ArrayList<Point> zoneVertices = new ArrayList<Point>();
 		
 		//Parsing points
 		ArrayList<String> lngPrefix = new ArrayList<String>();
@@ -149,8 +149,8 @@ public class FileReading {
 			
 			//Check if line contains name property
 			if (line.indexOf("name") != -1) {
-				buildingComplete = false;
-				buildingVertices = new ArrayList<Point>();
+				zoneComplete = false;
+				zoneVertices = new ArrayList<Point>();
 			
 			//Check if line contains longitude
 			} else if (line.indexOf(lngPrefix.get(0)) != -1) {
@@ -162,18 +162,18 @@ public class FileReading {
 			//Check if line contains latitude
 			} else if (line.indexOf(latPrefix.get(0)) != -1) {
 				polyPoint.setLat(Double.parseDouble(line.substring(line.indexOf(latPrefix.get(0)), line.length())));
-				buildingVertices.add(new Point(polyPoint));
-				building.setPoints(buildingVertices);
+				zoneVertices.add(new Point(polyPoint));
+				zone.setPoints(zoneVertices);
 				
 			} else if (line.indexOf(latPrefix.get(1)) != -1) {
 				polyPoint.setLat(Double.parseDouble(line.substring(line.indexOf(latPrefix.get(1)), line.length())));
-				buildingVertices.add(new Point(polyPoint));
-				building.setPoints(buildingVertices);
+				zoneVertices.add(new Point(polyPoint));
+				zone.setPoints(zoneVertices);
 			
 			//Check if line contains a closing square bracket (indicates end of a given polygon)
-			} else if ((line.indexOf("]") != -1) && (line.indexOf("],") == -1) && !buildingComplete) {
-				outputBuildings.add(new Building(building));
-				buildingComplete = true;
+			} else if ((line.indexOf("]") != -1) && (line.indexOf("],") == -1) && !zoneComplete) {
+				outputBuildings.add(new NoFlyZone(zone));
+				zoneComplete = true;
 			}
 		}
         return outputBuildings;

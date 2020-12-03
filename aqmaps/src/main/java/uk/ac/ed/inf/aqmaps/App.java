@@ -22,7 +22,7 @@ public class App
     //GLOBAL VARIABLES
     
     //NoFlyZone and Sensor ArrayLists to store the parsed WebServer file data
-    public static ArrayList<Building> buildings = new ArrayList<Building>();
+    public static ArrayList<NoFlyZone> noFlyZones = new ArrayList<NoFlyZone>();
     public static ArrayList<Sensor> sensors = new ArrayList<Sensor>();
     
     //Input argument variables
@@ -124,7 +124,7 @@ public class App
     	String noflyzoneFile = Webserver.getWebServerFile("buildings/no-fly-zones.geojson");
         
         //2) Parse these files into appropriate java Building objects (stored in 'buildings' global variable)
-        buildings = FileReading.parseNoflyzoneBuildings(noflyzoneFile);
+        App.noFlyZones = FileReading.parseNoFlyZones(noflyzoneFile);
     }
     
     
@@ -136,7 +136,7 @@ public class App
     	//Adds the start point as a sensor so it can be accounted for in the route optimisation
 		Sensor startPointSensor = new Sensor(startPoint);
 		startPointSensor.setLocation("start");
-		sensors.add(startPointSensor);
+		App.sensors.add(startPointSensor);
 		
 		//**NOTE: The numbered algorithms below can be swapped out for others if needed/wanted.
 		

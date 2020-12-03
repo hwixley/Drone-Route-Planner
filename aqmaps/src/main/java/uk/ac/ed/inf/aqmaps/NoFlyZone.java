@@ -2,17 +2,22 @@ package uk.ac.ed.inf.aqmaps;
 
 import java.util.ArrayList;
 
-public class Building {
+/**
+ * Custom class used to represent a no-fly zone
+ */
+
+public class NoFlyZone {
 	
+	//Variable to store the vertices of the given no-fly zone
 	private ArrayList<Point> points = new ArrayList<Point>();
 	
 	//Constructor created to clone custom objects effectively
-	public Building(Building another) {
+	public NoFlyZone(NoFlyZone another) {
 		this.points = another.points;
 	}
 	
 	//Constructor with no arguments for default properties
-	public Building() {
+	public NoFlyZone() {
 	}
 	
 	//GETTERS
