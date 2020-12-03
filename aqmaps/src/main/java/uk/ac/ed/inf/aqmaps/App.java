@@ -5,10 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import java.net.URI;
-import java.net.http.*;
-import java.net.http.HttpResponse.BodyHandlers;
-
 public class App 
 {
 	//VARIABLES
@@ -37,10 +33,6 @@ public class App
 	private static int randomSeed;
     public static String portNumber;
     
-    //Global WebServer variables
-    //private static String wsURL;
-    //private static final HttpClient client = HttpClient.newHttpClient();
-    
     //Global output file strings
     private static String dataGeojson = "{\"type\": \"FeatureCollection\",\n\t\"features\"\t: [";
     private static String flightpathTxt = "";
@@ -52,10 +44,7 @@ public class App
     //Variable to store the optimised sensor route
 	private static ArrayList<Sensor> sensorRoute = new ArrayList<Sensor>();
     
-	//Geo-JSON Feature syntax
-	private static final String endFeatureCollectionGeojson = "\n\t\t\t\t]\n\t\t\t},\"properties\":{\n\t\t}\n\t}\n\t\t\n\t]\n}";
-	private static final String startMarkerGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Point\", \"coordinates\": [";
-	private static final String startLineStringGeojson = "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\": {\"type\": \"LineString\",\n\t\t\t\t\"coordinates\": [\n\t\t\t\t";
+
 	
 	//Move finding variables
 	private static int moves = 0;
@@ -444,128 +433,6 @@ public class App
     	return out;
     }
     
-    
-    //WEBSERVER METHODS
-    
-
-    
-
-    
-    
-    //RETRIEVING THE SENSOR AND AIR-QUALITY DATA METHODS
-    
-    //Parse Maps file into a list of Sensor objects
-    private static ArrayList<Sensor> parseJsonSensors(String fileContents) {
-    	
-    	//Method output variable
-    	ArrayList<Sensor> totalSensors = new ArrayList<Sensor>();
-    	
-    	//Iteration variables
-        Integer sensorIndex = 0;
-        Sensor sens = new Sensor();
-        String[]mapLines = fileContents.split(System.getProperty("line.separator"));
-        
-        //Iterate through the lines of the '/YYYY/MM/DD/air-quality-data.json' file and store them as Sensors in the 'sensors' ArrayList
-        for(String line : mapLines){
-        	
-        	//Check if the given line contains sensor data
-        	if ((line.indexOf("[") == -1) && (line.indexOf("]") == -1) && (line.indexOf("{") == -1) && (line.indexOf("}") == -1)) {
-        		
-        		//Index offset variables for retrieving the correct substring of data for each given line
-        		int startIndexOffset = 3;
-        		int endIndexOffset = 1;
-        		
-        		if (sensorIndex == 1) {
-        			startIndexOffset = 2;
-        		} else if (sensorIndex == 0) {
-        			endIndexOffset = 2;
-        		}
-        		
-        		//Data retrieved as a substring from 'line'
-        		String data = line.substring(line.indexOf(":") + startIndexOffset, line.length() - endIndexOffset);
-        		
-        		//Initialise the properties for the given sensor
-        		if (sensorIndex == 0) {
-        			sens.setLocation(data);
-        		} else if (sensorIndex == 1) {
-        			sens.setBattery(Double.parseDouble(data));
-        		} else if (sensorIndex == 2) {
-        			
-        			//If the battery is below 10% then set the sensor reading to NaN
-        			if (sens.getBattery() < 10) {
-        				sens.setReading(Double.NaN);
-        			} else {
-        				sens.setReading(Double.parseDouble(data));
-        			}
-        		}
-        		
-        		sensorIndex += 1;
-        		
-        	//Else check if there is no more data for the given sensor
-        	} else if (line.indexOf("}") != -1) {
-        		totalSensors.add(new Sensor(sens));
-        		sensorIndex = 0;
-        	}
-        }
-        return totalSensors;
-    }
-    
-    //Parses the .json file from a given What3Words tile into a Point (representing the centre of this tile)
-    private static Point parseJsonW3Wtile(String fileContents) {
-    	
-    	//Output variable
-    	Point point = new Point();
-    	
-    	//Iteration variables
-		Integer stage = -20;
-		String[]linesW3W = fileContents.split(System.getProperty("line.separator"));
-		
-		//Iterate over the lines in the W3W file 
-		for(String line : linesW3W) {
-			
-			if (line.indexOf("coordinates") != -1) {
-				stage = 1;
-			}
-			
-			//Parse the latitude and longitude values into doubles, and pass these into our 'point' object
-			if (stage == 2){
-				point.setLng(Double.parseDouble(line.substring(line.indexOf(":") + 1, line.length() - 1)));
-			} else if (stage == 3) {
-				point.setLat(Double.parseDouble(line.substring(line.indexOf(":") + 1, line.length())));
-				return point;
-			}
-
-			stage += 1;
-		}
-		return point;
-    }
-    
-    //Adds the central coordinates of each sensor by parsing each W3W location
-    private static ArrayList<Sensor> getSensorCoords(ArrayList<Sensor> inputSensors) {
-    	
-        //Get the central coordinates of the W3W tile for each sensor
-        for (int i = 0; i < inputSensors.size(); i++) {
-        	Sensor s = inputSensors.get(i);
-        	
-        	//Get the file path for the W3W file on the WebServer
-        	String w3w = s.getLocation();
-			String w1 = w3w.substring(0, w3w.indexOf("."));
-			w3w = w3w.substring(w3w.indexOf(".") + 1);
-			String w2 = w3w.substring(0, w3w.indexOf("."));
-			String w3 = w3w.substring(w3w.indexOf(".") + 1);
-			
-			w3w = w1 + "/" + w2 + "/" + w3 + "/details.json";
-    		
-			
-			//1) Retrieve W3W data from the WebServer
-			String w3wFile = Webserver.getWebServerFile("words/" + w3w);
-            
-            //2) Parse the W3W file and append the coordinate data to the appropriate sensor object
-			s.setPoint(parseJsonW3Wtile(w3wFile));
-        }
-        return inputSensors;
-    }
-    
     //Retrieves the Sensor and air-quality data from the WebServer for the given date
     private static void getSensorData() {
     	
@@ -573,72 +440,14 @@ public class App
     	String mapsFile = Webserver.getWebServerFile("maps/" + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json");
         
         //2) Parse this maps file into a list of Sensor objects (stored in 'sensors' global variable)
-        sensors = parseJsonSensors(mapsFile);
+        sensors = FileReading.parseJsonSensors(mapsFile);
         
         //3) Get the given coordinates of the W3W location for each sensor (stored in 'sensors' global variable)
-        sensors = getSensorCoords(sensors);
+        sensors = FileReading.getSensorCoords(sensors);
     }
     
     
-    //RETRIEVING THE NO-FLY-ZONE DATA METHODS
-    
-    //Parses the no-fly-zones file as Building objects
-    private static ArrayList<Building> parseNoflyzoneBuildings(String fileContents) {
-    	
-		ArrayList<Building> outputBuildings = new ArrayList<Building>();
-		
-		//Variables for iteration
-		Building building = new Building();
-		Point polyPoint = new Point();
-		Boolean buildingComplete = false;
-		ArrayList<Point> buildingVertices = new ArrayList<Point>();
-		
-		//Parsing points
-		ArrayList<String> lngPrefix = new ArrayList<String>();
-		lngPrefix.add(String.valueOf(maxLng).substring(0, String.valueOf(maxLng).indexOf(".")+1));
-		lngPrefix.add(String.valueOf(minLng).substring(0, String.valueOf(minLng).indexOf(".")+1));
-		
-		ArrayList<String> latPrefix = new ArrayList<String>();
-		latPrefix.add(String.valueOf(maxLat).substring(0, String.valueOf(maxLat).indexOf(".")+1));
-		latPrefix.add(String.valueOf(minLat).substring(0, String.valueOf(minLat).indexOf(".")+1));
 
-		//List of lines in the file
-        String[]noflyzoneLines = fileContents.split(System.getProperty("line.separator"));
-        
-        //Iterate through the '/buildings/no-fly-zones.geojson' file
-        for(String line : noflyzoneLines) {
-			
-			//Check if line contains name property
-			if (line.indexOf("name") != -1) {
-				buildingComplete = false;
-				buildingVertices = new ArrayList<Point>();
-			
-			//Check if line contains longitude
-			} else if (line.indexOf(lngPrefix.get(0)) != -1) {
-				polyPoint.setLng(Double.parseDouble(line.substring(line.indexOf(lngPrefix.get(0)), line.length() -1)));
-			
-			} else if (line.indexOf(lngPrefix.get(1)) != -1) {
-				polyPoint.setLng(Double.parseDouble(line.substring(line.indexOf(lngPrefix.get(1)), line.length() -1)));
-				
-			//Check if line contains latitude
-			} else if (line.indexOf(latPrefix.get(0)) != -1) {
-				polyPoint.setLat(Double.parseDouble(line.substring(line.indexOf(latPrefix.get(0)), line.length())));
-				buildingVertices.add(new Point(polyPoint));
-				building.setPoints(buildingVertices);
-				
-			} else if (line.indexOf(latPrefix.get(1)) != -1) {
-				polyPoint.setLat(Double.parseDouble(line.substring(line.indexOf(latPrefix.get(1)), line.length())));
-				buildingVertices.add(new Point(polyPoint));
-				building.setPoints(buildingVertices);
-			
-			//Check if line contains a closing square bracket (indicates end of a given polygon)
-			} else if ((line.indexOf("]") != -1) && (line.indexOf("],") == -1) && !buildingComplete) {
-				outputBuildings.add(new Building(building));
-				buildingComplete = true;
-			}
-		}
-        return outputBuildings;
-    }
     
     //Get the no-fly-zone Geo-JSON data (stored in global 'buildings' variable)
     private static void getNoflyzoneData() {
@@ -647,7 +456,7 @@ public class App
     	String noflyzoneFile = Webserver.getWebServerFile("buildings/no-fly-zones.geojson");
         
         //2) Parse these files into appropriate java Building objects (stored in 'buildings' global variable)
-        buildings = parseNoflyzoneBuildings(noflyzoneFile);
+        buildings = FileReading.parseNoflyzoneBuildings(noflyzoneFile);
     }
     
     
@@ -672,46 +481,6 @@ public class App
     	
 		//2) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
     	App.sensorRoute = Algorithms.twoOpt(App.sensorRoute);
-    }
-    
-    
-    //WRITING GEOJSON FEATURES
-    
-    //Method that returns the Geo-JSON Point code for a sensor marker
-    private static String getGeojsonMarker(Sensor sens, Boolean beenVisited) {
-    	String markerOutput = "";
-    	markerOutput += startMarkerGeojson + sens.getPoint().getLng().toString() + ", " + sens.getPoint().getLat().toString() + "]},\n";
-    	
-    	//Checks if this Sensor has been visited (so we can give it a colour and symbol)
-    	if (beenVisited) {
-			markerOutput += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + sens.getLocation()  + "\", \"rgb-string\": \"" + sens.getReadingColour() + "\", \"marker-color\": \"" + sens.getReadingColour() + "\", \"marker-symbol\": \"" + sens.getReadingSymbol() + "\"}\n\t\t\t},";
-    	
-    	} else {
-			markerOutput += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + sens.getLocation()  + "\", \"rgb-string\": \"#aaaaaa\", \"marker-color\": \"#aaaaaa\"}\n\t\t\t},";
-    	}
-		return markerOutput;
-    }
-    
-    //Method that returns the Geo-JSON LineString code for the drone route
-    private static String getGeojsonRoute(ArrayList<Point> points) {
-    	String lineOutput = "";
-    	
-    	//Add the route as a single LineString Geo-JSON feature
-		lineOutput += startLineStringGeojson;
-		
-		//Iterates through the points in our route
-		for (int r = 0; r < points.size(); r++) {
-			Point point = route.get(r);
-			
-			//Add a comma to appropriately separate points
-			String comma = ",";
-			if (r == route.size()-1) {
-				comma = "";
-			}
-			
-			lineOutput += "[" + point.getLng().toString() + ", " + point.getLat().toString() + "]" + comma;
-		}
-		return lineOutput;
     }
     
     
@@ -781,7 +550,7 @@ public class App
 				//Checks it is not the end point
 				if (location != "end") {
 					//Adds Geo-JSON Point for the visited sensor
-					dataGeojson += getGeojsonMarker(nextSensor, true);
+					dataGeojson += FileWriting.getGeojsonMarker(nextSensor, true);
 				}
 			}
 			if (location == "end") {
@@ -804,16 +573,16 @@ public class App
 				//Checks it is not the end point
 				if (unreadSensor.getLocation() != "end") {
 					//Adds Geo-JSON Point for the unvisited sensor
-					dataGeojson += getGeojsonMarker(unreadSensor, false);
+					dataGeojson += FileWriting.getGeojsonMarker(unreadSensor, false);
 				}
 			}
 		}
 		
 		//Add the route as a single LineString Geo-JSON feature
-		dataGeojson += getGeojsonRoute(route);
+		dataGeojson += FileWriting.getGeojsonRoute(route);
 		
 		//Add the closing brackets to the Geo-JSON LineString Feature and FeatureCollection
-		dataGeojson += endFeatureCollectionGeojson;
+		dataGeojson += FileWriting.getGeojsonFeatureCollectionSuffix();
     }
     
     
