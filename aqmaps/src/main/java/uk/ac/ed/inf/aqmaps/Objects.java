@@ -1,7 +1,7 @@
 package uk.ac.ed.inf.aqmaps;
 
 import java.util.ArrayList;
-import uk.ac.ed.inf.aqmaps.Point;
+//import uk.ac.ed.inf.aqmaps.Point;
 
 public class Objects {
 	
@@ -37,7 +37,7 @@ public class Objects {
     }*/
     
     //OBJECT: custom Sensor object (inherits Point object features)
-    public static class Sensor extends Point {
+    /*public static class Sensor extends Point {
     	String location;
     	Double battery;
     	Double reading;
@@ -59,10 +59,10 @@ public class Objects {
     	//Constructor with no arguments for default properties
 		public Sensor() {
 		}
-    }
+    }*/
 	
     //OBJECT: custom Building(no-fly-zone) object
-    public static class Building {
+   /*public static class Building {
     	ArrayList<Point> points = new ArrayList<Point>();
     	String name;
     	String fill;
@@ -77,7 +77,7 @@ public class Objects {
     	//Constructor with no arguments for default properties
     	public Building() {
     	}
-    }
+    }*/
     
     //OBJECT: custom LineGraph object
     public static class LineGraph {

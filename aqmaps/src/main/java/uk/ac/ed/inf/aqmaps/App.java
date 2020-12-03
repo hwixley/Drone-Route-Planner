@@ -13,9 +13,9 @@ import java.net.http.*;
 import java.net.http.HttpResponse.BodyHandlers;
 
 //import uk.ac.ed.inf.aqmaps.Objects.Point;
-import uk.ac.ed.inf.aqmaps.Objects.Building;
+//import uk.ac.ed.inf.aqmaps.Objects.Building;
 import uk.ac.ed.inf.aqmaps.Objects.LineGraph;
-import uk.ac.ed.inf.aqmaps.Objects.Sensor;
+//import uk.ac.ed.inf.aqmaps.Objects.Sensor;
 import uk.ac.ed.inf.aqmaps.Objects.Move;
 import uk.ac.ed.inf.aqmaps.Objects.Fragment;
 
@@ -251,13 +251,13 @@ public class App
     	
     	//Iterates through the points in the route 
     	while (unreadSens.size() > 0) {
-			cost += calcEdgeCost(route.get(route.size()-1).point,unreadSens.get(0).point);
+			cost += calcEdgeCost(route.get(route.size()-1).getPoint(),unreadSens.get(0).getPoint());
 			
 			route.add(unreadSens.get(0));
 			unreadSens.remove(0);
     	}
     	//Adds last edge from the first and final sensor
-    	cost += calcEdgeCost(route.get(route.size()-1).point,route.get(0).point);
+    	cost += calcEdgeCost(route.get(route.size()-1).getPoint(),route.get(0).getPoint());
     	
     	return cost;
     }
@@ -319,17 +319,17 @@ public class App
 			Building building = new Building(buildings.get(i));
 			
 			//Iterates through the bounds of a given building
-			for (int j=0; j < building.points.size(); j++) {
+			for (int j=0; j < building.getPoints().size(); j++) {
 				Point next = new Point();
 				
 				//Initialises value of next point
-				if (j == building.points.size()-1) {
-					next = building.points.get(0);
+				if (j == building.getPoints().size()-1) {
+					next = building.getPoints().get(0);
 				} else {
-					next = building.points.get(j+1);
+					next = building.getPoints().get(j+1);
 				}
 				//Define the function for the given bound of the building
-				LineGraph bound = new LineGraph(building.points.get(j), next);
+				LineGraph bound = new LineGraph(building.getPoints().get(j), next);
 				
 				//Checks if the path intersects the given bound (if so then returns false)
 				if (!checkBound(path,bound)) {
@@ -421,52 +421,6 @@ public class App
 			return false;
 		}
 	}
-    
-	
-	//AIR-QUALITY CLASSIFICATION METHODS
-	
-    //Returns the appropriate colour for a given air quality reading
-	private static String getReadingColour(Double reading) {
-		String colour = "#000000";
-		
-		//Classify the given 'reading' by returning it's appropriate rgb-string
-		if (reading == Double.NaN) {
-			colour = "#000000";
-		} else if (reading < 32) {
-			colour = "#00ff00";
-		} else if (reading < 64) {
-			colour = "#40ff00";
-		} else if (reading < 96) {
-			colour = "#80ff00";
-		} else if (reading < 128) {
-			colour = "#c0ff00";
-		} else if (reading < 160) {
-			colour = "#ffc000";
-		} else if (reading < 192) {
-			colour = "#ff8000";
-		} else if (reading < 224) {
-			colour = "#ff4000";
-		} else if (reading < 256) {
-			colour = "#ff0000";
-		}
-		
-		return colour;
-    }
-    
-   //Returns the appropriate symbol for a given air quality reading
-	private static String getReadingSymbol(Double reading) {
-    	String symbol = "cross";
-    	
-    	if (reading == Double.NaN) {
-    		symbol = "cross";
-    	} else if ((reading < 128) && (reading >= 0)) {
-    		symbol = "lighthouse";
-    	} else if ((reading >= 128) && (reading < 256)) {
-    		symbol = "danger";
-    	}
-    	
-    	return symbol;
-    }
 	
 	
 	//GEOMETRICAL CALCULATIONS
@@ -601,16 +555,16 @@ public class App
         		
         		//Initialise the properties for the given sensor
         		if (sensorIndex == 0) {
-        			sens.location = data;
+        			sens.setLocation(data);
         		} else if (sensorIndex == 1) {
-        			sens.battery = Double.parseDouble(data);
+        			sens.setBattery(Double.parseDouble(data));
         		} else if (sensorIndex == 2) {
         			
         			//If the battery is below 10% then set the sensor reading to NaN
-        			if (sens.battery < 10) {
-        				sens.reading = Double.NaN;
+        			if (sens.getBattery() < 10) {
+        				sens.setReading(Double.NaN);
         			} else {
-        				sens.reading = Double.parseDouble(data);
+        				sens.setReading(Double.parseDouble(data));
         			}
         		}
         		
@@ -663,7 +617,7 @@ public class App
         	Sensor s = inputSensors.get(i);
         	
         	//Get the file path for the W3W file on the WebServer
-        	String w3w = s.location;
+        	String w3w = s.getLocation();
 			String w1 = w3w.substring(0, w3w.indexOf("."));
 			w3w = w3w.substring(w3w.indexOf(".") + 1);
 			String w2 = w3w.substring(0, w3w.indexOf("."));
@@ -676,7 +630,7 @@ public class App
 			String w3wFile = getWebServerFile("words/" + w3w);
             
             //2) Parse the W3W file and append the coordinate data to the appropriate sensor object
-			s.point = parseJsonW3Wtile(w3wFile);
+			s.setPoint(parseJsonW3Wtile(w3wFile));
         }
         return inputSensors;
     }
@@ -706,6 +660,18 @@ public class App
 		Building building = new Building();
 		Point polyPoint = new Point();
 		Boolean buildingComplete = false;
+		ArrayList<Point> buildingVertices = new ArrayList<Point>();
+		
+		//Parsing points
+		ArrayList<String> lngPrefix = new ArrayList<String>();
+		lngPrefix.add(String.valueOf(maxLng).substring(0, String.valueOf(maxLng).indexOf(".")+1));
+		lngPrefix.add(String.valueOf(minLng).substring(0, String.valueOf(minLng).indexOf(".")+1));
+		
+		ArrayList<String> latPrefix = new ArrayList<String>();
+		latPrefix.add(String.valueOf(maxLat).substring(0, String.valueOf(maxLat).indexOf(".")+1));
+		latPrefix.add(String.valueOf(minLat).substring(0, String.valueOf(minLat).indexOf(".")+1));
+
+		//List of lines in the file
         String[]noflyzoneLines = fileContents.split(System.getProperty("line.separator"));
         
         //Iterate through the '/buildings/no-fly-zones.geojson' file
@@ -713,22 +679,31 @@ public class App
 			
 			//Check if line contains name property
 			if (line.indexOf("name") != -1) {
-				building.name = line.substring(line.indexOf(":") + 3, line.length() - 2);
+				//building.name = line.substring(line.indexOf(":") + 3, line.length() - 2);
 				buildingComplete = false;
-				building.points = new ArrayList<Point>();
+				buildingVertices = new ArrayList<Point>();
 			
 			//Check if line contains fill property
 			} else if (line.indexOf("fill") != -1) {
-				building.fill = line.substring(line.indexOf(":") + 3, line.length() - 1);
+				//building.fill = line.substring(line.indexOf(":") + 3, line.length() - 1);
 			
 			//Check if line contains longitude
-			} else if ((line.indexOf("-3.") != -1)) {
-				polyPoint.setLng(Double.parseDouble(line.substring(line.indexOf("-"), line.length() -1)));
+			} else if (line.indexOf(lngPrefix.get(0)) != -1) {
+				polyPoint.setLng(Double.parseDouble(line.substring(line.indexOf(lngPrefix.get(0)), line.length() -1)));
+			
+			} else if (line.indexOf(lngPrefix.get(1)) != -1) {
+				polyPoint.setLng(Double.parseDouble(line.substring(line.indexOf(lngPrefix.get(1)), line.length() -1)));
 				
 			//Check if line contains latitude
-			} else if (line.indexOf("55.") != -1) {
-				polyPoint.setLat(Double.parseDouble(line.substring(line.indexOf("55."), line.length())));
-				building.points.add(new Point(polyPoint));
+			} else if (line.indexOf(latPrefix.get(0)) != -1) {
+				polyPoint.setLat(Double.parseDouble(line.substring(line.indexOf(latPrefix.get(0)), line.length())));
+				buildingVertices.add(new Point(polyPoint));
+				building.setPoints(buildingVertices);
+				
+			} else if (line.indexOf(latPrefix.get(1)) != -1) {
+				polyPoint.setLat(Double.parseDouble(line.substring(line.indexOf(latPrefix.get(1)), line.length())));
+				buildingVertices.add(new Point(polyPoint));
+				building.setPoints(buildingVertices);
 			
 			//Check if line contains a closing square bracket (indicates end of a given polygon)
 			} else if ((line.indexOf("]") != -1) && (line.indexOf("],") == -1) && !buildingComplete) {
@@ -765,7 +740,7 @@ public class App
     		if ((sensorRoute.indexOf(next) != -1) || (next.equals(sens))) {
     			continue;
     		} else {
-    			Double dist = calcEdgeCost(sens.point,next.point);
+    			Double dist = calcEdgeCost(sens.getPoint(),next.getPoint());
     			
     			if (dist < minDist) {
     				minDist = dist;
@@ -788,7 +763,7 @@ public class App
     		
     		//Ensures we are not comparing the input sensor with itself
     		if (!next.equals(sens)) {
-    			Double dist = calcEdgeCost(sens.point, next.point);
+    			Double dist = calcEdgeCost(sens.getPoint(), next.getPoint());
     			
     			int startIndex = 0;
     			int endIndex = distances.size();
@@ -834,7 +809,7 @@ public class App
     				
     		for (int t = 0; t < sensors.size(); t++) {
     			if (t != s) {
-    				avg += calcEdgeCost(sens.point,sensors.get(t).point);
+    				avg += calcEdgeCost(sens.getPoint(),sensors.get(t).getPoint());
     			}
     		}
     		bestFrags.add(new Fragment(sens,avg));
@@ -926,7 +901,7 @@ public class App
 			if (s == 0) {
 				currPoint = new Point(startPoint);
 			} else {
-				currPoint = sensorRoute.get(s-1).point;
+				currPoint = sensorRoute.get(s-1).getPoint();
 			}
 			
 			Double minDist = 100.0;
@@ -936,8 +911,8 @@ public class App
 			for (int u = 0; u < unexploredSensors.size(); u++) {
 				Sensor nextSensor = unexploredSensors.get(u);
 				 
-				if (calcEdgeCost(nextSensor.point, currPoint) < minDist) {
-					minDist = calcEdgeCost(nextSensor.point, currPoint);
+				if (calcEdgeCost(nextSensor.getPoint(), currPoint) < minDist) {
+					minDist = calcEdgeCost(nextSensor.getPoint(), currPoint);
 					minSensor = u;
 				}
 				 
@@ -1030,15 +1005,15 @@ public class App
 					indexTwoOp += 1;
 					
 					//Initialisation of points to be swapped in the route
-					Point iPoint = sensorRoute.get(i).point;
+					Point iPoint = sensorRoute.get(i).getPoint();
 					Point iPointP = new Point();
 					if (i == 0) {
-						iPointP = sensorRoute.get(sensorRoute.size()-1).point;
+						iPointP = sensorRoute.get(sensorRoute.size()-1).getPoint();
 					} else {
-						iPointP = sensorRoute.get(i-1).point;
+						iPointP = sensorRoute.get(i-1).getPoint();
 					}
-					Point jPoint = sensorRoute.get(j).point;
-					Point jPointP = sensorRoute.get(j+1).point;
+					Point jPoint = sensorRoute.get(j).getPoint();
+					Point jPointP = sensorRoute.get(j+1).getPoint();
 					
 					//Cost after route is changed
 					Double newCost = oldCost - calcEdgeCost(iPointP, iPoint) - calcEdgeCost(jPoint, jPointP) + calcEdgeCost(iPointP, jPoint) + calcEdgeCost(iPoint, jPointP);
@@ -1073,7 +1048,7 @@ public class App
     	
     	//Adds the start point as a sensor so it can be accounted for in the route optimisation
 		Sensor startPointSensor = new Sensor(startPoint);
-		startPointSensor.location = "start";
+		startPointSensor.setLocation("start");
 		sensors.add(startPointSensor);
 		
 		//**NOTE: The numbered algorithms below can be swapped out for others if needed/wanted.
@@ -1095,14 +1070,14 @@ public class App
     //Method that returns the Geo-JSON Point code for a sensor marker
     private static String getGeojsonMarker(Sensor sens, Boolean beenVisited) {
     	String markerOutput = "";
-    	markerOutput += startMarkerGeojson + sens.point.getLng().toString() + ", " + sens.point.getLat().toString() + "]},\n";
+    	markerOutput += startMarkerGeojson + sens.getPoint().getLng().toString() + ", " + sens.getPoint().getLat().toString() + "]},\n";
     	
     	//Checks if this Sensor has been visited (so we can give it a colour and symbol)
     	if (beenVisited) {
-			markerOutput += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + sens.location  + "\", \"rgb-string\": \"" + getReadingColour(sens.reading) + "\", \"marker-color\": \"" + getReadingColour(sens.reading) + "\", \"marker-symbol\": \"" + getReadingSymbol(sens.reading) + "\"}\n\t\t\t},";
+			markerOutput += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + sens.getLocation()  + "\", \"rgb-string\": \"" + sens.getReadingColour() + "\", \"marker-color\": \"" + sens.getReadingColour() + "\", \"marker-symbol\": \"" + sens.getReadingSymbol() + "\"}\n\t\t\t},";
     	
     	} else {
-			markerOutput += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + sens.location  + "\", \"rgb-string\": \"#aaaaaa\", \"marker-color\": \"#aaaaaa\"}\n\t\t\t},";
+			markerOutput += "\t\t\t\"properties\": {\"marker-size\": \"medium\", \"location\": \"" + sens.getLocation()  + "\", \"rgb-string\": \"#aaaaaa\", \"marker-color\": \"#aaaaaa\"}\n\t\t\t},";
     	}
 		return markerOutput;
     }
@@ -1142,7 +1117,7 @@ public class App
 
 		//Remove sensor which represents the start/end point
 		for (int s = 0; s < sensorRoute.size(); s++) {
-			if (sensorRoute.get(s).location == "start") {
+			if (sensorRoute.get(s).getLocation() == "start") {
 
 				if (s == sensorRoute.size()-1) {
 					sensorRoute.remove(s);
@@ -1161,8 +1136,8 @@ public class App
 		
 		//Add the start point to 'unreadSensors' so our drone finishes at this point
 		Sensor finishPoint = new Sensor();
-		finishPoint.point = startPoint;
-		finishPoint.location = "end";
+		finishPoint.setPoint(startPoint);
+		finishPoint.setLocation("end");
 		unreadSensors.add(finishPoint);
 		
 
@@ -1174,12 +1149,12 @@ public class App
 			Point currPoint = new Point(route.get(route.size()-1));
 			
 			//Changes the error margin if the last Sensor represents the end point
-			if (nextSensor.location == "end") {
+			if (nextSensor.getLocation() == "end") {
 				errorMargin = 0.0003;
 			}
 			
 			//Variables to represent the given move
-			Move move = findNextMove(currPoint,nextSensor.point);
+			Move move = findNextMove(currPoint,nextSensor.getPoint());
 			Point newPoint = move.dest;
 			Double angle = move.angle;
 			
@@ -1189,8 +1164,8 @@ public class App
 			String location = "null";
 			
 			//Checks if point is in range of next sensor
-			if (isPointInRange(nextSensor.point, newPoint)) {
-				location = nextSensor.location;
+			if (isPointInRange(nextSensor.getPoint(), newPoint)) {
+				location = nextSensor.getLocation();
 				unreadSensors.remove(0);
 				
 				//Checks it is not the end point
@@ -1217,7 +1192,7 @@ public class App
 				Sensor unreadSensor = new Sensor(unreadSensors.get(s));
 				
 				//Checks it is not the end point
-				if (unreadSensor.location != "end") {
+				if (unreadSensor.getLocation() != "end") {
 					//Adds Geo-JSON Point for the unvisited sensor
 					dataGeojson += getGeojsonMarker(unreadSensor, false);
 				}
