@@ -174,19 +174,6 @@ public class FileReading {
 			} else if ((line.indexOf("]") != -1) && (line.indexOf("],") == -1) && !buildingComplete) {
 				outputBuildings.add(new Building(building));
 				buildingComplete = true;
-				
-				String data = "";
-				data += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
-				
-				for (int p = 0; p < building.getPoints().size(); p++) {
-					Point pointP = building.getPoints().get(p);
-					
-					data += "[" + pointP.getLng() + ", " + pointP.getLat() + "],";
-				}
-				data += "[" + building.getPoints().get(0).getLng() + ", " + building.getPoints().get(0).getLat() + "]]]},\n\t\t";
-				data += "\"properties\": {\"fill-opacity\": 0.5, \"fill\": \"#ff0000\"}},";
-				
-				App.buildData += data;
 			}
 		}
         return outputBuildings;

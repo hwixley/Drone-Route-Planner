@@ -33,8 +33,7 @@ public class App
 
     //Variable to store the optimised sensor route
 	private static ArrayList<Sensor> sensorRoute = new ArrayList<Sensor>();
-	
-	public static String buildData = "";
+
 
 	
     //METHODS
