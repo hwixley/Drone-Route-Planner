@@ -211,7 +211,7 @@ public class MoveCalcs {
 				LineGraph bound = new LineGraph(zone.getPoints().get(j), next);
 				
 				//Checks if the path intersects the given bound (if so then returns false)
-				if (!checkBound(path,bound)) {
+				if (isIntersection(path,bound)) {
 					return false;
 				}
 			}
@@ -220,8 +220,8 @@ public class MoveCalcs {
 		return true;
 	}
 	
-	//Returns True if these lines do not intersect
-	private static Boolean checkBound(LineGraph path, LineGraph bound) {
+	//Returns True if these lines intersect
+	private static Boolean isIntersection(LineGraph path, LineGraph bound) {
 		
 		//Variables to determine point of intersection between the functions
 		Double netGrad = path.getGradient() - bound.getGradient();
@@ -263,7 +263,7 @@ public class MoveCalcs {
 			
 			//Checks if the coordinates of the path is within the bounds of the given building boundary (meaning an intersection)
 			if ((path.getPoint1().getLng() <= maxBoundLng) && (path.getPoint1().getLng() >= minBoundLng) && (minBoundLat <= maxPathLat) && (maxBoundLat >= minPathLat)) {
-				return false;
+				return true;
 			}
 			
 		//Checks if the bound is a vertical line
@@ -271,7 +271,7 @@ public class MoveCalcs {
 			
 			//Checks if the coordinates of the bound is within the bounds of the given path (meaning an intersection)
 			if ((bound.getPoint1().getLng() <= maxPathLng) && (bound.getPoint1().getLng() >= minPathLng) && (minPathLat <= maxBoundLat) && (maxPathLat >= minBoundLat)) {
-				return false;
+				return true;
 			}
 			
 		//Checks that the net gradient is not zero (meaning these lines are not parallel, thus an intersection at some point)
@@ -281,14 +281,14 @@ public class MoveCalcs {
 			
 			//Checks whether the point of intersection is within the bounds of the given building boundary (meaning an intersection)
 			if (((icLng <= maxBoundLng) && (icLng >= minBoundLng) && (icLng <= maxPathLng) && (icLng >= minPathLng)) || ((icLat <= maxBoundLat) && (icLat >= minBoundLat) && (icLat <= maxPathLat) && (icLat >= minPathLat))) {
-				return false;
+				return true;
 			}
 		
 		//Checks if these lines are the same and share points in the same bounds (meaning an intersection)
 		} else if ((netYint == 0.0) && (minBoundLat <= maxPathLat) && (maxBoundLat >= minPathLat)) {
-			return false;
+			return true;
 		}
 		
-		return true;
+		return false;
 	}
 }
