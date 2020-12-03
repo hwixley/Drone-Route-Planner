@@ -140,9 +140,8 @@ public class App
 		//Route refinement algorithms:  twoOpt(App.sensorRoute), swap(App.sensorRoute)
 		
     	//1) Use greedy algorithm to choose closest points
-    	//App.sensorRoute = Algorithms.greedy();
-		App.sensorRoute = Algorithms.temperate();
-    	App.sensorRoute = Algorithms.swap(App.sensorRoute);
+    	App.sensorRoute = Algorithms.greedy();
+		
 		//2) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
     	App.sensorRoute = Algorithms.twoOpt(App.sensorRoute);
     }    
@@ -162,62 +161,7 @@ public class App
 		randomSeed = checkIsNumber(args[5],"random seed");
         portNumber = String.valueOf(checkIsNumber(args[6],"port number"));
         
-        ArrayList<Integer> monthDays = new ArrayList<Integer>(Arrays.asList(31,29,31,30,31,30,31,31,30,31,30,31));
-
-      //Initialise WebServer
-      Webserver.initWebserver();
-
-      //GET THE NO-FLY-ZONE DATA
-      getNoflyzoneData();
-
-      String fileText ="";
-      String dateText = "";
-
-      for (int y = 0; y < 2; y++) {
-      	if (y==1) {
-      		monthDays.set(1,28);
-      	}
-      	for (int m = 0; m < 12; m++) {
-      		for (int d = 0; d < monthDays.get(m); d++) {
-      			
-      			dateDD = String.valueOf(d+1);
-      			dateMM = String.valueOf(m+1);
-      			dateYY = String.valueOf(2020+y);
-      			checkDateIsValid(String.valueOf(d+1),String.valueOf(m+1),String.valueOf(2020+y));
-      			
-      			
-      	    	//GET THE SENSORS & AIR QUALITY DATA FOR THE GIVEN DATE
-      	        getSensorData();
-
-      	        //FIND OPTIMAL ROUTE (stored in 'sensorRoute' global variable)
-      	        findOptimalRoute();
-      	        //temperate();
-      	        //greedy();
-      	        //swap();
-      	        //twoOpt();
-      	        
-      			//DELETE: CONFINEMENT AREA GEOJSON
-      			//dataGeojson += "\n\t{\"type\": \"Feature\",\n\t\t\t\"geometry\"\t: {\"type\": \"Polygon\", \"coordinates\": [[";
-      			//dataGeojson += "[" + maxLng + ", " + maxLat + "], [" + maxLng + ", " + minLat + "], [" + minLng + ", " + minLat + "], [" + minLng + ", " + maxLat + "]]]},\n\t\t";
-      			//dataGeojson += "\"properties\": {\"fill-opacity\": 0}},";
-      			
-      			
-      			//FIND DRONE MOVEMENTS (sequence of points stored in 'route' global variable)
-      			Route route = new Route(sensorRoute);
-      			
-      			System.out.println(dateDD + "/" + dateMM + "/" + dateYY + ": " + String.valueOf(route.getMoves()));
-      			fileText += String.valueOf(route.getMoves()) + "\n";
-      			dateText += dateDD + "/" + dateMM + "/" + dateYY + "\n";
-      			
-      			sensorRoute.clear();
-      			sensors.clear();
-      			errorMargin = 0.0002;
-      		}
-      	}
-      }
-      FileWriting.writeToFile("/../dataAnalysis/aqmapsGTtestingMoves.txt",fileText);
         
-        /*
     	//INITIALISE WEB SERVER (URL stored in global String 'wsURL')
         Webserver.initWebserver();
 
@@ -248,6 +192,6 @@ public class App
 		
 		
 		//Output our results to a 'aqmaps' and 'flightpath' file for the given date
-		route.writeOutputFiles();*/
+		route.writeOutputFiles();
     }
 }
