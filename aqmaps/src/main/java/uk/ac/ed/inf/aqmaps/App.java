@@ -35,11 +35,11 @@ public class App
     public static Point startPoint;
     @SuppressWarnings("unused")
 	private static int randomSeed;
-    private static String portNumber;
+    public static String portNumber;
     
     //Global WebServer variables
-    private static String wsURL;
-    private static final HttpClient client = HttpClient.newHttpClient();
+    //private static String wsURL;
+    //private static final HttpClient client = HttpClient.newHttpClient();
     
     //Global output file strings
     private static String dataGeojson = "{\"type\": \"FeatureCollection\",\n\t\"features\"\t: [";
@@ -447,59 +447,9 @@ public class App
     
     //WEBSERVER METHODS
     
-    //Initialise WebServer
-    private static void initWebserver() {
-    	
-    	//Set up the HTTP Request, and URL variables
-    	wsURL = "http://localhost:" + portNumber + "/";
-    	var request = HttpRequest.newBuilder().uri(URI.create(wsURL)).build();
-    	
-    	//Try connect to the WebServer at this URL
-    	try { 
-			var response = client.send(request, BodyHandlers.ofString());
-			if (response.statusCode() == 200) {
-				System.out.println("Successfully connected to the WebServer at port " + portNumber);
-			
-			//If the WebServer response is not successful then terminate the program
-			} else {
-				System.out.println("WEBSERVER CONNECTION ERROR: unable to connect to the WebServer at port " + portNumber);
-				System.exit(0);
-			}
-			
-		//If the WebServer response is not successful then terminate the program
-		} catch (IOException | InterruptedException e) {
-			System.out.println("WEBSERVER CONNECTION ERROR: unable to connect to the WebServer at port " + portNumber + ".\nEither the WebServer is not running or the port is incorrect.");
-			System.exit(0);
-		}
-    }
+
     
-    //Returns the file contents at the specified path of the WebServer
-    private static String getWebServerFile(String path) {
-    	
-    	//Set up the HTTP Request variable
-    	var request = HttpRequest.newBuilder().uri(URI.create(wsURL + path)).build();
-    	
-    	//Try read the file on the WebServer at this URL
-    	try {
-    		var response = client.send(request, BodyHandlers.ofString());
-    		
-    		if (response.statusCode() == 200) {
-    			//System.out.println("Successfully retrieved the " + path + " file");
-    			return response.body();
-    		
-    		//If the WebServer response is not successful (cannot locate the file) then terminate the program
-    		} else {
-    			System.out.println("FILE NOT FOUND ERROR: the file at the specified path does not exist on the WebServer. Path = " + wsURL + path);
-        		System.exit(0);
-    		}
-    	
-    	//If the WebServer response is not successful (cannot locate the file) then terminate the program
-    	} catch (IOException | InterruptedException e) {
-    		System.out.println("FILE NOT FOUND ERROR: the file at the specified path does not exist on the WebServer. Path = " + wsURL + path);
-    		System.exit(0);
-    	}
-    	return "";
-    }
+
     
     
     //RETRIEVING THE SENSOR AND AIR-QUALITY DATA METHODS
@@ -608,7 +558,7 @@ public class App
     		
 			
 			//1) Retrieve W3W data from the WebServer
-			String w3wFile = getWebServerFile("words/" + w3w);
+			String w3wFile = Webserver.getWebServerFile("words/" + w3w);
             
             //2) Parse the W3W file and append the coordinate data to the appropriate sensor object
 			s.setPoint(parseJsonW3Wtile(w3wFile));
@@ -620,7 +570,7 @@ public class App
     private static void getSensorData() {
     	
     	//1) Retrieve maps file from the WebServer (stored in 'mapsFile' global variable)
-    	String mapsFile = getWebServerFile("maps/" + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json");
+    	String mapsFile = Webserver.getWebServerFile("maps/" + dateYY + "/" + dateMM + "/" + dateDD + "/air-quality-data.json");
         
         //2) Parse this maps file into a list of Sensor objects (stored in 'sensors' global variable)
         sensors = parseJsonSensors(mapsFile);
@@ -694,7 +644,7 @@ public class App
     private static void getNoflyzoneData() {
     	
         //1) Retrieve files from the WebServer (stored in the 'noflyzoneFile' global variable)
-    	String noflyzoneFile = getWebServerFile("buildings/no-fly-zones.geojson");
+    	String noflyzoneFile = Webserver.getWebServerFile("buildings/no-fly-zones.geojson");
         
         //2) Parse these files into appropriate java Building objects (stored in 'buildings' global variable)
         buildings = parseNoflyzoneBuildings(noflyzoneFile);
@@ -916,7 +866,7 @@ public class App
         
         
     	//INITIALISE WEB SERVER (URL stored in global String 'wsURL')
-        initWebserver();
+        Webserver.initWebserver();
 
     	
     	//GET THE SENSORS & AIR QUALITY DATA FOR THE GIVEN DATE (all sensors stored in global ArrayList of Sensor objects called 'sensors')
