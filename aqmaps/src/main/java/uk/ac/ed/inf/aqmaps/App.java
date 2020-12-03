@@ -28,14 +28,14 @@ public class App
     private static final double pathLength = 0.0003;
     
     //Global variables
-    private static ArrayList<Building> buildings = new ArrayList<Building>();
-    private static ArrayList<Sensor> sensors = new ArrayList<Sensor>();
+    public static ArrayList<Building> buildings = new ArrayList<Building>();
+    public static ArrayList<Sensor> sensors = new ArrayList<Sensor>();
     
     //Global argument variables
     private static String dateDD;
     private static String dateMM;
     private static String dateYY;
-    private static Point startPoint;
+    public static Point startPoint;
     @SuppressWarnings("unused")
 	private static int randomSeed;
     private static String portNumber;
@@ -234,7 +234,7 @@ public class App
     //METHODS FOR CALCULATING ROUTE AND MOVE COST (used in route optimisation methods)
     
     //Calculate distance of route
-	private static Double calcRouteCost(ArrayList<Sensor> sens) {
+	public static Double calcRouteCost(ArrayList<Sensor> sens) {
     	Double cost = 0.0;
 
     	ArrayList<Sensor> unreadSens = new ArrayList<Sensor>(sens);
@@ -256,7 +256,7 @@ public class App
     }
 	
 	//Returns the estimated distance between two points
-	private static Double calcEdgeCost(Point origin, Point dest) {
+	public static Double calcEdgeCost(Point origin, Point dest) {
 		Double dist = calcDistance(origin,dest);
 		
 		//If the path between adjacent points is not valid (intersects a building) we increase the added cost 
@@ -268,7 +268,7 @@ public class App
 	}
 	
 	//Returns the sum of Euclidean distances for paths which pass through no fly zones (distance to go around the no fly zones)
-    private static Double calcActualDist(Point origin, Point destination) {
+    public static Double calcActualDist(Point origin, Point destination) {
     	Point currPoint = new Point(origin);
     	Double totDist = 0.0;
     	
@@ -706,322 +706,6 @@ public class App
     
     //ROUTE OPTIMISATION METHODS
     
-    //Returns closest sensor in the global 'sensors' ArrayList variable
-    private static Sensor getClosestSensor(Sensor sens) {
-    	Double minDist = 10000.0;
-    	int minIndex = -1;
-    	
-    	//Iterates through all the sensors
-    	for (int s = 0; s < sensors.size(); s++) {
-    		Sensor next = sensors.get(s);
-    		
-    		//Ensures we are not using repeated sensors
-    		if ((sensorRoute.indexOf(next) != -1) || (next.equals(sens))) {
-    			continue;
-    		} else {
-    			Double dist = calcEdgeCost(sens.getPoint(),next.getPoint());
-    			
-    			if (dist < minDist) {
-    				minDist = dist;
-    				minIndex = s;
-    			}
-    		}
-    	}
-    	
-    	return sensors.get(minIndex);
-    }
-    
-    //Return ordered list of closest sensors (ascending in distance)
-    private static ArrayList<Sensor> getClosestSensors(Sensor sens) {
-    	ArrayList<Double> distances = new ArrayList<Double>();
-    	ArrayList<Sensor> output = new ArrayList<Sensor>();
-    	
-    	//Iterates through all the sensors
-    	for (int s = 0; s < sensors.size(); s++) {
-    		Sensor next = sensors.get(s);
-    		
-    		//Ensures we are not comparing the input sensor with itself
-    		if (!next.equals(sens)) {
-    			Double dist = calcEdgeCost(sens.getPoint(), next.getPoint());
-    			
-    			int startIndex = 0;
-    			int endIndex = distances.size();
-    			
-    			//Iterates until the list is sorted (ascending order of distances)
-    			while(true) {
-    				if (distances.isEmpty()) {
-    					distances.add(dist);
-    					output.add(next);
-    					break;
-
-    				} else if (startIndex == endIndex) {
-    					break;
-    					
-    				} else if (dist < Collections.min(distances.subList(startIndex, endIndex))) {
-	    				distances.add(startIndex, dist);
-	    				output.add(startIndex, next);
-	    				break;
-	    				
-	    			} else if (dist > Collections.max(distances.subList(startIndex, endIndex))) {
-	    				distances.add(dist);
-	    				output.add(next);
-	    				break;
-	    			}
-	    			startIndex += 1;
-    			}
-    		}
-    	}
-    	return output;
-    }
-    
-    //Custom 'Temperate' route optimisation algorithm
-    @SuppressWarnings("unused")
-	private static void temperate() {
-    	
-    	ArrayList<Double> avgDistances = new ArrayList<Double>();
-    	ArrayList<Fragment> bestFrags = new ArrayList<Fragment>();
-    	
-    	//Calculate average distance for each sensor
-    	for (int s = 0; s < sensors.size(); s++) {
-    		Sensor sens = sensors.get(s);
-    		Double avg = 0.0;
-    				
-    		for (int t = 0; t < sensors.size(); t++) {
-    			if (t != s) {
-    				avg += calcEdgeCost(sens.getPoint(),sensors.get(t).getPoint());
-    			}
-    		}
-    		bestFrags.add(new Fragment(sens,avg));
-    		avgDistances.add(avg);
-    	}
-
-    	//Order fragments by AvgDistance (descending)
-    	for (int i = 0; i < sensors.size(); i++) {
-    		
-    		if ( i < sensors.size()-1) {
-	    		Double maxDist = Collections.max(avgDistances.subList(i, sensors.size()-1));
-	    		int maxIndex = avgDistances.indexOf(maxDist);
-	    		
-	    		Fragment oldHead = bestFrags.get(i);
-	    		bestFrags.set(i, bestFrags.get(maxIndex));
-	    		bestFrags.set(maxIndex, oldHead);
-    		}
-    	}
-    	
-    	Map<Sensor, Integer> usedSensors = new HashMap<Sensor, Integer>();
-    	
-    	//Calculate best transitions for each sensor
-    	for (int r = 0; r < sensors.size(); r++) {
-    		Fragment frag = bestFrags.get(r);
-    		ArrayList<Sensor> closestSensors = getClosestSensors(frag.sensor);
-    		
-    		for (int k = 0; k < closestSensors.size(); k++) {
-    			int keyVal = 0;
-    			if (usedSensors.containsKey(closestSensors.get(k))) {
-    				keyVal = usedSensors.get(closestSensors.get(k));
-    			}
-    			
-    			if (keyVal < 2) {
-					frag.bestDestSensor = closestSensors.get(k);
-					bestFrags.set(r, frag);
-					usedSensors.put(closestSensors.get(k), keyVal+1);
-					break;
-    			}
-    		}
-    	}
-    	
-    	sensorRoute.add(bestFrags.get(0).sensor);
-    	sensorRoute.add(bestFrags.get(0).bestDestSensor);
-    	bestFrags.remove(0);
-    	
-    	//Calculate route
-    	while (sensorRoute.size() < sensors.size()) {
-    		Sensor lastSens = sensorRoute.get(sensorRoute.size()-1);
-    		ArrayList<Integer> redundancies = new ArrayList<Integer>();
-    		
-    		for (int b = 0; b < bestFrags.size(); b++) {
-    			Fragment frag = bestFrags.get(b);
-    			
-    			//Loops through fragments until it finds one which contains the last point in our route
-    			if (((frag.sensor.equals(lastSens)) && (sensorRoute.indexOf(frag.bestDestSensor) == -1)) || ((frag.bestDestSensor.equals(lastSens)) && (sensorRoute.indexOf(frag.sensor) == -1))) {
-    				if (frag.sensor.equals(lastSens)) {
-    					sensorRoute.add(frag.bestDestSensor);
-    				} else {
-    					sensorRoute.add(frag.sensor);
-    				}
-    				bestFrags.remove(b);
-    				break;
-    			
-    			//Stores fragment redundancies so they can be deleted after the loop (prevents repeated & redundant computations)
-    			} else if ((frag.sensor.equals(lastSens)) || (frag.bestDestSensor.equals(lastSens))) {
-    				redundancies.add(b);
-    			}
-    		}
-    		
-    		//Remove redundant edges 
-    		for (int r = 0; r < redundancies.size(); r++) {
-    			bestFrags.remove(redundancies.get(r).intValue()-r);
-    		}
-    		redundancies.clear();
-    		
-    		if (lastSens.equals(sensorRoute.get(sensorRoute.size()-1))) {
-    			sensorRoute.add(getClosestSensor(lastSens));
-    		}
-    	}
-    }
-    
-    //Greedy route optimisation algorithm
-    private static void greedy() {
-		ArrayList<Sensor> unexploredSensors = new ArrayList<Sensor>(sensors);
-		 
-		//Iterates through all the sensors
-		for (int s = 0; s < sensors.size()+1; s++) {
-			Point currPoint;
-			if (s == 0) {
-				currPoint = new Point(startPoint);
-			} else {
-				currPoint = sensorRoute.get(s-1).getPoint();
-			}
-			
-			Double minDist = 100.0;
-			int minSensor = -1;
-			
-			//Finds the closest unexplored sensor to sensor s
-			for (int u = 0; u < unexploredSensors.size(); u++) {
-				Sensor nextSensor = unexploredSensors.get(u);
-				 
-				if (calcEdgeCost(nextSensor.getPoint(), currPoint) < minDist) {
-					minDist = calcEdgeCost(nextSensor.getPoint(), currPoint);
-					minSensor = u;
-				}
-				 
-			}
-			//Adds the closest sensor to the sensor route
-			if (unexploredSensors.size() > 0) {
-		    	sensorRoute.add(unexploredSensors.get(minSensor));
-		    	unexploredSensors.remove(minSensor);
-			}
-		}
-    }
-    
-    //Swap heuristic route optimisation algorithm
-    @SuppressWarnings("unused")
-	private static void swap() {
-    	Boolean better = true;
-    	
-    	//Variable to prevent infinite loops
-    	int indexSwap = 0;
-    	
-    	//Initialises the sensorRoute variable if it is empty
-		if (sensorRoute.isEmpty()) {
-			sensorRoute = new ArrayList<Sensor>(sensors);
-		}
-		
-		//Iterate as long as the route continues to be improved
-		while (better) {
-			better = false;
-			
-			//Iterates through the sensors in the route
-			for (int i = 0; i < sensorRoute.size(); i++) {
-				indexSwap += 1;
-				
-				//Route cost before adjacent sensors in the route were swapped
-				Double oldCost = calcRouteCost(sensorRoute);
-				
-				int indexI2 = i+1;
-				if (i+1 == sensorRoute.size()) {
-					indexI2 = 0;
-				}
-				
-				Sensor newI = sensorRoute.get(indexI2);
-				Sensor newI2 = sensorRoute.get(i);
-				sensorRoute.set(indexI2, newI2);
-				sensorRoute.set(i, newI);
-				
-				//Route cost after adjacent sensors in the route were swapped
-				Double newCost = calcRouteCost(sensorRoute);
-				
-				//Checks if route was better after swapping sensors
-				if (newCost < oldCost) {
-					better = true;
-				} else {
-					sensorRoute.set(i, newI2);
-					sensorRoute.set(indexI2, newI);
-				}
-				
-				//If caught in an infinite loop we break the while loop
-				if (indexSwap > 1000) {
-					better = false;
-					break;
-				}
-			}
-		}
-    }
-    
-    //2-Opt heuristic route optimisation algorithm
-    private static void twoOpt() {
-		Boolean better = true;
-		
-		//Variable to prevent infinite loops
-		int indexTwoOp = 0;
-		
-		//Initialises the sensorRoute variable if it is empty
-		if (sensorRoute.isEmpty()) {
-			sensorRoute = new ArrayList<Sensor>(sensors);
-		}
-		
-		//Iterate as long as the route continues to be improved
-		while (better) {
-			better = false; 
-			
-			//Iterates through the sensors in the route
-			for (int j = 0; j < sensorRoute.size()-1; j++) {
-				//Iterates through the sensors in the route preceding sensor j
-				for (int i = 0; i < j; i++) {
-					
-					//Cost before route is changed
-					Double oldCost = calcRouteCost(sensorRoute);
-					indexTwoOp += 1;
-					
-					//Initialisation of points to be swapped in the route
-					Point iPoint = sensorRoute.get(i).getPoint();
-					Point iPointP = new Point();
-					if (i == 0) {
-						iPointP = sensorRoute.get(sensorRoute.size()-1).getPoint();
-					} else {
-						iPointP = sensorRoute.get(i-1).getPoint();
-					}
-					Point jPoint = sensorRoute.get(j).getPoint();
-					Point jPointP = sensorRoute.get(j+1).getPoint();
-					
-					//Cost after route is changed
-					Double newCost = oldCost - calcEdgeCost(iPointP, iPoint) - calcEdgeCost(jPoint, jPointP) + calcEdgeCost(iPointP, jPoint) + calcEdgeCost(iPoint, jPointP);
-					
-					//Checks for infinite loops
-					if (indexTwoOp <= 1000) {
-						//Checks if new route is better than the old route
-						if (newCost < oldCost) {
-							//If so, then the order of sensors in the route from i to j are reversed
-							
-							ArrayList<Sensor> revSensors = new ArrayList<Sensor>();
-							 
-							//Stores the reversed ordering of sensors
-							for (int v = 0; v < j-i+1; v++) {
-								revSensors.add(sensorRoute.get(i+v));
-							}
-							//Updates the sensor route
-							for (int z = 0; z < j-i+1; z++) {
-								sensorRoute.set(i+z, revSensors.get(j-i-z));
-							}
-							 
-							better = true;
-						}
-					}
-				}
-		 	}
-		}
-    }
-    
     //Method for finding the optimal route (route is stored in the global 'sensorRoute' variable)
     private static void findOptimalRoute() {
     	
@@ -1034,13 +718,13 @@ public class App
 		
 		//ALL ALGORITHM OPTIONS:
 		//Initial route setting algorithms:  temperate(), greedy()
-		//Route refinement algorithms:  twoOpt(), swap()
+		//Route refinement algorithms:  twoOpt(App.sensorRoute), swap(App.sensorRoute)
 		
     	//1) Use greedy algorithm to choose closest points
-    	greedy();
+    	App.sensorRoute = Algorithms.greedy();
     	
 		//2) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
-    	twoOpt();
+    	App.sensorRoute = Algorithms.twoOpt(App.sensorRoute);
     }
     
     
