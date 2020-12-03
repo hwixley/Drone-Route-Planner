@@ -80,7 +80,7 @@ public class Objects {
     }*/
     
     //OBJECT: custom LineGraph object
-    public static class LineGraph {
+    /*public static class LineGraph {
     	Double gradient;
     	Double yint;
     	Point p1;
@@ -104,7 +104,7 @@ public class Objects {
     	//Default constructor
     	public LineGraph() {
     	}
-    }
+    }*/
     
     //OBJECT: custom Move object
     public static class Move {

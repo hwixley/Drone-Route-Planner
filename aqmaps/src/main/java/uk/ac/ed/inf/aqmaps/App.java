@@ -14,7 +14,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 
 //import uk.ac.ed.inf.aqmaps.Objects.Point;
 //import uk.ac.ed.inf.aqmaps.Objects.Building;
-import uk.ac.ed.inf.aqmaps.Objects.LineGraph;
+//import uk.ac.ed.inf.aqmaps.Objects.LineGraph;
 //import uk.ac.ed.inf.aqmaps.Objects.Sensor;
 import uk.ac.ed.inf.aqmaps.Objects.Move;
 import uk.ac.ed.inf.aqmaps.Objects.Fragment;
@@ -345,60 +345,60 @@ public class App
 	private static Boolean checkBound(LineGraph path, LineGraph bound) {
 		
 		//Variables to determine point of intersection between the functions
-		Double netGrad = path.gradient - bound.gradient;
-		Double netYint = bound.yint - path.yint;
+		Double netGrad = path.getGradient() - bound.getGradient();
+		Double netYint = bound.getYint() - path.getYint();
 		
 		//Variables to define the bounds of latitude and longitude values for the given building boundary
-		Double maxBoundLat = bound.p1.getLat();
-		Double minBoundLat = bound.p2.getLat();
-		Double maxBoundLng = bound.p1.getLng();
-		Double minBoundLng = bound.p2.getLng();
+		Double maxBoundLat = bound.getPoint1().getLat();
+		Double minBoundLat = bound.getPoint2().getLat();
+		Double maxBoundLng = bound.getPoint1().getLng();
+		Double minBoundLng = bound.getPoint2().getLng();
 		//Initialise bound boundary variables appropriately
-		if (bound.p2.getLat() > bound.p1.getLat()) {
-			maxBoundLat = bound.p2.getLat();
-			minBoundLat = bound.p1.getLat();
+		if (bound.getPoint2().getLat() > bound.getPoint1().getLat()) {
+			maxBoundLat = bound.getPoint2().getLat();
+			minBoundLat = bound.getPoint1().getLat();
 		}
-		if (bound.p2.getLng() > bound.p1.getLng()) {
-			maxBoundLng = bound.p2.getLng();
-			minBoundLng = bound.p1.getLng();
+		if (bound.getPoint2().getLng() > bound.getPoint1().getLng()) {
+			maxBoundLng = bound.getPoint2().getLng();
+			minBoundLng = bound.getPoint1().getLng();
 		}
 		
 		//Variables to define the bounds of latitude and longitude values for the given path
-		Double maxPathLat = path.p1.getLat();
-		Double minPathLat = path.p2.getLat();
-		Double maxPathLng = path.p1.getLng();
-		Double minPathLng = path.p2.getLng();
+		Double maxPathLat = path.getPoint1().getLat();
+		Double minPathLat = path.getPoint2().getLat();
+		Double maxPathLng = path.getPoint1().getLng();
+		Double minPathLng = path.getPoint2().getLng();
 		//Initialise path boundary variables appropriately
-		if (path.p2.getLat() > path.p1.getLat()) {
-			maxPathLat = path.p2.getLat();
-			minPathLat = path.p1.getLat();
+		if (path.getPoint2().getLat() > path.getPoint1().getLat()) {
+			maxPathLat = path.getPoint2().getLat();
+			minPathLat = path.getPoint1().getLat();
 		}
-		if (path.p2.getLng() > path.p1.getLng()) {
-			maxPathLng = path.p2.getLng();
-			minPathLng = path.p1.getLng();
+		if (path.getPoint2().getLng() > path.getPoint1().getLng()) {
+			maxPathLng = path.getPoint2().getLng();
+			minPathLng = path.getPoint1().getLng();
 		}
 		
 		
 		//Checks if the path is a vertical line (given when angle = 90/180)
-		if ((path.gradient == Double.NEGATIVE_INFINITY) || (path.gradient == Double.POSITIVE_INFINITY)) {
+		if ((path.getGradient() == Double.NEGATIVE_INFINITY) || (path.getGradient() == Double.POSITIVE_INFINITY)) {
 			
 			//Checks if the coordinates of the path is within the bounds of the given building boundary (meaning an intersection)
-			if ((path.p1.getLng() <= maxBoundLng) && (path.p1.getLng() >= minBoundLng) && (minBoundLat <= maxPathLat) && (maxBoundLat >= minPathLat)) {
+			if ((path.getPoint1().getLng() <= maxBoundLng) && (path.getPoint1().getLng() >= minBoundLng) && (minBoundLat <= maxPathLat) && (maxBoundLat >= minPathLat)) {
 				return false;
 			}
 			
 		//Checks if the bound is a vertical line
-		} else if ((bound.gradient == Double.NEGATIVE_INFINITY) || (bound.gradient == Double.POSITIVE_INFINITY)) {
+		} else if ((bound.getGradient() == Double.NEGATIVE_INFINITY) || (bound.getGradient() == Double.POSITIVE_INFINITY)) {
 			
 			//Checks if the coordinates of the bound is within the bounds of the given path (meaning an intersection)
-			if ((bound.p1.getLng() <= maxPathLng) && (bound.p1.getLng() >= minPathLng) && (minPathLat <= maxBoundLat) && (maxPathLat >= minBoundLat)) {
+			if ((bound.getPoint1().getLng() <= maxPathLng) && (bound.getPoint1().getLng() >= minPathLng) && (minPathLat <= maxBoundLat) && (maxPathLat >= minBoundLat)) {
 				return false;
 			}
 			
 		//Checks that the net gradient is not zero (meaning these lines are not parallel, thus an intersection at some point)
 		} else if (netGrad != 0) {
 			Double icLng = netYint/netGrad;
-			Double icLat = path.gradient*icLng + path.yint;
+			Double icLat = path.getGradient()*icLng + path.getYint();
 			
 			//Checks whether the point of intersection is within the bounds of the given building boundary (meaning an intersection)
 			if (((icLng <= maxBoundLng) && (icLng >= minBoundLng) && (icLng <= maxPathLng) && (icLng >= minPathLng)) || ((icLat <= maxBoundLat) && (icLat >= minBoundLat) && (icLat <= maxPathLat) && (icLat >= minPathLat))) {
