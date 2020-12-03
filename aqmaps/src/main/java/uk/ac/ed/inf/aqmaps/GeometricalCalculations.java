@@ -2,7 +2,7 @@ package uk.ac.ed.inf.aqmaps;
 
 public class GeometricalCalculations {
 	
-	//GEOMETRICAL CALCULATIONS
+	//METHODS
 	
     //Calculates Euclidean distance between 2 points
     public static Double calcDistance(Point p1, Point p2) { 

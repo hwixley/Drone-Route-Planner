@@ -37,6 +37,7 @@ public class App
 	
     //METHODS
 	
+	
 	//INPUT ARGUMENT VALIDATION METHODS
 	
 	//Checks the date is valid and fixes any formatting issues (repairs single digit inputs)
@@ -93,6 +94,8 @@ public class App
 		return -1;
 	}
     
+	//GET SENSOR DATA
+	
     //Retrieves the Sensor and air-quality data from the WebServer for the given date
     private static void getSensorData() {
     	
@@ -106,6 +109,7 @@ public class App
         App.sensors = FileReading.getSensorCoords(App.sensors);
     }
 
+    //GET NO-FLY ZONE DATA
     
     //Get the no-fly-zone Geo-JSON data (stored in global 'buildings' variable)
     private static void getNoflyzoneData() {
@@ -117,6 +121,7 @@ public class App
         buildings = FileReading.parseNoflyzoneBuildings(noflyzoneFile);
     }
     
+    //FIND OPTIMAL ROUTE BETWEEN SENSORS
     
     //Method for finding the optimal route (route is stored in the global 'sensorRoute' variable)
     private static void findOptimalRoute() {
@@ -137,20 +142,7 @@ public class App
     	
 		//2) Use 2-OPT heuristic algorithm to swap points around in the route to see if it produces a lower cost
     	App.sensorRoute = Algorithms.twoOpt(App.sensorRoute);
-    }
-    
-    
-    //Output our 'aqmaps' (.geojson) and 'flightpath' (.txt) files
-    private static void writeOutputFiles(Route route) {
-    	
-    	//1) Output our 'aqmaps' Geo-JSON file
-    	FileWriting.writeToFile("/readings-" + dateDD + "-" + dateMM + "-" + dateYY + ".geojson", route.getGeojsonData());
-    	
-    	//2) Output our 'flightpath' text file
-    	FileWriting.writeToFile("/flightpath-" + dateDD + "-" + dateMM + "-" + dateYY +".txt", route.getFlightData());
-    }
-    
-    
+    }    
     
     
     public static void main( String[] args ) throws IOException
@@ -197,6 +189,6 @@ public class App
 		
 		
 		//Output our results to a 'aqmaps' and 'flightpath' file for the given date
-		writeOutputFiles(route);
+		route.writeOutputFiles();
     }
 }

@@ -13,14 +13,13 @@ public class Route {
     private String dataGeojson = "{\"type\": \"FeatureCollection\",\n\t\"features\"\t: [";
     private String flightpathTxt = "";
 	
-	
+	//CONSTRUCTOR
 	public Route(ArrayList<Sensor> sensorRoute) {
 		this.sensorRoute = sensorRoute;
 		findMoves();
 	}
 	
     //MOVE FINDING METHOD
-    
     //Method that finds valid moves for the drone to move along the optimised route
     public void findMoves() {
     	
@@ -120,6 +119,16 @@ public class Route {
 		dataGeojson += FileWriting.getGeojsonFeatureCollectionSuffix();
     }
     
+    //Output our 'aqmaps' (.geojson) and 'flightpath' (.txt) files
+    public void writeOutputFiles() {
+    	
+    	//1) Output our 'aqmaps' Geo-JSON file
+    	FileWriting.writeToFile("/readings-" + App.dateDD + "-" + App.dateMM + "-" + App.dateYY + ".geojson", dataGeojson);
+    	
+    	//2) Output our 'flightpath' text file
+    	FileWriting.writeToFile("/flightpath-" + App.dateDD + "-" + App.dateMM + "-" + App.dateYY +".txt", flightpathTxt);
+    }
+    
     //GETTERS
     
     public int getMoves() {
@@ -128,13 +137,5 @@ public class Route {
     
     public int getNumberOfReadSensors() {
     	return sensorRoute.size() - unreadSensors.size();
-    }
-    
-    public String getGeojsonData() {
-    	return dataGeojson;
-    }
-    
-    public String getFlightData() {
-    	return flightpathTxt;
     }
 }
