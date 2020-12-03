@@ -1,11 +1,12 @@
 package uk.ac.ed.inf.aqmaps;
 
 import java.util.ArrayList;
+import uk.ac.ed.inf.aqmaps.Point;
 
 public class Objects {
 	
     //OBJECT: custom Point object
-    public static class Point {
+   /* public static class Point {
     	Double lat = -1.0;
     	Double lng = -1.0;
     	
@@ -33,7 +34,7 @@ public class Objects {
     			return false;
     		}
     	}
-    }
+    }*/
     
     //OBJECT: custom Sensor object (inherits Point object features)
     public static class Sensor extends Point {
@@ -87,8 +88,8 @@ public class Objects {
     	
     	//Constructor with input
     	public LineGraph(Point p1, Point p2) {
-    		this.gradient = (p1.lat - p2.lat)/(p1.lng - p2.lng);
-    		this.yint = -gradient*p1.lng + p1.lat;
+    		this.gradient = (p1.getLat() - p2.getLat())/(p1.getLng() - p2.getLng());
+    		this.yint = -gradient*p1.getLng() + p1.getLat();
     		this.p1 = p1;
     		this.p2 = p2;
     	}
@@ -96,7 +97,7 @@ public class Objects {
     	//Constructor with angle input
     	public LineGraph(Double angle, Point origin) {
     		this.gradient = Math.tan(angle);
-    		this.yint = -gradient*origin.lng + origin.lat;
+    		this.yint = -gradient*origin.getLng() + origin.getLat();
     		this.p1 = origin;
     	}
     	

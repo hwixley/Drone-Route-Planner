@@ -12,7 +12,7 @@ import java.net.URI;
 import java.net.http.*;
 import java.net.http.HttpResponse.BodyHandlers;
 
-import uk.ac.ed.inf.aqmaps.Objects.Point;
+//import uk.ac.ed.inf.aqmaps.Objects.Point;
 import uk.ac.ed.inf.aqmaps.Objects.Building;
 import uk.ac.ed.inf.aqmaps.Objects.LineGraph;
 import uk.ac.ed.inf.aqmaps.Objects.Sensor;
@@ -216,7 +216,7 @@ public class App
     	} else {
     		
     		//Returns true if the last and current moves are opposite (angle difference of 180 degrees)
-	    	if (((int)Math.abs(lastMove.angle - current.angle) == 180) && Point.isEqual(currSensorPoint, lastSensorPoint)) {
+	    	if (((int)Math.abs(lastMove.angle - current.angle) == 180) && currSensorPoint.isEqual(lastSensorPoint)) {
 	    		return true;
 	    	} else {
 	    		return false;
@@ -349,33 +349,33 @@ public class App
 		Double netYint = bound.yint - path.yint;
 		
 		//Variables to define the bounds of latitude and longitude values for the given building boundary
-		Double maxBoundLat = bound.p1.lat;
-		Double minBoundLat = bound.p2.lat;
-		Double maxBoundLng = bound.p1.lng;
-		Double minBoundLng = bound.p2.lng;
+		Double maxBoundLat = bound.p1.getLat();
+		Double minBoundLat = bound.p2.getLat();
+		Double maxBoundLng = bound.p1.getLng();
+		Double minBoundLng = bound.p2.getLng();
 		//Initialise bound boundary variables appropriately
-		if (bound.p2.lat > bound.p1.lat) {
-			maxBoundLat = bound.p2.lat;
-			minBoundLat = bound.p1.lat;
+		if (bound.p2.getLat() > bound.p1.getLat()) {
+			maxBoundLat = bound.p2.getLat();
+			minBoundLat = bound.p1.getLat();
 		}
-		if (bound.p2.lng > bound.p1.lng) {
-			maxBoundLng = bound.p2.lng;
-			minBoundLng = bound.p1.lng;
+		if (bound.p2.getLng() > bound.p1.getLng()) {
+			maxBoundLng = bound.p2.getLng();
+			minBoundLng = bound.p1.getLng();
 		}
 		
 		//Variables to define the bounds of latitude and longitude values for the given path
-		Double maxPathLat = path.p1.lat;
-		Double minPathLat = path.p2.lat;
-		Double maxPathLng = path.p1.lng;
-		Double minPathLng = path.p2.lng;
+		Double maxPathLat = path.p1.getLat();
+		Double minPathLat = path.p2.getLat();
+		Double maxPathLng = path.p1.getLng();
+		Double minPathLng = path.p2.getLng();
 		//Initialise path boundary variables appropriately
-		if (path.p2.lat > path.p1.lat) {
-			maxPathLat = path.p2.lat;
-			minPathLat = path.p1.lat;
+		if (path.p2.getLat() > path.p1.getLat()) {
+			maxPathLat = path.p2.getLat();
+			minPathLat = path.p1.getLat();
 		}
-		if (path.p2.lng > path.p1.lng) {
-			maxPathLng = path.p2.lng;
-			minPathLng = path.p1.lng;
+		if (path.p2.getLng() > path.p1.getLng()) {
+			maxPathLng = path.p2.getLng();
+			minPathLng = path.p1.getLng();
 		}
 		
 		
@@ -383,7 +383,7 @@ public class App
 		if ((path.gradient == Double.NEGATIVE_INFINITY) || (path.gradient == Double.POSITIVE_INFINITY)) {
 			
 			//Checks if the coordinates of the path is within the bounds of the given building boundary (meaning an intersection)
-			if ((path.p1.lng <= maxBoundLng) && (path.p1.lng >= minBoundLng) && (minBoundLat <= maxPathLat) && (maxBoundLat >= minPathLat)) {
+			if ((path.p1.getLng() <= maxBoundLng) && (path.p1.getLng() >= minBoundLng) && (minBoundLat <= maxPathLat) && (maxBoundLat >= minPathLat)) {
 				return false;
 			}
 			
@@ -391,7 +391,7 @@ public class App
 		} else if ((bound.gradient == Double.NEGATIVE_INFINITY) || (bound.gradient == Double.POSITIVE_INFINITY)) {
 			
 			//Checks if the coordinates of the bound is within the bounds of the given path (meaning an intersection)
-			if ((bound.p1.lng <= maxPathLng) && (bound.p1.lng >= minPathLng) && (minPathLat <= maxBoundLat) && (maxPathLat >= minBoundLat)) {
+			if ((bound.p1.getLng() <= maxPathLng) && (bound.p1.getLng() >= minPathLng) && (minPathLat <= maxBoundLat) && (maxPathLat >= minBoundLat)) {
 				return false;
 			}
 			
@@ -415,7 +415,7 @@ public class App
 	
 	//Returns true if point is in confinement area
 	private static Boolean checkConfinement(Point p) {
-		if ((p.lat < maxLat) && (p.lat > minLat) && (p.lng < maxLng) && (p.lng > minLng)) {
+		if ((p.getLat() < maxLat) && (p.getLat() > minLat) && (p.getLng() < maxLng) && (p.getLng() > minLng)) {
 			return true;
 		} else {
 			return false;
@@ -473,24 +473,24 @@ public class App
 	
     //Calculates Euclidean distance between 2 points
     private static Double calcDistance(Point p1, Point p2) { 
-    	Double lats = Math.pow(p1.lat - p2.lat,2);
-    	Double lngs = Math.pow(p1.lng - p2.lng, 2);
+    	Double lats = Math.pow(p1.getLat() - p2.getLat(),2);
+    	Double lngs = Math.pow(p1.getLng() - p2.getLng(), 2);
     	
     	return Math.sqrt(lats + lngs);
     }
     
     //Calculates angle between 2 points
     private static Double calcAngle(Point origin, Point dest) {
-    	Double grad = (dest.lat - origin.lat)/(dest.lng - origin.lng);
+    	Double grad = (dest.getLat() - origin.getLat())/(dest.getLng() - origin.getLng());
     	Double angle = Math.toDegrees(Math.atan(grad));
     	
-    	if ((dest.lng > origin.lng) && (dest.lat < origin.lat)) {
+    	if ((dest.getLng() > origin.getLng()) && (dest.getLat() < origin.getLat())) {
     		angle += 360;
     		
-    	} else if ((dest.lng < origin.lng) && (dest.lat > origin.lat)) {
+    	} else if ((dest.getLng() < origin.getLng()) && (dest.getLat() > origin.getLat())) {
     		angle += 180;
 
-    	} else if ((dest.lng < origin.lng) && (dest.lat < origin.lat)) {
+    	} else if ((dest.getLng() < origin.getLng()) && (dest.getLat() < origin.getLat())) {
     		angle += 180;
     	}
     	
@@ -503,8 +503,8 @@ public class App
     	angle = Math.toRadians(angle);
     	
     	//Uses planar trigonometry to transform the current point given the angle of movement
-    	out.lat += pathLength*Math.sin(angle);
-    	out.lng += pathLength*Math.cos(angle);
+    	out.setLat(out.getLat() + pathLength*Math.sin(angle));
+    	out.setLng(out.getLng() + pathLength*Math.cos(angle));
     	
     	return out;
     }
@@ -644,9 +644,9 @@ public class App
 			
 			//Parse the latitude and longitude values into doubles, and pass these into our 'point' object
 			if (stage == 2){
-				point.lng = Double.parseDouble(line.substring(line.indexOf(":") + 1, line.length() - 1));
+				point.setLng(Double.parseDouble(line.substring(line.indexOf(":") + 1, line.length() - 1)));
 			} else if (stage == 3) {
-				point.lat = Double.parseDouble(line.substring(line.indexOf(":") + 1, line.length()));
+				point.setLat(Double.parseDouble(line.substring(line.indexOf(":") + 1, line.length())));
 				return point;
 			}
 
@@ -723,11 +723,11 @@ public class App
 			
 			//Check if line contains longitude
 			} else if ((line.indexOf("-3.") != -1)) {
-				polyPoint.lng = Double.parseDouble(line.substring(line.indexOf("-"), line.length() -1));
+				polyPoint.setLng(Double.parseDouble(line.substring(line.indexOf("-"), line.length() -1)));
 				
 			//Check if line contains latitude
 			} else if (line.indexOf("55.") != -1) {
-				polyPoint.lat = Double.parseDouble(line.substring(line.indexOf("55."), line.length()));
+				polyPoint.setLat(Double.parseDouble(line.substring(line.indexOf("55."), line.length())));
 				building.points.add(new Point(polyPoint));
 			
 			//Check if line contains a closing square bracket (indicates end of a given polygon)
@@ -1095,7 +1095,7 @@ public class App
     //Method that returns the Geo-JSON Point code for a sensor marker
     private static String getGeojsonMarker(Sensor sens, Boolean beenVisited) {
     	String markerOutput = "";
-    	markerOutput += startMarkerGeojson + sens.point.lng.toString() + ", " + sens.point.lat.toString() + "]},\n";
+    	markerOutput += startMarkerGeojson + sens.point.getLng().toString() + ", " + sens.point.getLat().toString() + "]},\n";
     	
     	//Checks if this Sensor has been visited (so we can give it a colour and symbol)
     	if (beenVisited) {
@@ -1124,7 +1124,7 @@ public class App
 				comma = "";
 			}
 			
-			lineOutput += "[" + point.lng.toString() + ", " + point.lat.toString() + "]" + comma;
+			lineOutput += "[" + point.getLng().toString() + ", " + point.getLat().toString() + "]" + comma;
 		}
 		return lineOutput;
     }
@@ -1204,7 +1204,7 @@ public class App
 			}
 			
 			//Writing to our flight path text file
-			flightpathTxt += (moves+1) + "," + currPoint.lng.toString() + "," + currPoint.lat.toString() + "," + String.valueOf(angle.intValue()) + "," + newPoint.lng.toString() + "," + newPoint.lat.toString() + "," + location + "\n";
+			flightpathTxt += (moves+1) + "," + currPoint.getLng().toString() + "," + currPoint.getLat().toString() + "," + String.valueOf(angle.intValue()) + "," + newPoint.getLng().toString() + "," + newPoint.getLat().toString() + "," + location + "\n";
 					
 			moves += 1;
 		}
