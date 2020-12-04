@@ -127,7 +127,7 @@ public class FileReading {
     
     //RETRIEVING THE NO-FLY-ZONE DATA METHODS
     
-    //Parses the no-fly-zones file as Building objects
+    //Parses the no-fly-zones file as NoFlyZone objects
     public static ArrayList<NoFlyZone> parseNoFlyZones(String fileContents) {
     	
 		ArrayList<NoFlyZone> outputZones = new ArrayList<NoFlyZone>();
