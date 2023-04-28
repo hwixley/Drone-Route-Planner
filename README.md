@@ -11,13 +11,13 @@ After experience with the travelling salesman problem I had a good idea of what 
 
 #### Initial route setting algorithms: these set a route based purely on distances between sensors.
 
-- Greedy
+- **Greedy**<br>
     The Greedy algorithm works by iterating through the sensors the drone needs to visit and
     chooses a route based on which sensor is closest to the last.
     The route is initialized with the first sensor in the list. Thereafter route expansion is done by
     adding the next closest available sensor. This process is continued until a complete route is
     formed.
-- Temperate (custom algorithm)
+- **Temperate (custom algorithm)**<br>
     I wanted to create an algorithm that finds optimal paths by prioritizing the sensors which
     have the highest mean distances from other sensors. This prioritization works by creating
     fragments/edges (represents the transition between two sensors) between the sensor with
