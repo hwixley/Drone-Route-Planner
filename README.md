@@ -42,14 +42,13 @@ After experience with the travelling salesman problem I had a good idea of what 
 
 #### Route refinement algorithms: these naively switch points in the route and see if this improves the overall route cost (total distance travelled).
 
-- Swap heuristic
+- **Swap heuristic**<br>
     The Swap heuristic algorithm works by swapping adjacent sensors in the route to see if it improves the cost. This algorithm iterates through each element in the given route to try all possible adjacent swaps. If a single swap in the loop is successful (improves the overall cost) we iterate through the route again (because the route has been changed). If no successful swaps are made throughout an entire loop the algorithm is terminated.
 
-- 2 - Opt heuristic
+- **2 - Opt heuristic**<br>
     The 2-Opt heuristic algorithm works by flipping the path between two sensors in the route to see if it improves the cost. This algorithm uses a nested loop in order to get two indexes that represent sensors in the route. For every iteration we then try reverse the path between these two sensors. If a single reversal from the entire nested loop was successful (improves the overall cost) we iterate through the route again (because the route has changed). If no successful path reversals are made throughout an entire nested loop the algorithm is terminated.
 
-**NOTE: All of these algorithm implementations can be found in _Algorithms.java_ and can be easily
-swapped between by using the _findOptimalRoute_ () function in _App.java_
+**NOTE: All of these algorithm implementations can be found in `Algorithms.java` and can be easily swapped between by using the _findOptimalRoute_ () function in `App.java`.
 
 ### Results
 ![ilptable](https://user-images.githubusercontent.com/57837950/235266921-09a837bb-2704-4956-b2ba-8d6dd23bcbc1.png)
