@@ -1,7 +1,7 @@
 # Air-quality mapping with a drone
 
 <hr>
-[![Maven](https://github.com/hwixley/Drone-Route-Planner/actions/workflows/maven.yml/badge.svg)](https://github.com/hwixley/Drone-Route-Planner/actions/workflows/maven.yml)
+<a href="https://github.com/hwixley/Drone-Route-Planner/actions/workflows/maven.yml"><img src="https://github.com/hwixley/Drone-Route-Planner/actions/workflows/maven.yml/badge.svg"></a>
 <hr>
 
 ![ilpoutputs](https://user-images.githubusercontent.com/57837950/235266850-71680aa6-7507-4368-934f-7e433d8b5e83.png)
