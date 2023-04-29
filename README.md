@@ -1,7 +1,12 @@
 # Air-quality mapping with a drone
+
+<hr>
+[![Maven](https://github.com/hwixley/Drone-Route-Planner/actions/workflows/maven.yml/badge.svg)](https://github.com/hwixley/Drone-Route-Planner/actions/workflows/maven.yml)
+<hr>
+
 ![ilpoutputs](https://user-images.githubusercontent.com/57837950/235266850-71680aa6-7507-4368-934f-7e433d8b5e83.png)
 
-## DRONE CONTROL ALGORITHM
+## Drone Route-Planning Algorithms
 
 ### Finding the optimal sensor route
 In order to decide the optimal sensor route I decided to try lots of different algorithms to find what was optimal in this context.
