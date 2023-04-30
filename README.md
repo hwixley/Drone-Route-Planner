@@ -1,4 +1,5 @@
 # Air-quality mapping with a drone
+A drone air-quality mapping system. The drone's movement is constrained to moving in fixed increments, and only angles of 10. The system retrieves drone air-quality stations, and no-fly-zones as Geo-JSON objects from a webserver. The system then uses these to find an optimal route to pass through all the stations without going into any no-fly-zones.
 
 <hr>
 <a href="https://github.com/hwixley/Drone-Route-Planner/actions/workflows/maven.yml"><img src="https://github.com/hwixley/Drone-Route-Planner/actions/workflows/maven.yml/badge.svg"></a>
